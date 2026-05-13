@@ -1,0 +1,25 @@
+{
+  "keys": {
+    "openai":      "",
+    "dreamstudio": "",
+    "leonardo":    "",
+    "ideogram":    "",
+    "recraft":     "",
+    "clipdrop":    "",
+    "getimg":      "",
+    "replicate":   "",
+    "huggingface": "",
+    "prodia":      "",
+    "meshy":       ""
+  },
+  "defaults": {
+    "width": 1024,
+    "height": 1024,
+    "steps": 30,
+    "output_dir": "~/image-ai/output"
+  },
+  "free_providers": ["pollinations", "huggingface", "prodia"],
+  "image_providers": ["pollinations", "huggingface", "prodia", "dalle", "flux", "ideogram", "leonardo", "recraft", "clipdrop", "getimg", "dreamstudio"],
+  "threed_engines": ["triposr", "shape_e", "replicate_triposr", "meshy"],
+  "animation_providers": ["animatediff", "svd"]
+}

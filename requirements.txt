@@ -1,0 +1,14 @@
+# Core (obligatoire)
+aiohttp>=3.9.0
+
+# Comparaison photo (compare.py)
+Pillow>=10.0.0
+numpy>=1.24.0
+scikit-image>=0.21.0
+
+# 3D local — TripoSR (scan3d.py --engine triposr)
+# pip install git+https://github.com/VAST-AI-Research/TripoSR.git
+# pip install torch torchvision trimesh
+
+# 3D local — Shap-E (scan3d.py --engine shape_e)
+# pip install git+https://github.com/openai/shap-e.git
