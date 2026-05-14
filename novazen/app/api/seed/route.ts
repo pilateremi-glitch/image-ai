@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST() {
+async function seed() {
   const existing = await prisma.product.count();
   if (existing > 0) {
-    return NextResponse.json({ message: 'Already seeded', count: existing });
+    return { message: 'Already seeded', count: existing };
   }
 
   const products = [
@@ -93,5 +93,15 @@ export async function POST() {
     ],
   });
 
-  return NextResponse.json({ message: 'Seeded successfully', products: products.length });
+  return { message: 'Seeded successfully', products: products.length };
+}
+
+export async function GET() {
+  const result = await seed();
+  return NextResponse.json(result);
+}
+
+export async function POST() {
+  const result = await seed();
+  return NextResponse.json(result);
 }
