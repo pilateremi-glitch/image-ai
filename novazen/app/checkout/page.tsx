@@ -5,7 +5,7 @@ import { useCartStore } from '@/lib/store';
 import { formatPrice } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Shield, Truck, Tag, CreditCard, Banknote, Smartphone, Building2, Handshake } from 'lucide-react';
+import { Shield, Truck, Tag, CreditCard, Banknote, Smartphone, Building2, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const paymentMethods = [
@@ -191,7 +191,7 @@ export default function CheckoutPage() {
                       />
                       <div>
                         <div className="flex items-center gap-2 font-medium">
-                          <Handshake className="w-4 h-4 text-gold" />
+                          <Users className="w-4 h-4 text-gold" />
                           Remise en main propre (Paris & petite couronne)
                         </div>
                         <p className="text-xs text-white/50 mt-1">Disponible à partir de 90€ · Gratuit · Rendez-vous convenu par message</p>
