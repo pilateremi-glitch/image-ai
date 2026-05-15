@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panier – NovaZen</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="boutique.html" class="text-white/60 hover:text-white transition-colors">Boutique</a>
+      <a href="faq.html" class="text-white/60 hover:text-white transition-colors">FAQ</a>
+      <a href="contact.html" class="text-white/60 hover:text-white transition-colors">Contact</a>
+    </div>
+    <a href="panier.html" class="relative p-2">
+      <svg class="w-6 h-6 text-[#c9a84c]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+      <span class="cart-count hidden absolute -top-1 -right-1 bg-[#c9a84c] text-[#0a0a0a] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+    </a>
+  </div>
+</nav>
+
+<div class="pt-24 max-w-5xl mx-auto px-4 sm:px-6 pb-24">
+  <h1 class="font-display text-4xl font-bold mb-10">Mon <span class="gold-text">Panier</span></h1>
+
+  <!-- Empty state -->
+  <div id="empty-cart" class="hidden text-center py-24">
+    <p class="text-6xl mb-6">🛒</p>
+    <p class="text-xl font-semibold mb-2">Votre panier est vide</p>
+    <p class="text-white/40 mb-8">Découvrez nos produits bien-être</p>
+    <a href="boutique.html" class="btn-gold">Découvrir la boutique</a>
+  </div>
+
+  <!-- Cart content -->
+  <div id="cart-content" class="hidden grid lg:grid-cols-3 gap-8">
+    <!-- Items -->
+    <div class="lg:col-span-2 space-y-4" id="cart-items"></div>
+
+    <!-- Summary -->
+    <div class="space-y-4">
+      <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-6 space-y-4">
+        <h2 class="font-semibold text-lg">Récapitulatif</h2>
+
+        <!-- Promo code -->
+        <div>
+          <div class="flex gap-2">
+            <input id="promo-input" type="text" placeholder="Code promo" class="form-input flex-1 text-sm py-2.5"/>
+            <button onclick="applyPromoCode()" class="px-4 py-2.5 bg-[#c9a84c]/10 border border-[#c9a84c]/30 text-[#c9a84c] rounded-xl text-sm font-medium hover:bg-[#c9a84c]/20 transition-all">Appliquer</button>
+          </div>
+          <div id="promo-result" class="hidden mt-2 text-sm text-green-400 flex items-center gap-2"></div>
+          <p class="text-xs text-white/30 mt-1">Codes : NOVAZEN10, BIENVENUE, NOVAZEN5</p>
+        </div>
+
+        <div class="border-t border-[#1e1e1e] pt-4 space-y-2 text-sm">
+          <div class="flex justify-between text-white/60"><span>Sous-total</span><span id="subtotal-val"></span></div>
+          <div id="discount-row" class="hidden flex justify-between text-green-400"><span id="discount-label"></span><span id="discount-val"></span></div>
+          <div class="flex justify-between text-white/60"><span>Livraison</span><span class="text-green-400">Offerte</span></div>
+        </div>
+        <div class="border-t border-[#1e1e1e] pt-4 flex justify-between font-bold text-lg">
+          <span>Total</span><span id="total-val" class="text-[#c9a84c]"></span>
+        </div>
+        <a href="commande.html" id="checkout-btn" class="btn-gold w-full justify-center">Commander →</a>
+        <a href="boutique.html" class="block text-center text-sm text-white/40 hover:text-white/60 transition-colors">← Continuer les achats</a>
+      </div>
+
+      <!-- Trust -->
+      <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-4 space-y-3 text-sm text-white/50">
+        <div class="flex items-center gap-2"><span>🔒</span><span>Paiement 100% sécurisé</span></div>
+        <div class="flex items-center gap-2"><span>🚚</span><span>Livraison offerte dès 35€</span></div>
+        <div class="flex items-center gap-2"><span>↩️</span><span>Retour gratuit sous 30 jours</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-[#141414] border-t border-[#1e1e1e] py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-white/30 text-xs">© 2025 NovaZen. Tous droits réservés.</div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script>
+let appliedPromo = null;
+
+function renderCart() {
+  const items = Cart.items;
+  const empty = document.getElementById('empty-cart');
+  const content = document.getElementById('cart-content');
+
+  if (items.length === 0) {
+    empty.classList.remove('hidden');
+    content.classList.add('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  content.classList.remove('hidden');
+
+  document.getElementById('cart-items').innerHTML = items.map(item => `
+    <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-4 flex gap-4">
+      <a href="produit.html?id=${item.id}">
+        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 rounded-xl object-cover bg-[#1a1a1a]"/>
+      </a>
+      <div class="flex-1 min-w-0">
+        <a href="produit.html?id=${item.id}" class="font-semibold text-sm hover:text-[#c9a84c] transition-colors line-clamp-2">${item.name}</a>
+        ${item.variant ? `<p class="text-xs text-white/40 mt-0.5">${item.variant}</p>` : ''}
+        <p class="text-[#c9a84c] font-bold mt-1">${fmt(item.price)}</p>
+        <div class="flex items-center gap-3 mt-3">
+          <div class="flex items-center border border-[#1e1e1e] rounded-lg overflow-hidden">
+            <button onclick="changeQty('${item.key}', ${item.qty - 1})" class="w-8 h-8 flex items-center justify-center hover:bg-[#1e1e1e] transition-colors text-sm">−</button>
+            <span class="w-8 text-center text-sm">${item.qty}</span>
+            <button onclick="changeQty('${item.key}', ${item.qty + 1})" class="w-8 h-8 flex items-center justify-center hover:bg-[#1e1e1e] transition-colors text-sm">+</button>
+          </div>
+          <button onclick="Cart.remove('${item.key}');renderCart();" class="text-white/30 hover:text-red-400 transition-colors text-sm">Supprimer</button>
+        </div>
+      </div>
+      <div class="text-right text-sm font-bold">${fmt(item.price * item.qty)}</div>
+    </div>
+  `).join('');
+
+  updateTotals();
+}
+
+function changeQty(key, qty) {
+  Cart.setQty(key, qty);
+  renderCart();
+}
+
+function updateTotals() {
+  const sub = Cart.subtotal();
+  document.getElementById('subtotal-val').textContent = fmt(sub);
+
+  if (appliedPromo) {
+    const result = Cart.applyPromo(appliedPromo);
+    document.getElementById('discount-row').classList.remove('hidden');
+    document.getElementById('discount-label').textContent = `Code ${appliedPromo}`;
+    document.getElementById('discount-val').textContent = '-' + fmt(result.discountAmount);
+    document.getElementById('total-val').textContent = fmt(result.total);
+    document.getElementById('checkout-btn').href = `commande.html?promo=${appliedPromo}`;
+  } else {
+    document.getElementById('discount-row').classList.add('hidden');
+    document.getElementById('total-val').textContent = fmt(sub);
+    document.getElementById('checkout-btn').href = 'commande.html';
+  }
+}
+
+function applyPromoCode() {
+  const code = document.getElementById('promo-input').value.trim().toUpperCase();
+  const result = Cart.applyPromo(code);
+  const el = document.getElementById('promo-result');
+  if (!result) {
+    el.className = 'mt-2 text-sm text-red-400 flex items-center gap-2';
+    el.textContent = '✗ Code invalide';
+    el.classList.remove('hidden');
+    appliedPromo = null;
+  } else {
+    el.className = 'mt-2 text-sm text-green-400 flex items-center gap-2';
+    el.textContent = `✓ Code appliqué : ${result.label} (-${fmt(result.discountAmount)})`;
+    el.classList.remove('hidden');
+    appliedPromo = code;
+  }
+  updateTotals();
+}
+
+renderCart();
+</script>
+</body>
+</html>
