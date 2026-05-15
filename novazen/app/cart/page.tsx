@@ -30,7 +30,6 @@ export default function CartPage() {
         <h1 className="font-display text-3xl font-bold mb-8">Mon <span className="gold-gradient">Panier</span></h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map(item => (
               <div key={item.variant ? `${item.id}-${item.variant}` : item.id}
@@ -67,7 +66,6 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* Summary */}
           <div className="bg-dark-card border border-dark-border rounded-2xl p-6 h-fit sticky top-24">
             <h2 className="font-semibold text-lg mb-4">Récapitulatif</h2>
             <div className="space-y-3 text-sm mb-4">
@@ -79,21 +77,15 @@ export default function CartPage() {
                 <span>Livraison</span>
                 <span>{shipping === 0 ? <span className="text-green-400">Gratuite</span> : formatPrice(shipping)}</span>
               </div>
-              {shipping > 0 && (
-                <p className="text-xs text-white/40">Plus que {formatPrice(60 - total)} pour la livraison gratuite</p>
-              )}
             </div>
             <div className="border-t border-dark-border pt-3 flex justify-between font-bold text-lg mb-4">
               <span>Total</span>
               <span className="text-gold">{formatPrice(total + shipping)}</span>
             </div>
             <Link href="/checkout"
-              className="block w-full bg-gold text-dark font-bold py-3 rounded-xl text-center hover:bg-gold-light transition-colors flex items-center justify-center gap-2">
+              className="flex w-full bg-gold text-dark font-bold py-3 rounded-xl text-center hover:bg-gold-light transition-colors items-center justify-center gap-2">
               Commander
               <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link href="/products" className="block text-center text-sm text-white/40 hover:text-white mt-3 transition-colors">
-              ← Continuer mes achats
             </Link>
           </div>
         </div>
