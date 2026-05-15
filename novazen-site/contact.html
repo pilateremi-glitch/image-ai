@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact – NovaZen</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="boutique.html" class="text-white/60 hover:text-white transition-colors">Boutique</a>
+      <a href="faq.html" class="text-white/60 hover:text-white transition-colors">FAQ</a>
+      <a href="contact.html" class="text-[#c9a84c] font-medium">Contact</a>
+    </div>
+    <a href="panier.html" class="relative p-2">
+      <svg class="w-6 h-6 text-white/80" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+      <span class="cart-count hidden absolute -top-1 -right-1 bg-[#c9a84c] text-[#0a0a0a] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+    </a>
+  </div>
+</nav>
+
+<div class="pt-24 max-w-4xl mx-auto px-4 sm:px-6 pb-24">
+  <p class="section-label mb-2">Besoin d'aide ?</p>
+  <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Contactez <span class="gold-text">NovaZen</span></h1>
+  <p class="text-white/50 mb-12">Notre équipe répond en moins de 2 heures. Pour toute question sur vos commandes, produits ou livraisons.</p>
+
+  <div class="grid md:grid-cols-2 gap-8">
+    <!-- WhatsApp CTA -->
+    <div class="space-y-4">
+      <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-6 flex items-start gap-4">
+        <div class="w-12 h-12 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0">
+          <svg class="w-7 h-7 text-green-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-semibold mb-1">WhatsApp</h3>
+          <p class="text-white/50 text-sm mb-4">La façon la plus rapide de nous contacter. Réponse garantie en moins de 2h.</p>
+          <a href="https://wa.me/33600000000?text=Bonjour%20NovaZen%2C%20j'ai%20une%20question%20!" target="_blank" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+            Ouvrir WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-6">
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div class="text-center p-4 rounded-xl bg-[#1a1a1a]"><p class="text-2xl mb-1">⚡</p><p class="font-semibold">&lt; 2h</p><p class="text-white/40 text-xs">Temps de réponse</p></div>
+          <div class="text-center p-4 rounded-xl bg-[#1a1a1a]"><p class="text-2xl mb-1">🕐</p><p class="font-semibold">9h – 21h</p><p class="text-white/40 text-xs">Disponibilité</p></div>
+          <div class="text-center p-4 rounded-xl bg-[#1a1a1a]"><p class="text-2xl mb-1">🇫🇷</p><p class="font-semibold">Français</p><p class="text-white/40 text-xs">Service en fr</p></div>
+          <div class="text-center p-4 rounded-xl bg-[#1a1a1a]"><p class="text-2xl mb-1">😊</p><p class="font-semibold">SAV Premium</p><p class="text-white/40 text-xs">Satisfait garanti</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact form -->
+    <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-6">
+      <h2 class="font-semibold text-lg mb-6">Envoyer un message</h2>
+      <form id="contact-form" class="space-y-4" onsubmit="submitForm(event)">
+        <div>
+          <label class="block text-sm text-white/60 mb-1.5">Nom complet *</label>
+          <input type="text" name="name" required class="form-input" placeholder="Marie Dupont"/>
+        </div>
+        <div>
+          <label class="block text-sm text-white/60 mb-1.5">Email *</label>
+          <input type="email" name="email" required class="form-input" placeholder="marie@exemple.fr"/>
+        </div>
+        <div>
+          <label class="block text-sm text-white/60 mb-1.5">Sujet</label>
+          <select name="subject" class="form-input">
+            <option value="commande">Ma commande</option>
+            <option value="produit">Question produit</option>
+            <option value="retour">Retour / remboursement</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-white/60 mb-1.5">Message *</label>
+          <textarea name="message" required rows="4" class="form-input resize-none" placeholder="Bonjour, j'ai une question sur..."></textarea>
+        </div>
+        <button type="submit" class="btn-gold w-full justify-center">Envoyer le message →</button>
+      </form>
+      <div id="form-success" class="hidden text-center py-8">
+        <p class="text-4xl mb-3">✅</p>
+        <p class="font-semibold">Message envoyé !</p>
+        <p class="text-white/50 text-sm mt-1">Nous vous répondrons dans les 2 heures.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-[#141414] border-t border-[#1e1e1e] py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-white/30 text-xs">© 2025 NovaZen. Tous droits réservés.</div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script>
+function submitForm(e) {
+  e.preventDefault();
+  document.getElementById('contact-form').classList.add('hidden');
+  document.getElementById('form-success').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
