@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaZen | Bien-être & Lifestyle Premium</title>
+  <meta name="description" content="Découvrez notre sélection de produits bien-être, relaxation et lifestyle. Livraison rapide, paiement sécurisé."/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: {
+        gold: '#c9a84c', 'gold-light': '#e0c675',
+        'dark-card': '#141414', 'dark-hover': '#1a1a1a', 'dark-border': '#1e1e1e'
+      }}}
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<!-- NAV -->
+<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="boutique.html" class="text-white/60 hover:text-white transition-colors">Boutique</a>
+      <a href="faq.html" class="text-white/60 hover:text-white transition-colors">FAQ</a>
+      <a href="contact.html" class="text-white/60 hover:text-white transition-colors">Contact</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="panier.html" class="relative p-2">
+        <svg class="w-6 h-6 text-white/80" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+        <span class="cart-count hidden absolute -top-1 -right-1 bg-[#c9a84c] text-[#0a0a0a] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </a>
+      <button id="menu-btn" class="md:hidden p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden bg-[#0a0a0a] border-t border-[#1e1e1e] px-4 py-2">
+    <a href="boutique.html">Boutique</a>
+    <a href="faq.html">FAQ</a>
+    <a href="contact.html">Contact</a>
+    <a href="panier.html">Panier</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+  <div class="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#141414] to-[#0a0a0a]"></div>
+  <div class="absolute inset-0 radial-gold"></div>
+  <div class="absolute top-1/4 left-1/4 w-80 h-80 bg-[#c9a84c]/5 rounded-full blur-3xl"></div>
+  <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#c9a84c]/5 rounded-full blur-3xl"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-12 items-center py-20">
+    <div class="space-y-8 fade-up">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#c9a84c]/10 border border-[#c9a84c]/20 text-sm text-[#c9a84c] font-medium">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0 1 12 2v5h4a1 1 0 0 1 .82 1.573l-7 10A1 1 0 0 1 8 18v-5H4a1 1 0 0 1-.82-1.573l7-10a1 1 0 0 1 1.12-.38Z"/></svg>
+        Tendances TikTok · Livraison Express
+      </div>
+      <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+        Votre Bien-être,<br><span class="gold-text">Réinventé.</span>
+      </h1>
+      <p class="text-white/60 text-lg md:text-xl leading-relaxed max-w-xl">
+        Collection premium de produits bien-être, massage et lifestyle. Soigneusement sélectionnés pour transformer votre quotidien.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a href="boutique.html" class="btn-gold">
+          Découvrir la boutique
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+        </a>
+        <a href="boutique.html?cat=Massage" class="btn-outline">
+          <svg class="w-5 h-5 text-[#c9a84c]" fill="currentColor" viewBox="0 0 24 24"><path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z"/></svg>
+          Best-sellers
+        </a>
+      </div>
+      <div class="flex items-center gap-4 pt-2">
+        <div class="flex -space-x-2">
+          <div class="w-9 h-9 rounded-full bg-[#1e1e1e] border-2 border-[#0a0a0a] flex items-center justify-center text-base">😊</div>
+          <div class="w-9 h-9 rounded-full bg-[#1e1e1e] border-2 border-[#0a0a0a] flex items-center justify-center text-base">🎯</div>
+          <div class="w-9 h-9 rounded-full bg-[#1e1e1e] border-2 border-[#0a0a0a] flex items-center justify-center text-base">✨</div>
+          <div class="w-9 h-9 rounded-full bg-[#1e1e1e] border-2 border-[#0a0a0a] flex items-center justify-center text-base">💪</div>
+        </div>
+        <div>
+          <div class="stars text-sm">★★★★★</div>
+          <p class="text-white/40 text-xs mt-0.5">+2 500 clients satisfaits</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero images grid -->
+    <div class="hidden lg:grid grid-cols-2 gap-4" style="height:560px">
+      <div class="flex flex-col gap-4">
+        <div class="rounded-2xl overflow-hidden flex-[3] bg-[#1a1a1a]">
+          <img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=500&q=80" alt="Massage" class="w-full h-full object-cover"/>
+        </div>
+        <div class="rounded-2xl overflow-hidden flex-[2] bg-[#1a1a1a]">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&q=80" alt="Fitness" class="w-full h-full object-cover"/>
+        </div>
+      </div>
+      <div class="flex flex-col gap-4 mt-8">
+        <div class="rounded-2xl overflow-hidden flex-[2] bg-[#1a1a1a]">
+          <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=500&q=80" alt="Sleep" class="w-full h-full object-cover"/>
+        </div>
+        <div class="rounded-2xl overflow-hidden flex-[3] bg-[#1a1a1a]">
+          <img src="https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=500&q=80" alt="Tech" class="w-full h-full object-cover"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BADGES -->
+<section class="border-y border-[#1e1e1e] py-10 bg-[#0a0a0a]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div class="flex flex-col items-center text-center gap-3 p-4">
+        <div class="w-12 h-12 rounded-xl bg-[#c9a84c]/10 flex items-center justify-center text-[#c9a84c]">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/></svg>
+        </div>
+        <div><p class="font-semibold text-sm">Livraison Rapide</p><p class="text-white/40 text-xs mt-0.5">3–5 jours ouvrés</p></div>
+      </div>
+      <div class="flex flex-col items-center text-center gap-3 p-4">
+        <div class="w-12 h-12 rounded-xl bg-[#c9a84c]/10 flex items-center justify-center text-[#c9a84c]">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>
+        </div>
+        <div><p class="font-semibold text-sm">Paiement Sécurisé</p><p class="text-white/40 text-xs mt-0.5">SSL 256-bit</p></div>
+      </div>
+      <div class="flex flex-col items-center text-center gap-3 p-4">
+        <div class="w-12 h-12 rounded-xl bg-[#c9a84c]/10 flex items-center justify-center text-[#c9a84c]">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+        </div>
+        <div><p class="font-semibold text-sm">Retour 30 jours</p><p class="text-white/40 text-xs mt-0.5">Satisfait ou remboursé</p></div>
+      </div>
+      <div class="flex flex-col items-center text-center gap-3 p-4">
+        <div class="w-12 h-12 rounded-xl bg-[#c9a84c]/10 flex items-center justify-center text-[#c9a84c]">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0"/></svg>
+        </div>
+        <div><p class="font-semibold text-sm">Qualité Premium</p><p class="text-white/40 text-xs mt-0.5">Sélection rigoureuse</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="py-20 max-w-7xl mx-auto px-4 sm:px-6">
+  <div class="flex items-end justify-between mb-12">
+    <div>
+      <p class="section-label">Sélection</p>
+      <h2 class="font-display text-4xl font-bold">Produits <span class="gold-text">Tendance</span></h2>
+    </div>
+    <a href="boutique.html" class="hidden md:flex items-center gap-2 text-[#c9a84c] hover:text-[#e0c675] transition-colors text-sm font-medium">
+      Tout voir <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+    </a>
+  </div>
+  <div id="featured-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+  <div class="mt-8 flex justify-center md:hidden">
+    <a href="boutique.html" class="btn-outline text-sm">Voir tous les produits →</a>
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="py-16 bg-[#141414] border-y border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <h2 class="font-display text-3xl font-bold text-center mb-10">Explorez nos <span class="gold-text">univers</span></h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <a href="boutique.html?cat=Massage" class="group p-6 rounded-2xl bg-gradient-to-br from-purple-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
+        <div class="text-4xl mb-3">💆</div>
+        <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Massage & Bien-être</p>
+      </a>
+      <a href="boutique.html?cat=Sommeil" class="group p-6 rounded-2xl bg-gradient-to-br from-blue-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,.1)] text-center">
+        <div class="text-4xl mb-3">🌙</div>
+        <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Sommeil</p>
+      </a>
+      <a href="boutique.html?cat=Fitness" class="group p-6 rounded-2xl bg-gradient-to-br from-green-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
+        <div class="text-4xl mb-3">💪</div>
+        <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Fitness & Sport</p>
+      </a>
+      <a href="boutique.html?cat=Santé" class="group p-6 rounded-2xl bg-gradient-to-br from-yellow-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
+        <div class="text-4xl mb-3">⚡</div>
+        <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Tech & Santé</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- BEST SELLERS -->
+<section class="py-20 max-w-7xl mx-auto px-4 sm:px-6">
+  <div class="mb-12">
+    <p class="section-label">⭐ Populaires</p>
+    <h2 class="font-display text-4xl font-bold">Best <span class="gold-text">Sellers</span></h2>
+  </div>
+  <div id="bestseller-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="py-20 bg-[#141414] border-y border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="text-center mb-12">
+      <p class="section-label">Avis clients</p>
+      <h2 class="font-display text-4xl font-bold">Ce que disent nos <span class="gold-text">clients</span></h2>
+      <div class="flex items-center justify-center gap-2 mt-4">
+        <span class="stars text-xl">★★★★★</span>
+        <span class="text-white/60 ml-2">4.9/5 · +2 500 avis</span>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="p-6 rounded-2xl bg-[#0a0a0a] border border-[#1e1e1e]">
+        <div class="stars text-sm mb-3">★★★★★</div>
+        <p class="text-white/70 text-sm leading-relaxed mb-4">"Incroyable ! Mes douleurs cervicales ont disparu après 3 jours d'utilisation. Je recommande à 100% !"</p>
+        <div><p class="font-semibold text-sm">Sophie M.</p><p class="text-xs text-white/40">Masseur Cervical Pro · <span class="text-green-400">✓ Achat vérifié</span></p></div>
+      </div>
+      <div class="p-6 rounded-2xl bg-[#0a0a0a] border border-[#1e1e1e]">
+        <div class="stars text-sm mb-3">★★★★★</div>
+        <p class="text-white/70 text-sm leading-relaxed mb-4">"La bague est stylée et les données sont précises. J'adore le suivi du sommeil !"</p>
+        <div><p class="font-semibold text-sm">Lucas B.</p><p class="text-xs text-white/40">Bague de Suivi Fitness · <span class="text-green-400">✓ Achat vérifié</span></p></div>
+      </div>
+      <div class="p-6 rounded-2xl bg-[#0a0a0a] border border-[#1e1e1e]">
+        <div class="stars text-sm mb-3">★★★★★</div>
+        <p class="text-white/70 text-sm leading-relaxed mb-4">"Mon dos ne me fait plus mal au bureau. Produit révolutionnaire, livraison rapide !"</p>
+        <div><p class="font-semibold text-sm">Chloé R.</p><p class="text-xs text-white/40">Correcteur de Posture · <span class="text-green-400">✓ Achat vérifié</span></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROMO BANNER -->
+<section class="py-20 max-w-7xl mx-auto px-4 sm:px-6">
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#c9a84c]/20 via-[#c9a84c]/10 to-[#c9a84c]/5 border border-[#c9a84c]/30 p-12 text-center">
+    <div class="absolute inset-0 radial-gold"></div>
+    <div class="relative">
+      <p class="text-[#c9a84c] font-semibold uppercase tracking-widest text-sm mb-4">Offre Exclusive</p>
+      <h2 class="font-display text-4xl md:text-5xl font-bold mb-4">-10% sur votre <span class="gold-text">première commande</span></h2>
+      <p class="text-white/60 text-lg mb-8">Utilisez le code <strong class="text-[#c9a84c]">NOVAZEN10</strong> à la caisse</p>
+      <a href="boutique.html" class="btn-gold">J'en profite maintenant →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="bg-[#141414] border-t border-[#1e1e1e] py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+      <div class="md:col-span-1">
+        <p class="font-display text-2xl font-bold mb-4"><span class="gold-text">NOVA</span>ZEN</p>
+        <p class="text-white/40 text-sm leading-relaxed">Votre boutique bien-être premium. Produits soigneusement sélectionnés pour votre santé et votre bonheur.</p>
+      </div>
+      <div>
+        <p class="font-semibold text-sm mb-4">Boutique</p>
+        <ul class="space-y-2 text-sm text-white/40">
+          <li><a href="boutique.html" class="hover:text-[#c9a84c] transition-colors">Tous les produits</a></li>
+          <li><a href="boutique.html?cat=Massage" class="hover:text-[#c9a84c] transition-colors">Massage</a></li>
+          <li><a href="boutique.html?cat=Sommeil" class="hover:text-[#c9a84c] transition-colors">Sommeil</a></li>
+          <li><a href="boutique.html?cat=Fitness" class="hover:text-[#c9a84c] transition-colors">Fitness</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-semibold text-sm mb-4">Aide</p>
+        <ul class="space-y-2 text-sm text-white/40">
+          <li><a href="faq.html" class="hover:text-[#c9a84c] transition-colors">FAQ</a></li>
+          <li><a href="contact.html" class="hover:text-[#c9a84c] transition-colors">Contact</a></li>
+          <li><a href="remboursement.html" class="hover:text-[#c9a84c] transition-colors">Politique de remboursement</a></li>
+          <li><a href="cgv.html" class="hover:text-[#c9a84c] transition-colors">CGV</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-semibold text-sm mb-4">Contact</p>
+        <a href="https://wa.me/33600000000" target="_blank" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors mb-3">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          WhatsApp
+        </a>
+        <p class="text-white/40 text-xs">Réponse en moins de 2h</p>
+      </div>
+    </div>
+    <div class="border-t border-[#1e1e1e] pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-white/30 text-xs">
+      <p>© 2025 NovaZen. Tous droits réservés.</p>
+      <div class="flex gap-6">
+        <a href="cgv.html" class="hover:text-[#c9a84c] transition-colors">CGV</a>
+        <a href="remboursement.html" class="hover:text-[#c9a84c] transition-colors">Remboursement</a>
+        <a href="contact.html" class="hover:text-[#c9a84c] transition-colors">Contact</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script>
+function buildCard(p) {
+  const disc = discount(p.price, p.comparePrice);
+  return `
+  <a href="produit.html?id=${p.id}" class="product-card group">
+    <div class="img-wrap">
+      <img src="${p.image}" alt="${p.name}" loading="lazy"/>
+      ${p.isBestSeller ? '<span class="badge badge-gold absolute top-3 left-3">Best seller</span>' : ''}
+      ${disc > 0 ? `<span class="badge badge-red absolute top-${p.isBestSeller?'9':'3'} left-3">-${disc}%</span>` : ''}
+      ${p.stock <= 20 ? '<span class="badge badge-orange absolute top-3 right-3">Stock limité</span>' : ''}
+      <button class="quick-add" onclick="event.preventDefault();Cart.add('${p.id}')">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+        Ajouter au panier
+      </button>
+    </div>
+    <div class="p-4">
+      <p class="text-xs text-[#c9a84c]/70 uppercase tracking-wider mb-1">${p.category}</p>
+      <h3 class="font-semibold text-sm leading-snug group-hover:text-[#c9a84c] transition-colors line-clamp-2">${p.name}</h3>
+      <div class="stars text-xs mt-1.5">★★★★★ <span class="text-white/40 text-xs">(${p.reviews})</span></div>
+      <div class="flex items-center gap-2 mt-2">
+        <span class="text-lg font-bold text-[#c9a84c]">${fmt(p.price)}</span>
+        ${p.comparePrice ? `<span class="text-sm text-white/30 line-through">${fmt(p.comparePrice)}</span>` : ''}
+      </div>
+    </div>
+  </a>`;
+}
+
+document.getElementById('featured-grid').innerHTML = PRODUCTS.filter(p => p.isFeatured).slice(0,4).map(buildCard).join('');
+document.getElementById('bestseller-grid').innerHTML = PRODUCTS.filter(p => p.isBestSeller).slice(0,4).map(buildCard).join('');
+</script>
+</body>
+</html>

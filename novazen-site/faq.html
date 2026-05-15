@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FAQ – NovaZen</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="boutique.html" class="text-white/60 hover:text-white transition-colors">Boutique</a>
+      <a href="faq.html" class="text-[#c9a84c] font-medium">FAQ</a>
+      <a href="contact.html" class="text-white/60 hover:text-white transition-colors">Contact</a>
+    </div>
+    <a href="panier.html" class="relative p-2">
+      <svg class="w-6 h-6 text-white/80" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+      <span class="cart-count hidden absolute -top-1 -right-1 bg-[#c9a84c] text-[#0a0a0a] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+    </a>
+  </div>
+</nav>
+
+<div class="pt-24 max-w-3xl mx-auto px-4 sm:px-6 pb-24">
+  <p class="section-label mb-2">Réponses rapides</p>
+  <h1 class="font-display text-4xl md:text-5xl font-bold mb-4">Questions <span class="gold-text">fréquentes</span></h1>
+  <p class="text-white/50 mb-12">Tout ce que vous devez savoir sur NovaZen, vos commandes et nos produits.</p>
+
+  <div class="space-y-3" id="faq-list"></div>
+
+  <div class="mt-16 text-center bg-[#141414] border border-[#1e1e1e] rounded-2xl p-8">
+    <p class="text-2xl mb-3">💬</p>
+    <h2 class="font-semibold text-lg mb-2">Vous n'avez pas trouvé votre réponse ?</h2>
+    <p class="text-white/50 text-sm mb-6">Notre équipe vous répond en moins de 2 heures.</p>
+    <a href="contact.html" class="btn-gold">Nous contacter →</a>
+  </div>
+</div>
+
+<footer class="bg-[#141414] border-t border-[#1e1e1e] py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-white/30 text-xs">© 2025 NovaZen. Tous droits réservés.</div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script>
+const faqs = [
+  { q: 'Quels sont les délais de livraison ?', a: 'Nous livrons en 3 à 5 jours ouvrés en France métropolitaine. Vous recevrez un email de suivi dès l\'expédition de votre commande.' },
+  { q: 'La livraison est-elle gratuite ?', a: 'Oui, la livraison est offerte sur toutes les commandes dès 35€ d\'achat. En dessous, une participation de 4,99€ s\'applique.' },
+  { q: 'Comment utiliser un code promo ?', a: 'Dans votre panier, entrez votre code dans le champ "Code promo" puis cliquez sur "Appliquer". Les codes disponibles sont : NOVAZEN10 (-10%), BIENVENUE (-15%), NOVAZEN5 (-5€).' },
+  { q: 'Puis-je retourner un produit ?', a: 'Oui, vous disposez de 30 jours après réception pour retourner un produit non utilisé dans son emballage d\'origine. Les frais de retour sont à votre charge. Contactez-nous sur WhatsApp pour initier un retour.' },
+  { q: 'Comment suivre ma commande ?', a: 'Dès expédition, vous recevez un email avec un numéro de suivi. Vous pouvez aussi nous contacter directement sur WhatsApp avec votre numéro de commande.' },
+  { q: 'Quels modes de paiement acceptez-vous ?', a: 'Nous acceptons : carte bancaire (Visa, Mastercard, CB), PayPal, virement bancaire, Lydia/Sumeria, et espèces pour les remises en main propre en Île-de-France (commande ≥ 90€).' },
+  { q: 'La remise en main propre est-elle possible ?', a: 'Oui, pour les commandes de 90€ ou plus en Île-de-France. Sélectionnez "Espèces (remise en main propre)" comme mode de paiement et nous convenons d\'un rendez-vous via WhatsApp.' },
+  { q: 'Vos produits sont-ils garantis ?', a: 'Tous nos produits bénéficient de la garantie légale de conformité (2 ans). Certains produits disposent d\'une garantie fabricant supplémentaire indiquée sur leur fiche.' },
+  { q: 'Comment vous contacter ?', a: 'La méthode la plus rapide est WhatsApp (réponse en < 2h). Vous pouvez aussi utiliser le formulaire de contact. Nous sommes disponibles de 9h à 21h, 7j/7.' },
+  { q: 'Vos produits sont-ils originaux ?', a: 'Nous sélectionnons rigoureusement chaque produit auprès de fournisseurs certifiés. Tous nos articles sont conformes aux normes CE européennes et accompagnés de leurs certificats de conformité.' },
+];
+
+document.getElementById('faq-list').innerHTML = faqs.map((f, i) => `
+  <div class="bg-[#141414] border border-[#1e1e1e] rounded-xl overflow-hidden">
+    <button onclick="toggleFaq(${i})" class="w-full flex items-center justify-between p-5 text-left hover:bg-[#1a1a1a] transition-colors">
+      <span class="font-medium pr-4">${f.q}</span>
+      <svg id="faq-icon-${i}" class="w-5 h-5 text-[#c9a84c] flex-shrink-0 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/></svg>
+    </button>
+    <div id="faq-content-${i}" class="faq-content">
+      <div class="px-5 pb-5 text-white/60 text-sm leading-relaxed">${f.a}</div>
+    </div>
+  </div>
+`).join('');
+
+function toggleFaq(i) {
+  const content = document.getElementById('faq-content-' + i);
+  const icon = document.getElementById('faq-icon-' + i);
+  const isOpen = content.classList.contains('open');
+  document.querySelectorAll('.faq-content').forEach(c => c.classList.remove('open'));
+  document.querySelectorAll('[id^="faq-icon-"]').forEach(ic => ic.style.transform = '');
+  if (!isOpen) {
+    content.classList.add('open');
+    icon.style.transform = 'rotate(180deg)';
+  }
+}
+</script>
+</body>
+</html>

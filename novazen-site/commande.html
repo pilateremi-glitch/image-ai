@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Commander – NovaZen</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN</a>
+    <a href="panier.html" class="text-sm text-white/50 hover:text-white transition-colors flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+      Retour au panier
+    </a>
+  </div>
+</nav>
+
+<div class="pt-24 max-w-5xl mx-auto px-4 sm:px-6 pb-24">
+  <h1 class="font-display text-4xl font-bold mb-10">Finaliser la <span class="gold-text">commande</span></h1>
+
+  <!-- Steps -->
+  <div class="flex items-center gap-4 mb-10 text-sm">
+    <div class="flex items-center gap-2 font-semibold text-[#c9a84c]"><span class="w-7 h-7 rounded-full bg-[#c9a84c] text-[#0a0a0a] flex items-center justify-center text-xs font-bold">1</span> Informations</div>
+    <div class="flex-1 h-px bg-[#1e1e1e]"></div>
+    <div id="step2-label" class="flex items-center gap-2 text-white/30"><span class="w-7 h-7 rounded-full bg-[#1e1e1e] flex items-center justify-center text-xs">2</span> Paiement</div>
+    <div class="flex-1 h-px bg-[#1e1e1e]"></div>
+    <div id="step3-label" class="flex items-center gap-2 text-white/30"><span class="w-7 h-7 rounded-full bg-[#1e1e1e] flex items-center justify-center text-xs">3</span> Confirmation</div>
+  </div>
+
+  <div class="grid lg:grid-cols-3 gap-8">
+    <!-- Form steps -->
+    <div class="lg:col-span-2">
+
+      <!-- Step 1: Info -->
+      <div id="step1" class="space-y-5">
+        <h2 class="font-semibold text-xl mb-6">Vos informations</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-white/60 mb-1.5">Prénom *</label>
+            <input id="f-prenom" type="text" class="form-input" placeholder="Marie"/>
+          </div>
+          <div>
+            <label class="block text-sm text-white/60 mb-1.5">Nom *</label>
+            <input id="f-nom" type="text" class="form-input" placeholder="Dupont"/>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm text-white/60 mb-1.5">Email *</label>
+          <input id="f-email" type="email" class="form-input" placeholder="marie@exemple.fr"/>
+        </div>
+        <div>
+          <label class="block text-sm text-white/60 mb-1.5">Téléphone *</label>
+          <input id="f-tel" type="tel" class="form-input" placeholder="+33 6 12 34 56 78"/>
+        </div>
+        <div>
+          <label class="block text-sm text-white/60 mb-1.5">Adresse *</label>
+          <input id="f-adresse" type="text" class="form-input" placeholder="15 rue de la Paix"/>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-white/60 mb-1.5">Ville *</label>
+            <input id="f-ville" type="text" class="form-input" placeholder="Paris"/>
+          </div>
+          <div>
+            <label class="block text-sm text-white/60 mb-1.5">Code postal *</label>
+            <input id="f-cp" type="text" class="form-input" placeholder="75001"/>
+          </div>
+        </div>
+        <button onclick="goStep2()" class="btn-gold w-full justify-center mt-2">Continuer → Paiement</button>
+      </div>
+
+      <!-- Step 2: Payment -->
+      <div id="step2" class="hidden space-y-6">
+        <h2 class="font-semibold text-xl mb-6">Mode de paiement</h2>
+        <div class="space-y-3" id="payment-methods">
+          <label class="flex items-center gap-4 p-4 rounded-xl border border-[#1e1e1e] cursor-pointer hover:border-[#c9a84c]/40 transition-all has-[:checked]:border-[#c9a84c] has-[:checked]:bg-[#c9a84c]/5">
+            <input type="radio" name="payment" value="card" checked class="accent-[#c9a84c]"/>
+            <span class="text-2xl">💳</span>
+            <div><p class="font-medium text-sm">Carte bancaire</p><p class="text-xs text-white/40">Visa, Mastercard, CB</p></div>
+          </label>
+          <label class="flex items-center gap-4 p-4 rounded-xl border border-[#1e1e1e] cursor-pointer hover:border-[#c9a84c]/40 transition-all has-[:checked]:border-[#c9a84c] has-[:checked]:bg-[#c9a84c]/5">
+            <input type="radio" name="payment" value="paypal" class="accent-[#c9a84c]"/>
+            <span class="text-2xl">🅿️</span>
+            <div><p class="font-medium text-sm">PayPal</p><p class="text-xs text-white/40">Paiement sécurisé PayPal</p></div>
+          </label>
+          <label class="flex items-center gap-4 p-4 rounded-xl border border-[#1e1e1e] cursor-pointer hover:border-[#c9a84c]/40 transition-all has-[:checked]:border-[#c9a84c] has-[:checked]:bg-[#c9a84c]/5">
+            <input type="radio" name="payment" value="virement" class="accent-[#c9a84c]"/>
+            <span class="text-2xl">🏦</span>
+            <div><p class="font-medium text-sm">Virement bancaire</p><p class="text-xs text-white/40">Traitement sous 1–2 jours</p></div>
+          </label>
+          <label class="flex items-center gap-4 p-4 rounded-xl border border-[#1e1e1e] cursor-pointer hover:border-[#c9a84c]/40 transition-all has-[:checked]:border-[#c9a84c] has-[:checked]:bg-[#c9a84c]/5">
+            <input type="radio" name="payment" value="lydia" class="accent-[#c9a84c]"/>
+            <span class="text-2xl">📱</span>
+            <div><p class="font-medium text-sm">Lydia / Sumeria</p><p class="text-xs text-white/40">Paiement mobile instantané</p></div>
+          </label>
+          <label class="flex items-center gap-4 p-4 rounded-xl border border-[#1e1e1e] cursor-pointer hover:border-[#c9a84c]/40 transition-all has-[:checked]:border-[#c9a84c] has-[:checked]:bg-[#c9a84c]/5">
+            <input type="radio" name="payment" value="especes" class="accent-[#c9a84c]"/>
+            <span class="text-2xl">💵</span>
+            <div><p class="font-medium text-sm">Espèces (remise en main propre)</p><p class="text-xs text-white/40">Paris & Île-de-France · commande ≥ 90€</p></div>
+          </label>
+        </div>
+        <div class="flex gap-3 mt-2">
+          <button onclick="goStep1()" class="btn-outline flex-1 justify-center">← Retour</button>
+          <button onclick="confirmOrder()" class="btn-gold flex-1 justify-center">Confirmer la commande</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Confirmation -->
+      <div id="step3" class="hidden text-center py-12">
+        <div class="text-7xl mb-6">🎉</div>
+        <h2 class="font-display text-3xl font-bold mb-3">Commande <span class="gold-text">confirmée !</span></h2>
+        <p class="text-white/60 mb-2">Merci pour votre commande. Un email de confirmation a été envoyé à <strong id="confirm-email" class="text-white"></strong>.</p>
+        <p class="text-white/40 text-sm mb-8">Nous vous contacterons rapidement pour les instructions de paiement.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="index.html" class="btn-outline">← Retour à l'accueil</a>
+          <a href="https://wa.me/33600000000" target="_blank" class="btn-gold">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+            Nous contacter sur WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order summary -->
+    <div id="order-summary" class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-6 h-fit space-y-4">
+      <h2 class="font-semibold">Votre commande</h2>
+      <div id="summary-items" class="space-y-3 text-sm"></div>
+      <div class="border-t border-[#1e1e1e] pt-4 space-y-2 text-sm text-white/60">
+        <div class="flex justify-between"><span>Sous-total</span><span id="s-sub"></span></div>
+        <div id="s-discount-row" class="hidden flex justify-between text-green-400"><span id="s-discount-label"></span><span id="s-discount-val"></span></div>
+        <div class="flex justify-between"><span>Livraison</span><span class="text-green-400">Offerte</span></div>
+      </div>
+      <div class="border-t border-[#1e1e1e] pt-4 flex justify-between font-bold">
+        <span>Total</span><span class="text-[#c9a84c]" id="s-total"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script>
+const promoCode = getParam('promo');
+let promoResult = null;
+
+function renderSummary() {
+  const items = Cart.items;
+  document.getElementById('summary-items').innerHTML = items.map(i =>
+    `<div class="flex justify-between gap-2">
+      <span class="text-white/70 truncate">${i.name}${i.variant ? ` (${i.variant})` : ''} ×${i.qty}</span>
+      <span class="font-medium flex-shrink-0">${fmt(i.price * i.qty)}</span>
+    </div>`
+  ).join('');
+
+  const sub = Cart.subtotal();
+  document.getElementById('s-sub').textContent = fmt(sub);
+
+  if (promoCode) {
+    promoResult = Cart.applyPromo(promoCode);
+    if (promoResult) {
+      document.getElementById('s-discount-row').classList.remove('hidden');
+      document.getElementById('s-discount-label').textContent = `Code ${promoCode}`;
+      document.getElementById('s-discount-val').textContent = '-' + fmt(promoResult.discountAmount);
+      document.getElementById('s-total').textContent = fmt(promoResult.total);
+    }
+  }
+  if (!promoResult) {
+    document.getElementById('s-total').textContent = fmt(sub);
+  }
+}
+
+function goStep2() {
+  const fields = ['f-prenom', 'f-nom', 'f-email', 'f-tel', 'f-adresse', 'f-ville', 'f-cp'];
+  for (const id of fields) {
+    if (!document.getElementById(id).value.trim()) {
+      showToast('Veuillez remplir tous les champs obligatoires.', true);
+      document.getElementById(id).focus();
+      return;
+    }
+  }
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  document.getElementById('step2-label').className = 'flex items-center gap-2 font-semibold text-[#c9a84c]';
+  document.getElementById('step2-label').querySelector('span').className = 'w-7 h-7 rounded-full bg-[#c9a84c] text-[#0a0a0a] flex items-center justify-center text-xs font-bold';
+}
+
+function goStep1() {
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('step2-label').className = 'flex items-center gap-2 text-white/30';
+  document.getElementById('step2-label').querySelector('span').className = 'w-7 h-7 rounded-full bg-[#1e1e1e] flex items-center justify-center text-xs';
+}
+
+function confirmOrder() {
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step3').classList.remove('hidden');
+  document.getElementById('order-summary').classList.add('hidden');
+  document.getElementById('step3-label').className = 'flex items-center gap-2 font-semibold text-[#c9a84c]';
+  document.getElementById('step3-label').querySelector('span').className = 'w-7 h-7 rounded-full bg-[#c9a84c] text-[#0a0a0a] flex items-center justify-center text-xs font-bold';
+  document.getElementById('confirm-email').textContent = document.getElementById('f-email').value;
+  Cart.clear();
+}
+
+if (Cart.items.length === 0 && !window.location.hash) {
+  // Allow page to show even if cart empty (for demo)
+}
+renderSummary();
+</script>
+</body>
+</html>
