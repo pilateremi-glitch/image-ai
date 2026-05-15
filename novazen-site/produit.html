@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title id="page-title">Produit – NovaZen</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<!-- NAV -->
+<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="boutique.html" class="text-white/60 hover:text-white transition-colors">Boutique</a>
+      <a href="faq.html" class="text-white/60 hover:text-white transition-colors">FAQ</a>
+      <a href="contact.html" class="text-white/60 hover:text-white transition-colors">Contact</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="panier.html" class="relative p-2">
+        <svg class="w-6 h-6 text-white/80" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+        <span class="cart-count hidden absolute -top-1 -right-1 bg-[#c9a84c] text-[#0a0a0a] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="pt-24 max-w-7xl mx-auto px-4 sm:px-6 pb-24" id="product-page">
+  <!-- Breadcrumb -->
+  <nav class="mb-8 text-sm text-white/40">
+    <a href="index.html" class="hover:text-[#c9a84c] transition-colors">Accueil</a>
+    <span class="mx-2">/</span>
+    <a href="boutique.html" class="hover:text-[#c9a84c] transition-colors">Boutique</a>
+    <span class="mx-2">/</span>
+    <span id="breadcrumb-name" class="text-white/70"></span>
+  </nav>
+
+  <div id="product-content" class="grid lg:grid-cols-2 gap-12 items-start">
+    <!-- Images -->
+    <div class="space-y-4">
+      <div class="rounded-2xl overflow-hidden bg-[#141414]" style="aspect-ratio:1">
+        <img id="main-img" src="" alt="" class="w-full h-full object-cover"/>
+      </div>
+      <div id="thumbnails" class="flex gap-3"></div>
+    </div>
+
+    <!-- Info -->
+    <div class="space-y-6">
+      <div>
+        <p id="p-category" class="text-xs text-[#c9a84c]/70 uppercase tracking-wider mb-2"></p>
+        <h1 id="p-name" class="font-display text-3xl md:text-4xl font-bold leading-tight"></h1>
+        <div class="flex items-center gap-3 mt-3">
+          <span class="stars">★★★★★</span>
+          <span id="p-reviews" class="text-white/40 text-sm"></span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <span id="p-price" class="text-3xl font-bold text-[#c9a84c]"></span>
+        <span id="p-compare" class="text-xl text-white/30 line-through"></span>
+        <span id="p-badge" class="badge badge-red"></span>
+      </div>
+
+      <!-- Variants -->
+      <div id="variant-section" class="hidden space-y-3">
+        <p class="text-sm font-medium text-white/70">Choisir une option :</p>
+        <div id="variant-btns" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- Description -->
+      <p id="p-desc" class="text-white/60 leading-relaxed"></p>
+
+      <!-- Benefits -->
+      <ul id="p-benefits" class="space-y-2"></ul>
+
+      <!-- Stock warning -->
+      <div id="stock-warn" class="hidden flex items-center gap-2 text-orange-400 text-sm bg-orange-400/10 border border-orange-400/20 rounded-xl px-4 py-3">
+        <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clip-rule="evenodd"/></svg>
+        Plus que <span id="stock-count" class="font-bold mx-1"></span> en stock !
+      </div>
+
+      <!-- Add to cart -->
+      <div class="flex gap-3">
+        <button id="add-btn" class="btn-gold flex-1 justify-center text-base py-4">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+          Ajouter au panier
+        </button>
+        <a href="panier.html" id="buy-btn" class="btn-outline py-4 px-6">
+          Acheter maintenant →
+        </a>
+      </div>
+
+      <!-- Trust -->
+      <div class="grid grid-cols-3 gap-3 pt-2">
+        <div class="flex flex-col items-center text-center gap-1.5 p-3 rounded-xl bg-[#141414] border border-[#1e1e1e]">
+          <span class="text-[#c9a84c] text-lg">🚚</span>
+          <p class="text-xs text-white/50">Livraison<br/>3–5 jours</p>
+        </div>
+        <div class="flex flex-col items-center text-center gap-1.5 p-3 rounded-xl bg-[#141414] border border-[#1e1e1e]">
+          <span class="text-[#c9a84c] text-lg">🔒</span>
+          <p class="text-xs text-white/50">Paiement<br/>sécurisé</p>
+        </div>
+        <div class="flex flex-col items-center text-center gap-1.5 p-3 rounded-xl bg-[#141414] border border-[#1e1e1e]">
+          <span class="text-[#c9a84c] text-lg">↩️</span>
+          <p class="text-xs text-white/50">Retour<br/>30 jours</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-[#141414] border-t border-[#1e1e1e] py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/30 text-xs">
+    <p>© 2025 NovaZen.</p>
+    <div class="flex gap-6">
+      <a href="cgv.html" class="hover:text-[#c9a84c] transition-colors">CGV</a>
+      <a href="remboursement.html" class="hover:text-[#c9a84c] transition-colors">Remboursement</a>
+      <a href="contact.html" class="hover:text-[#c9a84c] transition-colors">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script>
+const id = getParam('id');
+const p = PRODUCTS.find(x => x.id === id);
+
+if (!p) {
+  document.getElementById('product-page').innerHTML = '<div class="py-40 text-center text-white/40"><p class="text-6xl mb-4">🔍</p><p class="text-xl">Produit introuvable.</p><a href="boutique.html" class="mt-6 btn-gold inline-flex">← Retour boutique</a></div>';
+} else {
+  document.title = p.name + ' – NovaZen';
+  document.getElementById('page-title').textContent = p.name + ' – NovaZen';
+  document.getElementById('breadcrumb-name').textContent = p.name;
+
+  const mainImg = document.getElementById('main-img');
+  mainImg.src = p.images[0];
+  mainImg.alt = p.name;
+
+  const thumbs = document.getElementById('thumbnails');
+  p.images.forEach((img, i) => {
+    const btn = document.createElement('button');
+    btn.className = `rounded-xl overflow-hidden border-2 ${i===0?'border-[#c9a84c]':'border-[#1e1e1e]'} transition-all hover:border-[#c9a84c]/60`;
+    btn.style.width = '72px'; btn.style.height = '72px';
+    btn.innerHTML = `<img src="${img}" alt="" class="w-full h-full object-cover"/>`;
+    btn.onclick = () => {
+      mainImg.src = img;
+      thumbs.querySelectorAll('button').forEach(b => b.className = 'rounded-xl overflow-hidden border-2 border-[#1e1e1e] transition-all hover:border-[#c9a84c]/60');
+      btn.className = 'rounded-xl overflow-hidden border-2 border-[#c9a84c] transition-all hover:border-[#c9a84c]/60';
+    };
+    thumbs.appendChild(btn);
+  });
+
+  document.getElementById('p-category').textContent = p.category;
+  document.getElementById('p-name').textContent = p.name;
+  document.getElementById('p-reviews').textContent = `(${p.reviews} avis)`;
+  document.getElementById('p-price').textContent = fmt(p.price);
+  if (p.comparePrice) {
+    document.getElementById('p-compare').textContent = fmt(p.comparePrice);
+    const d = discount(p.price, p.comparePrice);
+    document.getElementById('p-badge').textContent = '-' + d + '%';
+  }
+  document.getElementById('p-desc').textContent = p.description;
+
+  const benList = document.getElementById('p-benefits');
+  p.benefits.forEach(b => {
+    const li = document.createElement('li');
+    li.className = 'flex items-center gap-3 text-sm text-white/70';
+    li.innerHTML = `<span class="w-5 h-5 rounded-full bg-[#c9a84c]/15 flex items-center justify-center text-[#c9a84c] text-xs flex-shrink-0">✓</span>${b}`;
+    benList.appendChild(li);
+  });
+
+  if (p.stock <= 20) {
+    document.getElementById('stock-warn').classList.remove('hidden');
+    document.getElementById('stock-count').textContent = p.stock;
+  }
+
+  let selectedVariant = p.variants?.[0] || null;
+  if (p.variants) {
+    document.getElementById('variant-section').classList.remove('hidden');
+    const varBtns = document.getElementById('variant-btns');
+    p.variants.forEach(v => {
+      const btn = document.createElement('button');
+      btn.textContent = v;
+      btn.className = v === selectedVariant
+        ? 'px-4 py-2 rounded-lg text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]'
+        : 'px-4 py-2 rounded-lg text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 transition-all';
+      btn.onclick = () => {
+        selectedVariant = v;
+        varBtns.querySelectorAll('button').forEach(b => b.className = 'px-4 py-2 rounded-lg text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 transition-all');
+        btn.className = 'px-4 py-2 rounded-lg text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]';
+      };
+      varBtns.appendChild(btn);
+    });
+  }
+
+  document.getElementById('add-btn').onclick = () => {
+    Cart.add(p.id, 1, selectedVariant);
+  };
+  document.getElementById('buy-btn').onclick = (e) => {
+    e.preventDefault();
+    Cart.add(p.id, 1, selectedVariant);
+    window.location.href = 'panier.html';
+  };
+}
+</script>
+</body>
+</html>

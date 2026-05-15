@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Boutique – NovaZen</title>
+  <meta name="description" content="Toute la collection NovaZen : masseurs, oreillers, fitness, bien-être. Livraison rapide."/>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<!-- NAV -->
+<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN</a>
+    <div class="hidden md:flex items-center gap-8 text-sm">
+      <a href="boutique.html" class="text-[#c9a84c] font-medium">Boutique</a>
+      <a href="faq.html" class="text-white/60 hover:text-white transition-colors">FAQ</a>
+      <a href="contact.html" class="text-white/60 hover:text-white transition-colors">Contact</a>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="panier.html" class="relative p-2">
+        <svg class="w-6 h-6 text-white/80" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+        <span class="cart-count hidden absolute -top-1 -right-1 bg-[#c9a84c] text-[#0a0a0a] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </a>
+      <button id="menu-btn" class="md:hidden p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg></button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="hidden md:hidden bg-[#0a0a0a] border-t border-[#1e1e1e] px-4 py-2">
+    <a href="boutique.html">Boutique</a><a href="faq.html">FAQ</a><a href="contact.html">Contact</a><a href="panier.html">Panier</a>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="pt-24 pb-10 max-w-7xl mx-auto px-4 sm:px-6">
+  <p class="section-label">Notre collection</p>
+  <h1 class="font-display text-4xl md:text-5xl font-bold">La <span class="gold-text">Boutique</span></h1>
+  <p class="text-white/50 mt-3">8 produits soigneusement sélectionnés</p>
+</div>
+
+<!-- FILTERS -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 mb-10">
+  <div class="flex gap-2 flex-wrap" id="filters">
+    <button onclick="filterProducts('Tous')" class="filter-btn active px-5 py-2 rounded-full text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]" data-cat="Tous">Tous</button>
+    <button onclick="filterProducts('Massage')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Massage">Massage</button>
+    <button onclick="filterProducts('Sommeil')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Sommeil">Sommeil</button>
+    <button onclick="filterProducts('Fitness')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Fitness">Fitness</button>
+    <button onclick="filterProducts('Santé')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Santé">Santé</button>
+    <button onclick="filterProducts('Bien-être')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Bien-être">Bien-être</button>
+  </div>
+</div>
+
+<!-- GRID -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
+  <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
+  <p id="no-results" class="hidden text-center text-white/40 py-20">Aucun produit dans cette catégorie.</p>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-[#141414] border-t border-[#1e1e1e] py-10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-white/30 text-xs">
+    <p>© 2025 NovaZen. Tous droits réservés.</p>
+    <div class="flex gap-6">
+      <a href="cgv.html" class="hover:text-[#c9a84c] transition-colors">CGV</a>
+      <a href="remboursement.html" class="hover:text-[#c9a84c] transition-colors">Remboursement</a>
+      <a href="contact.html" class="hover:text-[#c9a84c] transition-colors">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script>
+function buildCard(p) {
+  const disc = discount(p.price, p.comparePrice);
+  return `
+  <a href="produit.html?id=${p.id}" class="product-card group">
+    <div class="img-wrap">
+      <img src="${p.image}" alt="${p.name}" loading="lazy"/>
+      ${p.isBestSeller ? '<span class="badge badge-gold absolute top-3 left-3">Best seller</span>' : ''}
+      ${disc > 0 ? `<span class="badge badge-red absolute top-3 right-3">-${disc}%</span>` : ''}
+      <button class="quick-add" onclick="event.preventDefault();Cart.add('${p.id}')">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
+        Ajouter au panier
+      </button>
+    </div>
+    <div class="p-4">
+      <p class="text-xs text-[#c9a84c]/70 uppercase tracking-wider mb-1">${p.category}</p>
+      <h3 class="font-semibold text-sm leading-snug group-hover:text-[#c9a84c] transition-colors">${p.name}</h3>
+      <div class="stars text-xs mt-1.5">★★★★★ <span class="text-white/40">(${p.reviews})</span></div>
+      <div class="flex items-center gap-2 mt-2">
+        <span class="text-lg font-bold text-[#c9a84c]">${fmt(p.price)}</span>
+        ${p.comparePrice ? `<span class="text-sm text-white/30 line-through">${fmt(p.comparePrice)}</span>` : ''}
+      </div>
+    </div>
+  </a>`;
+}
+
+let current = 'Tous';
+function filterProducts(cat) {
+  current = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => {
+    const active = b.dataset.cat === cat;
+    b.className = active
+      ? 'filter-btn active px-5 py-2 rounded-full text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]'
+      : 'filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all';
+  });
+  const filtered = cat === 'Tous' ? PRODUCTS : PRODUCTS.filter(p => p.category === cat);
+  document.getElementById('product-grid').innerHTML = filtered.map(buildCard).join('');
+  document.getElementById('no-results').classList.toggle('hidden', filtered.length > 0);
+}
+
+// Init from URL param
+const urlCat = getParam('cat');
+filterProducts(urlCat || 'Tous');
+</script>
+</body>
+</html>
