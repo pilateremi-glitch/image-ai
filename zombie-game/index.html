@@ -30,6 +30,7 @@ body{background:var(--dark);color:#b0c0b0;font-family:'Courier New',monospace;he
 #wave-badge{background:#0a1a0a;border:1px solid #39ff1433;padding:3px 10px;color:var(--neon);letter-spacing:2px;text-shadow:0 0 6px var(--neon)}
 #game-body{display:flex;flex:1;overflow:hidden;min-height:0}
 #left-panel{width:185px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+#drawer-handle{display:none}
 #build-tabs{display:flex;flex-wrap:wrap;border-bottom:1px solid var(--border)}
 .build-tab{flex:1;padding:5px 1px;font-size:.6rem;background:none;border:none;color:#4a6a4a;cursor:pointer;font-family:inherit;letter-spacing:.5px;min-width:0;text-align:center;transition:.15s}
 .build-tab.active{color:var(--neon);border-bottom:2px solid var(--neon);text-shadow:0 0 6px var(--neon)}
@@ -119,6 +120,79 @@ body{background:var(--dark);color:#b0c0b0;font-family:'Courier New',monospace;he
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--dark)}
 ::-webkit-scrollbar-thumb{background:#1a2a1a}
+
+/* ===== RESPONSIVE MOBILE ===== */
+#mobile-toggle{display:none}
+#mobile-fab{display:none}
+#drawer-backdrop{display:none;position:fixed;inset:0;background:#000b;z-index:55}
+#drawer-backdrop.open{display:block}
+
+@media(max-width:768px){
+  /* Panels */
+  #right-panel{display:none}
+  /* Left panel → bottom drawer */
+  #left-panel{
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%!important;height:52vh;
+    border-right:none;border-top:2px solid var(--neon);
+    z-index:60;transform:translateY(102%);transition:transform .3s ease;
+    box-shadow:0 -6px 24px #39ff1422
+  }
+  #left-panel.open{transform:translateY(0)}
+  /* Mobile toggle FAB */
+  #mobile-toggle{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;bottom:68px;right:14px;
+    width:46px;height:46px;border-radius:50%;
+    background:#0a1a0a;border:2px solid var(--neon);color:var(--neon);
+    font-size:1.3rem;z-index:70;cursor:pointer;
+    box-shadow:0 0 14px #39ff1455;transition:all .2s
+  }
+  #mobile-toggle:hover{box-shadow:0 0 22px #39ff1488}
+  /* Launch FAB */
+  #mobile-fab{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;bottom:14px;right:14px;
+    width:54px;height:54px;border-radius:50%;
+    background:#0a2a0a;border:2px solid var(--neon);color:var(--neon);
+    font-size:1.5rem;z-index:70;cursor:pointer;font-family:inherit;
+    box-shadow:0 0 18px #39ff1466;transition:all .2s;animation:pulse 2s infinite
+  }
+  #mobile-fab:disabled{opacity:.3;box-shadow:none;animation:none;cursor:not-allowed}
+  #mobile-fab.wave{border-color:var(--danger);color:var(--danger);box-shadow:0 0 18px #ff174466;background:#1a0000}
+  /* Top bar compact */
+  #top-bar{padding:4px 6px;gap:7px}
+  .res-item span.icon{font-size:.82rem}
+  .res-item span.val{font-size:.72rem}
+  #wave-badge{padding:2px 7px;font-size:.7rem}
+  #phase-label{display:none}
+  /* Specials bar compact */
+  #specials-bar{padding:3px 6px;gap:5px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sp-btn{min-width:54px;padding:2px 4px}
+  .sp-name{display:none}
+  .sp-timer{font-size:.5rem}
+  /* Bottom bar */
+  #launch-btn{display:none}
+  #bottom-bar{padding:5px 8px;gap:6px;justify-content:flex-start}
+  #msg-bar{display:none}
+  /* Canvas touch */
+  #canvas-container{touch-action:none}
+  /* Drawer handle */
+  #drawer-handle{
+    display:flex;align-items:center;padding:7px 14px;
+    background:#0a1a0a;border-bottom:1px solid var(--border);
+    cursor:pointer;flex-shrink:0;
+    font-size:.75rem;color:var(--neon);letter-spacing:2px
+  }
+  #drawer-handle-arrow{margin-right:8px;transition:transform .3s}
+  #left-panel.open #drawer-handle-arrow{transform:rotate(180deg)}
+  /* Sell button bigger on mobile */
+  #sell-btn{padding:6px 12px;font-size:.72rem}
+}
+@media(max-width:480px){
+  .res-item:nth-child(n+5){display:none}
+  #wave-info{font-size:.72rem}
+}
 </style>
 </head>
 <body>
@@ -153,8 +227,14 @@ body{background:var(--dark);color:#b0c0b0;font-family:'Courier New',monospace;he
 
   <!-- MAIN BODY -->
   <div id="game-body">
-    <!-- LEFT PANEL -->
+    <!-- LEFT PANEL (desktop) + MOBILE DRAWER -->
     <div id="left-panel">
+      <!-- Mobile drawer handle (hidden on desktop via CSS) -->
+      <div id="drawer-handle" onclick="toggleMobilePanel()">
+        <span id="drawer-handle-arrow">▼</span>
+        <span style="flex:1;text-align:center">🏗 CONSTRUIRE</span>
+        <span id="drawer-camp-mini" style="color:#ffaa00;font-size:.65rem"></span>
+      </div>
       <div id="build-tabs">
         <button class="build-tab active" data-tab="walls">Murs</button>
         <button class="build-tab" data-tab="towers">Tours</button>
@@ -246,6 +326,11 @@ body{background:var(--dark);color:#b0c0b0;font-family:'Courier New',monospace;he
     <div id="modal-content"></div>
   </div>
 </div>
+
+<!-- MOBILE FABs -->
+<button id="mobile-toggle" onclick="toggleMobilePanel()" title="Menu construction">🏗</button>
+<button id="mobile-fab" onclick="mobileLaunch()" title="Lancer / Vitesse">⚔</button>
+<div id="drawer-backdrop" onclick="closeMobilePanel()"></div>
 
 <!-- GAME OVER SCREEN -->
 <div id="gameover-screen">
@@ -1887,6 +1972,7 @@ function updateUI() {
   updateHeroesList();
   updatePhaseLabel();
   document.getElementById('launch-btn').disabled = G.phase !== 'build';
+  updateMobileFab();
   renderFrame();
 }
 
@@ -2174,6 +2260,95 @@ function hasSave() { return !!localStorage.getItem(SAVE_KEY); }
 function eraseSave() { localStorage.removeItem(SAVE_KEY); }
 
 // ================================================================
+// SECTION 15b: MOBILE HELPERS
+// ================================================================
+function isMobile() { return window.innerWidth <= 768; }
+
+function toggleMobilePanel() {
+  const p = document.getElementById('left-panel');
+  const b = document.getElementById('drawer-backdrop');
+  const open = p.classList.toggle('open');
+  b.classList.toggle('open', open);
+  if (open) updateBuildList();
+}
+function closeMobilePanel() {
+  document.getElementById('left-panel').classList.remove('open');
+  document.getElementById('drawer-backdrop').classList.remove('open');
+}
+function mobileLaunch() {
+  if (G.phase === 'build') startWave();
+  else if (G.phase === 'wave') {
+    // Cycle speed on tap during wave
+    const speeds = [1,2,4];
+    const cur = G.ui.gameSpeed;
+    G.ui.gameSpeed = speeds[(speeds.indexOf(cur)+1) % speeds.length];
+    document.querySelectorAll('.speed-btn').forEach(b => b.classList.toggle('active', parseFloat(b.dataset.speed)===G.ui.gameSpeed));
+    setMsg('Vitesse ×'+G.ui.gameSpeed);
+  }
+}
+function updateMobileFab() {
+  const fab = document.getElementById('mobile-fab');
+  if (!fab) return;
+  if (G.phase === 'build') {
+    fab.textContent = '⚔'; fab.disabled = false;
+    fab.classList.remove('wave');
+  } else if (G.phase === 'wave') {
+    fab.textContent = '×'+G.ui.gameSpeed; fab.disabled = false;
+    fab.classList.add('wave');
+  } else {
+    fab.disabled = true;
+  }
+  // Update drawer camp mini
+  const mini = document.getElementById('drawer-camp-mini');
+  if (mini) mini.textContent = `❤${Math.ceil(G.camp.hp)}`;
+}
+
+function canvasCoords(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = CW / rect.width, scaleY = CH / rect.height;
+  return {
+    col: Math.floor((clientX - rect.left) * scaleX / CELL),
+    row: Math.floor((clientY - rect.top)  * scaleY / CELL)
+  };
+}
+
+function handleCanvasInput(col, row) {
+  if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
+  closeMobilePanel();
+  if (G.ui.sellMode) { sellBuilding(col, row); return; }
+  const sel = G.ui.selectedBuild;
+  if (sel && sel.isHero) {
+    const cell = G.grid[row][col];
+    if (col > 0 && col < SPAWN_COL && cell.type === 'empty') {
+      const hero = G.heroes.find(h => h.typeId === sel.typeId && h.col === undefined);
+      if (hero) {
+        hero.col = col; hero.row = row;
+        setMsg(`${HERO_TYPES[sel.typeId].emoji} Héros placé !`);
+        G.ui.selectedBuild = null;
+        updateHeroesList(); renderFrame();
+      }
+    }
+    return;
+  }
+  if (sel && G.phase === 'build') {
+    const placed = placeBuilding(col, row, sel.typeId);
+    if (placed) { renderFrame(); if(isMobile()) closeMobilePanel(); }
+    return;
+  }
+  G.ui.selectedCell = { col, row };
+  updateCellInfo(col, row);
+  renderFrame();
+}
+
+// Touch support
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  const { col, row } = canvasCoords(t.clientX, t.clientY);
+  handleCanvasInput(col, row);
+}, { passive: false });
+
+// ================================================================
 // SECTION 16: INPUT HANDLING
 // ================================================================
 canvas.addEventListener('mousemove', e => {
@@ -2190,46 +2365,8 @@ canvas.addEventListener('mousemove', e => {
 canvas.addEventListener('mouseleave', () => { hoverCell = null; if (G.phase === 'build') renderFrame(); });
 
 canvas.addEventListener('click', e => {
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = CW / rect.width, scaleY = CH / rect.height;
-  const col = Math.floor((e.clientX - rect.left) * scaleX / CELL);
-  const row = Math.floor((e.clientY - rect.top)  * scaleY / CELL);
-  if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return;
-
-  if (G.ui.sellMode) {
-    sellBuilding(col, row);
-    return;
-  }
-
-  const sel = G.ui.selectedBuild;
-
-  if (sel && sel.isHero) {
-    // Place unplaced hero
-    const cell = G.grid[row][col];
-    if (col > 0 && col < SPAWN_COL && (cell.type === 'empty')) {
-      const hero = G.heroes.find(h => h.typeId === sel.typeId && h.col === undefined);
-      if (hero) {
-        hero.col = col; hero.row = row;
-        G.grid[row][col] = { type:'empty', buildingId:null }; // heroes don't block
-        setMsg(`${HERO_TYPES[sel.typeId].emoji} Héros placé en (${col},${row}) !`);
-        G.ui.selectedBuild = null;
-        updateHeroesList();
-        renderFrame();
-      }
-    }
-    return;
-  }
-
-  if (sel && G.phase === 'build') {
-    const placed = placeBuilding(col, row, sel.typeId);
-    if (placed) renderFrame();
-    return;
-  }
-
-  // Select cell for info
-  G.ui.selectedCell = { col, row };
-  updateCellInfo(col, row);
-  renderFrame();
+  const { col, row } = canvasCoords(e.clientX, e.clientY);
+  handleCanvasInput(col, row);
 });
 
 // Build tabs
