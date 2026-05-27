@@ -57,9 +57,9 @@ async def get_images_from_page(page, url):
     for tag in tags:
         srcset = await tag.get_attribute("srcset") or ""
         for part in srcset.split(","):
-            src = part.strip().split()[0]
-            if src:
-                images.add(urljoin(url, src).split("?")[0])
+            parts = part.strip().split()
+            if parts:
+                images.add(urljoin(url, parts[0]).split("?")[0])
 
     # CSS background-image via regex dans le HTML
     for m in re.findall(
