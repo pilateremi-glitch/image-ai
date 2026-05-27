@@ -28,7 +28,11 @@ def download_image(url, filepath):
 
 async def get_images_from_page(page, url):
     """Charge une page, scroll jusqu'en bas, retourne toutes les URLs d'images."""
-    await page.goto(url, wait_until="networkidle", timeout=30000)
+    try:
+        await page.goto(url, wait_until="load", timeout=20000)
+    except Exception:
+        pass  # continuer même si timeout, la page est probablement chargée
+    await asyncio.sleep(2)
 
     # Scroll pour déclencher le lazy loading
     for _ in range(5):
