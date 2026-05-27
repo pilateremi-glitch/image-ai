@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 
 echo "================================"
-echo "  Extracteur d'images BelleFrag"
+echo "  Extracteur d'images Volt-Corp"
 echo "================================"
 echo ""
 

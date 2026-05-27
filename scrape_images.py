@@ -1,5 +1,5 @@
 """
-Extrait et télécharge toutes les images d'une collection Shopify.
+Extrait et télécharge toutes les images d'un site web.
 Usage : python3 scrape_images.py
         ou double-cliquer sur scrape_bellefrag.command (Mac)
 """
@@ -8,10 +8,10 @@ import os
 import re
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
-TARGET_URL = "https://bellefrag.com/collections/nos-elixirs-prestige"
-OUTPUT_DIR = os.path.join(os.path.expanduser("~"), "Desktop", "images_bellefrag")
+TARGET_URL = "https://www.volt-corp.com/"
+OUTPUT_DIR = os.path.join(os.path.expanduser("~"), "Desktop", "images_volt_corp")
 
 HEADERS = {
     "User-Agent": (
@@ -24,43 +24,62 @@ HEADERS = {
 }
 
 
-def fetch_via_api() -> list[dict]:
-    """Utilise l'API JSON publique Shopify."""
+def fetch_via_shopify_api() -> list[dict]:
+    """Tente l'API JSON publique Shopify si applicable."""
+    if "/collections/" not in TARGET_URL:
+        return []
+    base = TARGET_URL.split("/collections/")[0]
     handle = TARGET_URL.rstrip("/").split("/collections/")[-1]
-    url = f"https://bellefrag.com/collections/{handle}/products.json?limit=250"
-    resp = requests.get(url, headers=HEADERS, timeout=15)
-    if resp.status_code != 200:
+    url = f"{base}/collections/{handle}/products.json?limit=250"
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=15)
+        if resp.status_code != 200:
+            return []
+        images = []
+        for product in resp.json().get("products", []):
+            for img in product.get("images", []):
+                src = img.get("src", "").split("?")[0]
+                images.append({"product": product["title"], "url": src})
+        return images
+    except Exception:
         return []
 
-    images = []
-    for product in resp.json().get("products", []):
-        for img in product.get("images", []):
-            src = img.get("src", "").split("?")[0]
-            images.append({"product": product["title"], "url": src})
-    return images
 
-
-def fetch_via_html() -> list[dict]:
-    """Fallback : parse le HTML de la page."""
-    resp = requests.get(TARGET_URL, headers=HEADERS, timeout=15)
+def fetch_via_html(url: str = TARGET_URL) -> list[dict]:
+    """Parse le HTML de la page pour extraire les images."""
+    resp = requests.get(url, headers=HEADERS, timeout=15)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
 
+    seen = set()
     images = []
+
     for tag in soup.find_all("img"):
         src = (
             tag.get("src")
             or tag.get("data-src")
+            or tag.get("data-lazy-src")
             or tag.get("data-srcset", "").split()[0]
+            or tag.get("srcset", "").split()[0]
         )
         if not src or "data:image" in src:
             continue
-        src = src.lstrip("/")
-        if not src.startswith("http"):
-            src = "https://" + src
-        src = src.split("?")[0]
-        alt = tag.get("alt", "").strip() or "image"
+        src = urljoin(url, src).split("?")[0]
+        if src in seen:
+            continue
+        seen.add(src)
+        alt = tag.get("alt", "").strip() or urlparse(src).path.split("/")[-1]
         images.append({"product": alt, "url": src})
+
+    # Récupérer aussi les images en background CSS
+    for tag in soup.find_all(style=True):
+        style = tag["style"]
+        for m in re.findall(r'url\(["\']?(https?://[^"\')\s]+)["\']?\)', style):
+            src = m.split("?")[0]
+            if src not in seen:
+                seen.add(src)
+                images.append({"product": "background", "url": src})
+
     return images
 
 
@@ -104,10 +123,10 @@ def main() -> None:
     print(f"🔍 Cible : {TARGET_URL}\n")
 
     print("  → Tentative via l'API Shopify JSON...")
-    images = fetch_via_api()
+    images = fetch_via_shopify_api()
 
     if not images:
-        print("  → Fallback HTML...")
+        print("  → Extraction HTML...")
         try:
             images = fetch_via_html()
         except Exception as e:
