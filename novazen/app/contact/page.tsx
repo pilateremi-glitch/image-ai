@@ -11,7 +11,7 @@ export default function ContactPage() {
           <div className="space-y-4">
             {[
               { icon: <MessageCircle className="w-5 h-5" />, title: 'WhatsApp', desc: '+33 6 12 34 56 78', href: 'https://wa.me/33612345678', color: 'text-green-400' },
-              { icon: <Mail className="w-5 h-5" />, title: 'Email', desc: 'contact@novazen.fr', href: 'mailto:contact@novazen.fr', color: 'text-blue-400' },
+              { icon: <Mail className="w-5 h-5" />, title: 'Email', desc: 'contact@sweetsent.fr', href: 'mailto:contact@sweetsent.fr', color: 'text-blue-400' },
               { icon: <MapPin className="w-5 h-5" />, title: 'Zone', desc: 'Paris & Île-de-France', color: 'text-gold' },
               { icon: <Clock className="w-5 h-5" />, title: 'Horaires', desc: 'Lun-Sam : 9h-20h', color: 'text-purple-400' },
             ].map(item => (

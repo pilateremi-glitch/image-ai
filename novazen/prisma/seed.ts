@@ -134,9 +134,9 @@ const reviews = [
 ];
 
 const promoCodes = [
-  { code: 'NOVAZEN10', discount: 10, type: 'PERCENT', maxUsage: 100 },
+  { code: 'SWEETSENT10', discount: 10, type: 'PERCENT', maxUsage: 100 },
   { code: 'BIENVENUE', discount: 15, type: 'PERCENT', maxUsage: 50 },
-  { code: 'NOVAZEN5', discount: 5, type: 'FIXED', maxUsage: null },
+  { code: 'SWEETSENT5', discount: 5, type: 'FIXED', maxUsage: null },
 ];
 
 async function main() {

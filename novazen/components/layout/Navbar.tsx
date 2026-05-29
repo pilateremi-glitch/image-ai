@@ -40,7 +40,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <span className="font-display text-2xl font-bold gold-gradient">NovaZen</span>
+            <span className="font-display text-2xl font-bold gold-gradient">Sweet Sent</span>
           </Link>
 
           {/* Desktop nav */}

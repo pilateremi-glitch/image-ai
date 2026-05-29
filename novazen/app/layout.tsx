@@ -10,11 +10,11 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
 
 export const metadata: Metadata = {
-  title: 'NovaZen | Bien-être & Lifestyle Premium',
+  title: 'Sweet Sent | Bien-être & Lifestyle Premium',
   description: 'Découvrez notre sélection de produits bien-être, relaxation et lifestyle tendance. Livraison rapide, paiement sécurisé.',
   keywords: 'bien-être, relaxation, massage, fitness, lifestyle, gadgets tendance, TikTok',
   openGraph: {
-    title: 'NovaZen | Bien-être & Lifestyle Premium',
+    title: 'Sweet Sent | Bien-être & Lifestyle Premium',
     description: 'Votre boutique bien-être premium. Produits tendance, livraison rapide.',
     type: 'website',
   },

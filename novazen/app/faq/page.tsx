@@ -9,7 +9,7 @@ const faqs = [
   { q: 'La remise en main propre est-elle disponible ?', a: 'Oui, disponible sur Paris et petite couronne pour toute commande de 90€ minimum.' },
   { q: 'Quels modes de paiement acceptez-vous ?', a: 'Carte bancaire, PayPal, Lydia, virement bancaire, et espèces pour la remise en main propre.' },
   { q: 'Puis-je retourner un produit ?', a: 'Oui, vous disposez de 30 jours à partir de la réception pour retourner un produit dans son état d\'origine.' },
-  { q: 'Comment utiliser un code promo ?', a: 'Entrez votre code dans le champ dédié à l\'étape de paiement. Codes disponibles : NOVAZEN10 (-10%) et BIENVENUE (-15%).' },
+  { q: 'Comment utiliser un code promo ?', a: 'Entrez votre code dans le champ dédié à l\'étape de paiement. Codes disponibles : SWEETSENT10 (-10%) et BIENVENUE (-15%).' },
 ];
 
 export default function FAQPage() {

@@ -8,7 +8,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="space-y-4">
-            <span className="font-display text-2xl font-bold gold-gradient">NovaZen</span>
+            <span className="font-display text-2xl font-bold gold-gradient">Sweet Sent</span>
             <p className="text-white/50 text-sm leading-relaxed">
               Votre destination bien-être premium. Des produits soigneusement sélectionnés pour votre quotidien.
             </p>
@@ -71,7 +71,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-white/50 text-sm">
                 <Mail className="w-4 h-4 text-gold" />
-                contact@novazen.fr
+                contact@sweetsent.fr
               </li>
               <li className="flex items-center gap-2 text-white/50 text-sm">
                 <Phone className="w-4 h-4 text-gold" />
@@ -98,7 +98,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 text-center text-white/30 text-xs">
-          © 2024 NovaZen. Tous droits réservés.
+          © 2024 Sweet Sent. Tous droits réservés.
         </div>
       </div>
     </footer>

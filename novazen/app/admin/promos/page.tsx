@@ -124,7 +124,7 @@ export default function AdminPromosPage() {
               <div>
                 <label className="block text-xs text-white/50 mb-1">Code *</label>
                 <input required value={form.code} onChange={e => setForm(p => ({ ...p, code: e.target.value.toUpperCase() }))}
-                  placeholder="NOVAZEN20"
+                  placeholder="SWEETSENT20"
                   className="w-full bg-dark border border-dark-border rounded-xl px-3 py-2.5 text-sm font-mono uppercase focus:outline-none focus:border-gold/50" />
               </div>
               <div className="grid grid-cols-2 gap-3">
