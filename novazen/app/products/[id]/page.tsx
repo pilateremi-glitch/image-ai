@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   const product = await prisma.product.findUnique({ where: { slug: params.id } });
   if (!product) return {};
   return {
-    title: `${product.name} | NovaZen`,
+    title: `${product.name} | Sweet Sent`,
     description: product.description.slice(0, 160),
   };
 }

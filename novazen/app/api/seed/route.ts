@@ -88,7 +88,7 @@ async function seed() {
 
   await prisma.promoCode.createMany({
     data: [
-      { code: 'NOVAZEN10', discount: 10, type: 'PERCENT', maxUsage: 100 },
+      { code: 'SWEETSENT10', discount: 10, type: 'PERCENT', maxUsage: 100 },
       { code: 'BIENVENUE', discount: 15, type: 'PERCENT', maxUsage: 50 },
     ],
   });

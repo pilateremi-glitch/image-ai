@@ -21,7 +21,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="w-64 bg-dark-card border-r border-dark-border flex flex-col">
         <div className="p-6 border-b border-dark-border">
           <Link href="/">
-            <span className="font-display text-xl font-bold gold-gradient">NovaZen</span>
+            <span className="font-display text-xl font-bold gold-gradient">Sweet Sent</span>
           </Link>
           <p className="text-xs text-white/30 mt-1">Administration</p>
         </div>

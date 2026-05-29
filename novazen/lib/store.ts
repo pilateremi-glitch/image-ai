@@ -85,7 +85,7 @@ export const useCartStore = create<CartStore>()(
         return get().items.reduce((sum, item) => sum + item.quantity, 0);
       },
     }),
-    { name: 'novazen-cart' }
+    { name: 'sweetsent-cart' }
   )
 );
 
@@ -108,6 +108,6 @@ export const useWishlistStore = create<WishlistStore>()(
       },
       hasItem: (id) => get().items.includes(id),
     }),
-    { name: 'novazen-wishlist' }
+    { name: 'sweetsent-wishlist' }
   )
 );

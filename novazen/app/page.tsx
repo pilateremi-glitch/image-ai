@@ -251,7 +251,7 @@ export default async function HomePage() {
               -10% sur votre <span className="gold-gradient">première commande</span>
             </h2>
             <p className="text-white/60 text-lg mb-8">
-              Utilisez le code <strong className="text-gold">NOVAZEN10</strong> à la caisse
+              Utilisez le code <strong className="text-gold">SWEETSENT10</strong> à la caisse
             </p>
             <Link
               href="/products"
