@@ -1157,15 +1157,722 @@ function drawBuildings() {
     const b = G.buildings[bId];
     const bt = BUILDING_TYPES[b.typeId];
     const x = b.col * CELL, y = b.row * CELL;
-    // Background fill
-    ctx.fillStyle = bt.color + 'cc';
-    ctx.fillRect(x+1, y+1, CELL-2, CELL-2);
-    // Emoji
-    ctx.font = `${CELL*0.44}px serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(bt.emoji, x + CELL/2, y + CELL/2 - 3);
-    // HP bar
+    const cx = x + CELL/2, cy = y + CELL/2;
+    const S = CELL; // shorthand
+
+    ctx.save();
+
+    // Level glow (gold outline for level 3+)
+    if (b.level >= 3) {
+      ctx.save();
+      ctx.strokeStyle = '#ffd70055';
+      ctx.lineWidth = 3;
+      ctx.globalAlpha = 0.35;
+      ctx.strokeRect(x+1, y+1, S-2, S-2);
+      ctx.restore();
+    }
+
+    // ─── WALLS ────────────────────────────────────────────────────
+    if (bt.id === 'WALL_WOOD') {
+      // Brown plank background
+      ctx.fillStyle = '#7a4a1a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Horizontal planks
+      ctx.fillStyle = '#5a3010';
+      for (let i = 0; i < 5; i++) {
+        const py2 = y + 2 + i*(S-4)/5;
+        ctx.fillRect(x+1, py2, S-2, 2);
+      }
+      // Nail dots
+      ctx.fillStyle = '#3a1a00';
+      for (let i = 0; i < 5; i++) {
+        const py2 = y + 5 + i*(S-4)/5;
+        ctx.beginPath(); ctx.arc(x+8, py2, 2, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x+S-8, py2, 2, 0, Math.PI*2); ctx.fill();
+      }
+    } else if (bt.id === 'WALL_STONE') {
+      ctx.fillStyle = '#6a6a6a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // 2×3 stone blocks
+      ctx.fillStyle = '#4a4a4a';
+      ctx.lineWidth = 1.5;
+      const bw = (S-2)/2, bh = (S-2)/3;
+      for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 2; col++) {
+          const ox = col%2===0 ? 0 : 0;
+          ctx.strokeStyle = '#3a3a3a';
+          ctx.strokeRect(x+1+col*bw+1, y+1+row*bh+1, bw-2, bh-2);
+        }
+      }
+    } else if (bt.id === 'WALL_REINFORCED') {
+      ctx.fillStyle = '#2a4a2a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Diagonal cross pattern
+      ctx.strokeStyle = '#3a6a3a';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(x+1, y+1); ctx.lineTo(x+S-1, y+S-1);
+      ctx.moveTo(x+S-1, y+1); ctx.lineTo(x+1, y+S-1);
+      ctx.stroke();
+      // Corner bolts
+      ctx.fillStyle = '#5a8a5a';
+      const boltPos = [[x+5,y+5],[x+S-5,y+5],[x+5,y+S-5],[x+S-5,y+S-5]];
+      for (const [bx2,by2] of boltPos) {
+        ctx.beginPath(); ctx.arc(bx2, by2, 3, 0, Math.PI*2); ctx.fill();
+      }
+    } else if (bt.id === 'WALL_MILITARY') {
+      ctx.fillStyle = '#2a2a3a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Camo spots
+      const camoColors = ['#3a3a2a','#2a3a2a','#2a2a1a'];
+      const rng = (seed) => ((seed*6364136223846793005n+1442695040888963407n) & 0xffffffffn);
+      for (let i = 0; i < 6; i++) {
+        ctx.fillStyle = camoColors[i%3];
+        ctx.beginPath();
+        ctx.ellipse(x + 8 + (i*13)%(S-16), y + 6 + (i*17)%(S-16), 6+i%3, 4+i%2, i*0.5, 0, Math.PI*2);
+        ctx.fill();
+      }
+      // Rivets top and bottom
+      ctx.fillStyle = '#6a6a7a';
+      for (let i = 0; i < 4; i++) {
+        const rx = x + 7 + i*((S-14)/3);
+        ctx.beginPath(); ctx.arc(rx, y+4, 2.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(rx, y+S-4, 2.5, 0, Math.PI*2); ctx.fill();
+      }
+    } else if (bt.id === 'WALL_TITANIUM') {
+      ctx.fillStyle = '#8a8aaa';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Brushed metal lines
+      ctx.strokeStyle = '#aaaabb';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < 8; i++) {
+        const ly = y + 2 + i*(S-4)/8;
+        ctx.beginPath(); ctx.moveTo(x+1, ly); ctx.lineTo(x+S-1, ly); ctx.stroke();
+      }
+      // Blue accent edges
+      ctx.strokeStyle = '#6a9aff';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x+2, y+2, S-4, S-4);
+    } else if (bt.id === 'WALL_ENERGY') {
+      const pulse = 0.5 + 0.5*Math.sin(animTime*3);
+      ctx.fillStyle = '#0a0a3a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Hex grid pattern (simplified as grid of diamonds)
+      ctx.strokeStyle = `rgba(0,238,255,${0.15+pulse*0.2})`;
+      ctx.lineWidth = 1;
+      const hS = 10;
+      for (let hy = 0; hy < S; hy += hS) {
+        for (let hx = 0; hx < S; hx += hS) {
+          ctx.beginPath();
+          ctx.moveTo(x+hx+hS/2, y+hy);
+          ctx.lineTo(x+hx+hS, y+hy+hS/2);
+          ctx.lineTo(x+hx+hS/2, y+hy+hS);
+          ctx.lineTo(x+hx, y+hy+hS/2);
+          ctx.closePath(); ctx.stroke();
+        }
+      }
+      // Glowing border
+      ctx.shadowColor = '#00eeff';
+      ctx.shadowBlur = 8 + pulse*6;
+      ctx.strokeStyle = `rgba(0,238,255,${0.5+pulse*0.5})`;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x+2, y+2, S-4, S-4);
+      ctx.shadowBlur = 0;
+
+    // ─── BLOCKS ───────────────────────────────────────────────────
+    } else if (bt.id === 'BLOCK_SANDBAG') {
+      ctx.fillStyle = '#5a4010';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // 3 stacked oval sandbags
+      const bagColors = ['#8a6a2a','#7a5a1a','#9a7a3a'];
+      for (let i = 0; i < 3; i++) {
+        ctx.fillStyle = bagColors[i];
+        const bgy = y + S - 10 - i*13;
+        ctx.beginPath();
+        ctx.ellipse(cx, bgy, S*0.35, 6, 0, 0, Math.PI*2);
+        ctx.fill();
+        // Tie line
+        ctx.strokeStyle = '#4a2a00';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(cx-4, bgy); ctx.lineTo(cx+4, bgy); ctx.stroke();
+      }
+    } else if (bt.id === 'BLOCK_CONCRETE') {
+      ctx.fillStyle = '#7a7a7a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Shadow edge
+      ctx.fillStyle = '#4a4a4a';
+      ctx.fillRect(x+S-5, y+1, 4, S-2);
+      ctx.fillRect(x+1, y+S-5, S-6, 4);
+      // Small cracks
+      ctx.strokeStyle = '#5a5a5a';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx-5, cy-8); ctx.lineTo(cx, cy); ctx.lineTo(cx+7, cy+5);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx-10, cy+5); ctx.lineTo(cx-6, cy+10);
+      ctx.stroke();
+    } else if (bt.id === 'BLOCK_STEEL') {
+      ctx.fillStyle = '#5a7aaa';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Metallic sheen
+      const grad = ctx.createLinearGradient(x, y, x+S, y+S);
+      grad.addColorStop(0, '#8aaacc88');
+      grad.addColorStop(0.5, '#3a5a8888');
+      grad.addColorStop(1, '#2a4a7888');
+      ctx.fillStyle = grad;
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Corner bolts
+      ctx.fillStyle = '#aaccee';
+      const bpos = [[x+6,y+6],[x+S-6,y+6],[x+6,y+S-6],[x+S-6,y+S-6]];
+      for (const [bx2,by2] of bpos) {
+        ctx.beginPath(); ctx.arc(bx2, by2, 3.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#ffffff88';
+        ctx.beginPath(); ctx.arc(bx2-1, by2-1, 1.5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#aaccee';
+      }
+    } else if (bt.id === 'BLOCK_BUNKER') {
+      ctx.fillStyle = '#2a3a2a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Fortress embrasure slits
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(x+8, y+14, 8, 4);
+      ctx.fillRect(x+S-16, y+14, 8, 4);
+      // Top battlements
+      ctx.fillStyle = '#3a4a3a';
+      for (let i = 0; i < 4; i++) {
+        ctx.fillRect(x+3+i*12, y+1, 8, 8);
+      }
+      // Dark outline
+      ctx.strokeStyle = '#1a2a1a';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x+2, y+2, S-4, S-4);
+
+    // ─── TRAPS ────────────────────────────────────────────────────
+    } else if (bt.id === 'TRAP_BARBED') {
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Zigzag barbed wire
+      ctx.strokeStyle = '#7a5a3a';
+      ctx.lineWidth = 2;
+      for (let row = 0; row < 3; row++) {
+        const wy = y + 12 + row*13;
+        ctx.beginPath(); ctx.moveTo(x+2, wy);
+        for (let i = 0; i < 8; i++) {
+          ctx.lineTo(x + 2 + i*(S-4)/7, wy + (i%2===0?-4:4));
+        }
+        ctx.stroke();
+        // Barb spikes
+        ctx.strokeStyle = '#5a3a1a';
+        ctx.lineWidth = 1;
+        for (let i = 1; i < 8; i+=2) {
+          const wx = x + 2 + i*(S-4)/7;
+          const wpy = wy + 4;
+          ctx.beginPath(); ctx.moveTo(wx, wpy); ctx.lineTo(wx-3, wpy-5); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(wx, wpy); ctx.lineTo(wx+3, wpy-5); ctx.stroke();
+        }
+        ctx.strokeStyle = '#7a5a3a';
+        ctx.lineWidth = 2;
+      }
+    } else if (bt.id === 'TRAP_MINE') {
+      ctx.fillStyle = '#1a1a0a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Mine body
+      ctx.fillStyle = '#3a3a3a';
+      ctx.beginPath(); ctx.arc(cx, cy, S*0.3, 0, Math.PI*2); ctx.fill();
+      // Warning ring
+      ctx.strokeStyle = '#ffcc00';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.arc(cx, cy, S*0.32, 0, Math.PI*2); ctx.stroke();
+      // X symbol
+      ctx.strokeStyle = '#ff2222';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx-7, cy-7); ctx.lineTo(cx+7, cy+7);
+      ctx.moveTo(cx+7, cy-7); ctx.lineTo(cx-7, cy+7);
+      ctx.stroke();
+      // Detonator pin
+      ctx.fillStyle = '#888888';
+      ctx.fillRect(cx-1.5, cy-S*0.3-8, 3, 8);
+    } else if (bt.id === 'TRAP_ELECTRIC') {
+      ctx.fillStyle = '#0a0a1a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Grid of light-blue lines
+      ctx.strokeStyle = '#2244aa';
+      ctx.lineWidth = 1;
+      const gS = (S-4)/3;
+      for (let i = 0; i <= 3; i++) {
+        ctx.beginPath(); ctx.moveTo(x+2+i*gS, y+2); ctx.lineTo(x+2+i*gS, y+S-2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x+2, y+2+i*gS); ctx.lineTo(x+S-2, y+2+i*gS); ctx.stroke();
+      }
+      // Animated spark at center
+      const sparkPhase = animTime * 4;
+      ctx.shadowColor = '#00eeff';
+      ctx.shadowBlur = 10;
+      ctx.strokeStyle = `rgba(0,200,255,${0.5+0.5*Math.sin(sparkPhase)})`;
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 3; i++) {
+        const ang = sparkPhase + i * Math.PI*2/3;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(ang)*10, cy + Math.sin(ang)*10);
+        ctx.stroke();
+      }
+      ctx.shadowBlur = 0;
+
+    // ─── SUPPORT ──────────────────────────────────────────────────
+    } else if (bt.id === 'SUPPORT_GENERATOR') {
+      ctx.fillStyle = '#2a2a2a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Generator body
+      ctx.fillStyle = '#3a4a3a';
+      ctx.fillRect(x+5, y+5, S-10, S-18);
+      // Ventilation slits
+      ctx.fillStyle = '#1a8a1a';
+      for (let i = 0; i < 4; i++) {
+        ctx.fillRect(x+8, y+9+i*7, S-16, 3);
+      }
+      // Blinking indicator light
+      const blink = Math.sin(animTime*3) > 0;
+      ctx.fillStyle = blink ? '#00ff44' : '#004a14';
+      ctx.beginPath(); ctx.arc(cx, y+S-9, 4, 0, Math.PI*2); ctx.fill();
+      if (blink) {
+        ctx.shadowColor = '#00ff44'; ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    } else if (bt.id === 'SUPPORT_HOSPITAL') {
+      ctx.fillStyle = '#3a1a1a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Red cross
+      ctx.fillStyle = '#dd2222';
+      ctx.fillRect(cx-4, y+8, 8, S-16);
+      ctx.fillRect(x+8, cy-4, S-16, 8);
+      // White highlight
+      ctx.fillStyle = '#ffffff55';
+      ctx.fillRect(cx-2, y+8, 3, S-16);
+    } else if (bt.id === 'SUPPORT_LAB') {
+      ctx.fillStyle = '#0a1a2a';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+      // Flask/beaker outline
+      ctx.strokeStyle = '#4488cc';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx-5, y+8);
+      ctx.lineTo(cx-5, cy-2);
+      ctx.lineTo(cx-12, y+S-8);
+      ctx.lineTo(cx+12, y+S-8);
+      ctx.lineTo(cx+5, cy-2);
+      ctx.lineTo(cx+5, y+8);
+      ctx.closePath();
+      ctx.stroke();
+      // Neck cap
+      ctx.fillStyle = '#3366aa';
+      ctx.fillRect(cx-6, y+6, 12, 5);
+      // Cyan bubbles
+      ctx.shadowColor = '#00eeff'; ctx.shadowBlur = 5;
+      const bubbles = [[cx-4,cy+5,2.5],[cx+5,cy+8,2],[cx,cy+12,3]];
+      for (const [bx2,by2,br] of bubbles) {
+        ctx.fillStyle = `rgba(0,200,255,${0.4+0.3*Math.sin(animTime*2+br)})`;
+        ctx.beginPath(); ctx.arc(bx2, by2, br, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.shadowBlur = 0;
+
+    // ─── TOWERS ───────────────────────────────────────────────────
+    } else if (bt.type === 'tower') {
+      const aimAngle = b.aimAngle !== undefined ? b.aimAngle : -Math.PI/4;
+      const flash = b._flash || 0;
+
+      // Common ground shadow
+      ctx.fillStyle = '#00000033';
+      ctx.beginPath();
+      ctx.ellipse(cx, y+S-4, S*0.28, S*0.06, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      if (bt.id === 'TOWER_ARCHER') {
+        // Stone base
+        ctx.fillStyle = '#5a4a3a';
+        ctx.fillRect(cx-S*0.22, y+S*0.78, S*0.44, S*0.18);
+        // Tower body: brown/tan
+        ctx.fillStyle = '#7a5a2a';
+        ctx.fillRect(cx-S*0.22, y+S*0.16, S*0.44, S*0.64);
+        // Battlements (3 teeth)
+        ctx.fillStyle = '#6a4a1a';
+        for (let i = 0; i < 3; i++) {
+          ctx.fillRect(cx - S*0.18 + i*(S*0.12), y+S*0.08, S*0.08, S*0.10);
+        }
+        // Arrow slits
+        ctx.fillStyle = '#2a1a0a';
+        ctx.fillRect(cx-S*0.06, y+S*0.30, S*0.12, S*0.14);
+        ctx.fillRect(cx-S*0.06, y+S*0.54, S*0.12, S*0.14);
+        // Barrel (arrow) pointing at aimAngle
+        ctx.save();
+        ctx.translate(cx, cy - S*0.08);
+        ctx.rotate(aimAngle);
+        ctx.fillStyle = '#5a3a10';
+        ctx.fillRect(0, -S*0.035, S*0.32, S*0.07);
+        // Arrow tip
+        ctx.fillStyle = '#aaaaaa';
+        ctx.beginPath();
+        ctx.moveTo(S*0.32, 0);
+        ctx.lineTo(S*0.32-S*0.06, -S*0.05);
+        ctx.lineTo(S*0.32-S*0.06, S*0.05);
+        ctx.closePath(); ctx.fill();
+        if (flash > 0) {
+          ctx.fillStyle = `rgba(255,220,100,${flash*4})`;
+          ctx.beginPath(); ctx.arc(S*0.33, 0, S*0.08, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_MACHINE_GUN') {
+        // Stone base
+        ctx.fillStyle = '#4a4a5a';
+        ctx.fillRect(cx-S*0.25, y+S*0.78, S*0.5, S*0.18);
+        // Metal body
+        ctx.fillStyle = '#3a3a5a';
+        ctx.fillRect(cx-S*0.25, y+S*0.18, S*0.5, S*0.62);
+        // Metal rivets
+        ctx.fillStyle = '#6a6a8a';
+        const rivetPos = [[cx-S*0.22,y+S*0.22],[cx+S*0.22,y+S*0.22],[cx-S*0.22,y+S*0.72],[cx+S*0.22,y+S*0.72]];
+        for (const [rx,ry] of rivetPos) { ctx.beginPath(); ctx.arc(rx,ry,2.5,0,Math.PI*2); ctx.fill(); }
+        // Turret dome
+        ctx.fillStyle = '#2a2a4a';
+        ctx.beginPath();
+        ctx.arc(cx, y+S*0.25, S*0.18, Math.PI, 0);
+        ctx.closePath(); ctx.fill();
+        // Twin barrels
+        ctx.save();
+        ctx.translate(cx, y+S*0.25);
+        ctx.rotate(aimAngle);
+        ctx.fillStyle = '#1a1a3a';
+        ctx.fillRect(S*0.02, -S*0.05, S*0.38, S*0.04);
+        ctx.fillRect(S*0.02, S*0.01, S*0.38, S*0.04);
+        if (flash > 0) {
+          ctx.fillStyle = `rgba(180,200,255,${flash*5})`;
+          ctx.beginPath(); ctx.arc(S*0.42, 0, S*0.07, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_SNIPER') {
+        // Very narrow tall tower
+        ctx.fillStyle = '#3a4a3a';
+        ctx.fillRect(cx-S*0.12, y+S*0.06, S*0.24, S*0.88);
+        // Observation deck at top
+        ctx.fillStyle = '#2a3a2a';
+        ctx.fillRect(cx-S*0.2, y+S*0.06, S*0.4, S*0.18);
+        // Long barrel
+        ctx.save();
+        ctx.translate(cx, y+S*0.17);
+        ctx.rotate(aimAngle);
+        ctx.fillStyle = '#1a2a1a';
+        ctx.fillRect(0, -S*0.025, S*0.72, S*0.05);
+        // Scope
+        ctx.fillStyle = '#2a4a2a';
+        ctx.fillRect(S*0.15, -S*0.04, S*0.12, S*0.08);
+        // Muzzle
+        ctx.fillStyle = '#4a6a4a';
+        ctx.fillRect(S*0.68, -S*0.03, S*0.04, S*0.06);
+        if (flash > 0) {
+          ctx.fillStyle = `rgba(255,255,150,${flash*5})`;
+          ctx.beginPath(); ctx.arc(S*0.74, 0, S*0.06, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_FLAME') {
+        // Industrial base
+        ctx.fillStyle = '#4a2a00';
+        ctx.fillRect(cx-S*0.25, y+S*0.78, S*0.5, S*0.18);
+        // Body (squat cylinder-ish)
+        ctx.fillStyle = '#6a3a10';
+        ctx.fillRect(cx-S*0.22, y+S*0.44, S*0.44, S*0.36);
+        // Rusty texture
+        ctx.fillStyle = '#8a4a1a';
+        ctx.fillRect(cx-S*0.22, y+S*0.44, S*0.44, S*0.08);
+        // Fuel tank (circle behind)
+        ctx.fillStyle = '#5a2a00';
+        ctx.beginPath(); ctx.arc(cx-S*0.1, y+S*0.6, S*0.16, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#3a1a00'; ctx.lineWidth = 2;
+        ctx.stroke();
+        // Nozzle / barrel
+        ctx.save();
+        ctx.translate(cx, y+S*0.56);
+        ctx.rotate(aimAngle);
+        ctx.fillStyle = '#4a2a00';
+        ctx.fillRect(0, -S*0.055, S*0.3, S*0.11);
+        // Flame tip
+        if (flash > 0) {
+          const grad = ctx.createRadialGradient(S*0.32, 0, 0, S*0.32, 0, S*0.18);
+          grad.addColorStop(0, `rgba(255,255,100,${flash*3})`);
+          grad.addColorStop(0.5, `rgba(255,100,0,${flash*2})`);
+          grad.addColorStop(1, 'rgba(255,0,0,0)');
+          ctx.fillStyle = grad;
+          ctx.beginPath(); ctx.arc(S*0.32, 0, S*0.18, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_TESLA') {
+        // Stone tower body
+        ctx.fillStyle = '#4a4a6a';
+        ctx.fillRect(cx-S*0.2, y+S*0.16, S*0.4, S*0.78);
+        // Lighter top
+        ctx.fillStyle = '#6a6a8a';
+        ctx.fillRect(cx-S*0.2, y+S*0.14, S*0.4, S*0.14);
+        // Tesla coil rod
+        ctx.fillStyle = '#8888aa';
+        ctx.fillRect(cx-S*0.03, y+S*0.02, S*0.06, S*0.14);
+        // Sphere at top
+        const tsphase = animTime*4;
+        ctx.shadowColor = '#00eeff'; ctx.shadowBlur = 8+4*Math.sin(tsphase);
+        ctx.fillStyle = '#aaaadd';
+        ctx.beginPath(); ctx.arc(cx, y+S*0.06, S*0.07, 0, Math.PI*2); ctx.fill();
+        // Lightning arcs
+        ctx.strokeStyle = `rgba(0,238,255,${0.4+0.6*Math.abs(Math.sin(tsphase))})`;
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 3; i++) {
+          const arcAng = tsphase + i*Math.PI*2/3;
+          const arcLen = S*0.12 + S*0.06*Math.sin(tsphase+i);
+          ctx.beginPath();
+          ctx.moveTo(cx, y+S*0.06);
+          ctx.lineTo(cx + Math.cos(arcAng)*arcLen, y+S*0.06 + Math.sin(arcAng)*arcLen);
+          ctx.stroke();
+        }
+        ctx.shadowBlur = 0;
+
+      } else if (bt.id === 'TOWER_LASER') {
+        // Sleek dark metal octagonal body (approximated)
+        ctx.fillStyle = '#2a2a3a';
+        ctx.beginPath();
+        const oct = 8;
+        for (let i = 0; i < oct; i++) {
+          const ang = (i/oct)*Math.PI*2 - Math.PI/oct;
+          const rx = cx + Math.cos(ang)*S*0.22;
+          const ry = (y+S*0.5) + Math.sin(ang)*S*0.32;
+          i===0 ? ctx.moveTo(rx,ry) : ctx.lineTo(rx,ry);
+        }
+        ctx.closePath(); ctx.fill();
+        // Crystal emitter (diamond)
+        ctx.fillStyle = '#ff4422';
+        ctx.shadowColor = '#ff4422'; ctx.shadowBlur = 8;
+        ctx.beginPath();
+        ctx.moveTo(cx, y+S*0.08);
+        ctx.lineTo(cx+S*0.08, y+S*0.18);
+        ctx.lineTo(cx, y+S*0.28);
+        ctx.lineTo(cx-S*0.08, y+S*0.18);
+        ctx.closePath(); ctx.fill();
+        ctx.shadowBlur = 0;
+        // Thin laser barrel
+        ctx.save();
+        ctx.translate(cx, y+S*0.18);
+        ctx.rotate(aimAngle);
+        ctx.fillStyle = '#cc2222';
+        ctx.fillRect(0, -S*0.018, S*0.52, S*0.036);
+        if (flash > 0) {
+          ctx.shadowColor = '#ff4422'; ctx.shadowBlur = 12;
+          ctx.fillStyle = `rgba(255,100,50,${flash*4})`;
+          ctx.beginPath(); ctx.arc(S*0.54, 0, S*0.06, 0, Math.PI*2); ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_PLASMA') {
+        // Large rounded-corner rectangle
+        ctx.fillStyle = '#4a1a6a';
+        const pr = S*0.08;
+        const px2 = cx-S*0.27, py2 = y+S*0.3, pw = S*0.54, ph = S*0.62;
+        ctx.beginPath();
+        ctx.moveTo(px2+pr, py2);
+        ctx.lineTo(px2+pw-pr, py2); ctx.quadraticCurveTo(px2+pw, py2, px2+pw, py2+pr);
+        ctx.lineTo(px2+pw, py2+ph-pr); ctx.quadraticCurveTo(px2+pw, py2+ph, px2+pw-pr, py2+ph);
+        ctx.lineTo(px2+pr, py2+ph); ctx.quadraticCurveTo(px2, py2+ph, px2, py2+ph-pr);
+        ctx.lineTo(px2, py2+pr); ctx.quadraticCurveTo(px2, py2, px2+pr, py2);
+        ctx.closePath(); ctx.fill();
+        // Dark accent stripes
+        ctx.fillStyle = '#2a0a3a';
+        ctx.fillRect(px2, py2+ph*0.3, pw, ph*0.07);
+        ctx.fillRect(px2, py2+ph*0.6, pw, ph*0.07);
+        // Plasma orb (pulsing)
+        const ppulse = 0.6 + 0.4*Math.sin(animTime*3);
+        ctx.shadowColor = '#cc44ff'; ctx.shadowBlur = 12*ppulse;
+        ctx.fillStyle = `rgba(180,80,255,${ppulse})`;
+        ctx.beginPath(); ctx.arc(cx, y+S*0.22, S*0.1*ppulse, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 0;
+        // Plasma barrel
+        ctx.save();
+        ctx.translate(cx, y+S*0.44);
+        ctx.rotate(aimAngle);
+        ctx.fillStyle = '#6a2a8a';
+        ctx.fillRect(0, -S*0.045, S*0.36, S*0.09);
+        // Barrel glow
+        ctx.shadowColor = '#cc44ff'; ctx.shadowBlur = 8;
+        ctx.fillStyle = `rgba(180,80,255,${0.3+flash*3})`;
+        ctx.beginPath(); ctx.arc(S*0.38, 0, S*0.07, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_CANNON') {
+        // Stocky stone tower gray-brown
+        ctx.fillStyle = '#5a4a2a';
+        ctx.fillRect(cx-S*0.25, y+S*0.76, S*0.5, S*0.2);
+        ctx.fillStyle = '#7a6a4a';
+        ctx.fillRect(cx-S*0.25, y+S*0.28, S*0.5, S*0.5);
+        // Stone texture lines
+        ctx.strokeStyle = '#4a3a1a';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx-S*0.25, y+S*0.42); ctx.lineTo(cx+S*0.25, y+S*0.42);
+        ctx.moveTo(cx-S*0.25, y+S*0.56); ctx.lineTo(cx+S*0.25, y+S*0.56);
+        ctx.stroke();
+        // Wheel-like circles at base
+        ctx.fillStyle = '#3a2a0a';
+        ctx.beginPath(); ctx.arc(cx-S*0.18, y+S*0.84, S*0.07, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#6a4a1a'; ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx+S*0.18, y+S*0.84, S*0.07, 0, Math.PI*2); ctx.fill();
+        ctx.strokeStyle = '#6a4a1a'; ctx.lineWidth = 2;
+        ctx.stroke();
+        // Thick cannon barrel
+        ctx.save();
+        ctx.translate(cx, y+S*0.44);
+        ctx.rotate(aimAngle);
+        ctx.fillStyle = '#4a3a1a';
+        ctx.fillRect(0, -S*0.07, S*0.4, S*0.14);
+        // Round barrel end
+        ctx.beginPath(); ctx.arc(S*0.4, 0, S*0.07, 0, Math.PI*2); ctx.fill();
+        if (flash > 0) {
+          ctx.fillStyle = `rgba(255,180,50,${flash*4})`;
+          ctx.beginPath(); ctx.arc(S*0.46, 0, S*0.1, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_ICE') {
+        // Crystal-faceted icy blue tower
+        ctx.fillStyle = '#1a4a6a';
+        ctx.fillRect(cx-S*0.2, y+S*0.76, S*0.4, S*0.2);
+        ctx.fillStyle = '#3a8acc';
+        ctx.fillRect(cx-S*0.2, y+S*0.24, S*0.4, S*0.54);
+        // Ice crystal facets on body
+        ctx.strokeStyle = '#6aaade';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(cx-S*0.2, y+S*0.4); ctx.lineTo(cx+S*0.2, y+S*0.4);
+        ctx.moveTo(cx, y+S*0.24); ctx.lineTo(cx-S*0.2, y+S*0.51);
+        ctx.moveTo(cx, y+S*0.24); ctx.lineTo(cx+S*0.2, y+S*0.51);
+        ctx.stroke();
+        // 2-3 ice crystal diamonds at top
+        ctx.shadowColor = '#aaddff'; ctx.shadowBlur = 6;
+        const crystalPos = [[cx, y+S*0.14],[cx-S*0.14, y+S*0.22],[cx+S*0.14, y+S*0.22]];
+        const csizes = [S*0.06, S*0.04, S*0.04];
+        for (let i = 0; i < 3; i++) {
+          const [crx,cry] = crystalPos[i]; const crs = csizes[i];
+          ctx.fillStyle = '#aaddff';
+          ctx.beginPath();
+          ctx.moveTo(crx, cry-crs);
+          ctx.lineTo(crx+crs*0.6, cry);
+          ctx.lineTo(crx, cry+crs);
+          ctx.lineTo(crx-crs*0.6, cry);
+          ctx.closePath(); ctx.fill();
+        }
+        ctx.shadowBlur = 0;
+        // Frost barrel
+        ctx.save();
+        ctx.translate(cx, y+S*0.46);
+        ctx.rotate(aimAngle);
+        ctx.fillStyle = '#6aaade';
+        // Tapered barrel
+        ctx.beginPath();
+        ctx.moveTo(0, -S*0.04);
+        ctx.lineTo(S*0.34, -S*0.02);
+        ctx.lineTo(S*0.34, S*0.02);
+        ctx.lineTo(0, S*0.04);
+        ctx.closePath(); ctx.fill();
+        if (flash > 0) {
+          ctx.fillStyle = `rgba(150,220,255,${flash*4})`;
+          ctx.shadowColor = '#aaddff'; ctx.shadowBlur = 10;
+          ctx.beginPath(); ctx.arc(S*0.36, 0, S*0.07, 0, Math.PI*2); ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_MORTAR') {
+        // Squat fortress
+        ctx.fillStyle = '#3a3a2a';
+        ctx.fillRect(cx-S*0.27, y+S*0.76, S*0.54, S*0.2);
+        ctx.fillStyle = '#4a4a3a';
+        ctx.fillRect(cx-S*0.27, y+S*0.36, S*0.54, S*0.42);
+        // Sandbag rim around top
+        ctx.fillStyle = '#8a6a2a';
+        for (let i = 0; i < 5; i++) {
+          const sx = cx - S*0.27 + i*(S*0.54/4);
+          ctx.beginPath(); ctx.ellipse(sx+S*0.054, y+S*0.36, S*0.07, S*0.035, 0, 0, Math.PI*2); ctx.fill();
+        }
+        // Mortar tube (points mostly upward)
+        const mortarAng = -Math.PI*0.55 + Math.sin(aimAngle)*0.3;
+        ctx.save();
+        ctx.translate(cx, y+S*0.48);
+        ctx.rotate(mortarAng);
+        ctx.fillStyle = '#2a2a1a';
+        ctx.fillRect(0, -S*0.065, S*0.28, S*0.13);
+        ctx.beginPath(); ctx.arc(S*0.28, 0, S*0.065, 0, Math.PI*2); ctx.fill();
+        if (flash > 0) {
+          ctx.fillStyle = `rgba(255,200,50,${flash*3})`;
+          ctx.beginPath(); ctx.arc(S*0.3, 0, S*0.10, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+
+      } else if (bt.id === 'TOWER_RAILGUN') {
+        // High-tech dark teal tower
+        ctx.fillStyle = '#1a3a4a';
+        ctx.fillRect(cx-S*0.25, y+S*0.76, S*0.5, S*0.2);
+        ctx.fillStyle = '#1a4a5a';
+        ctx.fillRect(cx-S*0.22, y+S*0.22, S*0.44, S*0.56);
+        // Tech panels
+        ctx.strokeStyle = '#2a6a8a';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(cx-S*0.17, y+S*0.30, S*0.34, S*0.22);
+        ctx.strokeRect(cx-S*0.17, y+S*0.58, S*0.34, S*0.12);
+        // EM rings on barrel
+        ctx.save();
+        ctx.translate(cx, y+S*0.40);
+        ctx.rotate(aimAngle);
+        // Long barrel shaft
+        ctx.fillStyle = '#1a3a4a';
+        ctx.fillRect(0, -S*0.03, S*0.72, S*0.06);
+        // 3 electromagnetic rings
+        ctx.strokeStyle = '#2a8aaa';
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 3; i++) {
+          const ringX = S*0.1 + i*S*0.18;
+          ctx.beginPath(); ctx.ellipse(ringX, 0, S*0.025, S*0.045, 0, 0, Math.PI*2); ctx.stroke();
+        }
+        // Teal glow
+        ctx.shadowColor = '#2aeecc'; ctx.shadowBlur = 8;
+        ctx.strokeStyle = `rgba(42,238,204,${0.3+flash*3})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(0, -S*0.025); ctx.lineTo(S*0.72, -S*0.025);
+        ctx.moveTo(0, S*0.025); ctx.lineTo(S*0.72, S*0.025);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        if (flash > 0) {
+          ctx.fillStyle = `rgba(42,238,204,${flash*4})`;
+          ctx.shadowColor = '#2aeecc'; ctx.shadowBlur = 14;
+          ctx.beginPath(); ctx.arc(S*0.74, 0, S*0.06, 0, Math.PI*2); ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+        ctx.restore();
+
+      } else {
+        // Fallback for any unknown tower type
+        ctx.fillStyle = bt.color + 'cc';
+        ctx.fillRect(x+1, y+1, S-2, S-2);
+      }
+    } else {
+      // Fallback for any unknown building type
+      ctx.fillStyle = bt.color + 'cc';
+      ctx.fillRect(x+1, y+1, S-2, S-2);
+    }
+
+    // ─── HP BAR (always drawn) ────────────────────────────────────
     const hpR = b.hp / b.maxHp;
     ctx.fillStyle = '#00000066';
     ctx.fillRect(x+2, y+CELL-8, CELL-4, 5);
@@ -1179,6 +1886,8 @@ function drawBuildings() {
       ctx.textBaseline = 'top';
       ctx.fillText('L'+b.level, x+3, y+2);
     }
+
+    ctx.restore();
   }
 }
 
@@ -1381,28 +2090,28 @@ function generateWave(waveNum) {
   count = Math.min(count, 20 + waveNum * 2); // safety cap: manageable but huge
   if (G.eventModifiers.superHorde) count = Math.floor(count * 1.5);
 
-  // HP scale: +5% per wave past 10, +8% per wave past 50, +10% per wave past 100
-  let scaleFactor = 1;
-  if (waveNum > 10) scaleFactor *= Math.pow(1.05, Math.min(waveNum - 10, 40));
+  // HP scale: gentle +4% per wave from start, steeper scaling after wave 30
+  let scaleFactor = 1 + waveNum * 0.04;
+  if (waveNum > 30) scaleFactor *= Math.pow(1.06, Math.min(waveNum - 30, 20));
   if (waveNum > 50) scaleFactor *= Math.pow(1.08, Math.min(waveNum - 50, 50));
   if (waveNum > 100) scaleFactor *= Math.pow(1.10, waveNum - 100);
-  // Speed bonus at high waves
-  const speedMult = waveNum > 30 ? 1 + (waveNum - 30) * 0.01 : 1;
+  // Speed bonus at high waves (starts at 40 instead of 30)
+  const speedMult = waveNum > 40 ? 1 + (waveNum - 40) * 0.01 : 1;
 
-  // Composition weights by wave
+  // Composition weights by wave (unlocked more gradually for wave 50 design)
   const pool = [];
   pool.push({ type:'WALKER', w:10 });
-  if (waveNum >= 5)  pool.push({ type:'RUNNER',   w:4 });
-  if (waveNum >= 8)  pool.push({ type:'TANK',      w:3 });
-  if (waveNum >= 12) pool.push({ type:'TOXIC',     w:3 });
-  if (waveNum >= 15) pool.push({ type:'ARMORED',   w:3 });
-  if (waveNum >= 18) pool.push({ type:'EXPLODER',  w:2 });
-  if (waveNum >= 22) pool.push({ type:'GIANT',     w:2 });
-  if (waveNum >= 28) pool.push({ type:'SPIDER',    w:2 });
-  if (waveNum >= 7)  pool.push({ type:'BAT',       w:3 });
-  if (waveNum >= 14) pool.push({ type:'BERSERKER', w:3 });
-  if (waveNum >= 18) pool.push({ type:'PHANTOM',   w:2 });
-  if (waveNum >= 20) pool.push({ type:'RAT_KING',  w:2 });
+  if (waveNum >= 4)  pool.push({ type:'RUNNER',    w:4 });
+  if (waveNum >= 8)  pool.push({ type:'BAT',        w:3 });
+  if (waveNum >= 10) pool.push({ type:'TANK',       w:3 });
+  if (waveNum >= 15) pool.push({ type:'TOXIC',      w:3 });
+  if (waveNum >= 18) pool.push({ type:'BERSERKER',  w:3 });
+  if (waveNum >= 22) pool.push({ type:'ARMORED',    w:3 });
+  if (waveNum >= 28) pool.push({ type:'PHANTOM',    w:2 });
+  if (waveNum >= 32) pool.push({ type:'EXPLODER',   w:2 });
+  if (waveNum >= 38) pool.push({ type:'GIANT',      w:2 });
+  if (waveNum >= 42) pool.push({ type:'RAT_KING',   w:2 });
+  if (waveNum >= 48) pool.push({ type:'SPIDER',     w:2 });
 
   const totalW = pool.reduce((s, x) => s + x.w, 0);
   const rows = [0,1,2,3,4,5,6,7,8,9];
@@ -1429,15 +2138,17 @@ function generateWave(waveNum) {
     });
   }
 
-  // Bosses — every 5 waves, stronger every 10, legendary every 25
-  if (waveNum % 25 === 0 && waveNum > 0) {
+  // Bosses — tuned for wave 50 design
+  if (waveNum % 50 === 0 && waveNum > 0) {
     addBoss(zombies, 'BOSS_ZOMBIE_KING', scaleFactor);
-    if (waveNum >= 50) addBoss(zombies, 'BOSS_BEHEMOTH', scaleFactor * 0.5); // double trouble
+    addBoss(zombies, 'BOSS_BEHEMOTH', scaleFactor * 0.6);
+  } else if (waveNum % 25 === 0 && waveNum > 0) {
+    addBoss(zombies, 'BOSS_ZOMBIE_KING', scaleFactor * 0.7);
   } else if (waveNum % 10 === 0 && waveNum > 0) {
-    const bossType = waveNum >= 20 ? 'BOSS_BEHEMOTH' : 'BOSS_TITAN';
+    const bossType = waveNum >= 30 ? 'BOSS_BEHEMOTH' : 'BOSS_TITAN';
     addBoss(zombies, bossType, scaleFactor);
   } else if (waveNum % 5 === 0 && waveNum >= 5) {
-    addBoss(zombies, 'BOSS_TITAN', scaleFactor * 0.7);
+    addBoss(zombies, 'BOSS_TITAN', scaleFactor * 0.5);
   }
 
   return zombies;
@@ -1690,6 +2401,7 @@ function updateTowers(dt) {
     const b = G.buildings[bId];
     const bt = BUILDING_TYPES[b.typeId];
     if (bt.type !== 'tower') continue;
+    if (b._flash > 0) b._flash = Math.max(0, b._flash - dt);
     b.cooldown = (b.cooldown || 0) - dt;
     if (b.cooldown > 0) continue;
     const rate = getEffectiveRate(b);
@@ -1698,6 +2410,8 @@ function updateTowers(dt) {
     if (!target) continue;
     b.cooldown = 1 / rate;
     fireTower(b, bt, target);
+    b.aimAngle = Math.atan2(target.py - (b.row+0.5)*CELL, target.px - (b.col+0.5)*CELL);
+    b._flash = 0.15;
   }
 }
 
@@ -1759,6 +2473,36 @@ function fireTower(b, bt, target) {
       target.hp -= applyArmor(target, dmg); if(target.hp<=0) killZombie(target);
     }
     addEffect({type:'laser',x1:bx,y1:by,x2:target.px,y2:target.py,alpha:1,life:.15});
+    return;
+  }
+
+  // TOWER_ICE: AoE slow + damage
+  if (bt.id === 'TOWER_ICE') {
+    const splashR = CELL * (bt.range || 3) * 0.5 * (p.aoeM || 1);
+    addEffect({type:'emp', px:bx, py:by, maxR:splashR, alpha:0.6, life:0.4, maxLife:0.4});
+    for (const zId in G.zombies) {
+      const z = G.zombies[zId]; if(!z.spawned) continue;
+      if (Math.hypot(z.px-bx, z.py-by) < splashR) {
+        z.hp -= applyArmor(z, dmg);
+        z.slow = Math.max(z.slow||0, p.stun||1.5);
+        if (z.hp<=0) killZombie(z);
+      }
+    }
+    b.aimAngle = Math.atan2(target.py - by, target.px - bx);
+    b._flash = 0.2;
+    return;
+  }
+
+  // TOWER_RAILGUN: pierce all zombies in line
+  if (bt.id === 'TOWER_RAILGUN') {
+    const angle = Math.atan2(target.py-by, target.px-bx);
+    for (const zId in G.zombies) {
+      const z = G.zombies[zId]; if(!z.spawned) continue;
+      const d = Math.abs((z.py-by)*Math.cos(angle)-(z.px-bx)*Math.sin(angle));
+      if (d < CELL*0.5) { z.hp -= applyArmor(z,dmg); if(z.hp<=0) killZombie(z); }
+    }
+    addEffect({type:'laser',x1:bx,y1:by,x2:SPAWN_COL*CELL,y2:by,alpha:1,life:.2});
+    b.aimAngle = angle; b._flash = 0.25;
     return;
   }
 
