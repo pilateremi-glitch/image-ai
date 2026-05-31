@@ -387,6 +387,10 @@ const BUILDING_TYPES = {
   TOWER_TESLA:       { id:'TOWER_TESLA',       name:'Tour Tesla',     type:'tower',  hp:110,  dmg:80,  range:3.5, rate:1.2, cost:{gold:450, energy:60, crystals:5}, chain:3,  color:'#4a4aaa', emoji:'⚡', desc:'Chaîne éclair ×3', campRequired:4 },
   TOWER_LASER:       { id:'TOWER_LASER',       name:'Tour Laser',     type:'tower',  hp:90,   dmg:280, range:10,  rate:0.4, cost:{gold:550, energy:90, crystals:12},          color:'#aa2222', emoji:'🔴', desc:'Très longue portée', campRequired:5 },
   TOWER_PLASMA:      { id:'TOWER_PLASMA',      name:'Canon Plasma',   type:'tower',  hp:150,  dmg:600, range:5,   rate:0.25,cost:{gold:1200, energy:180, crystals:30}, aoe:true, color:'#aa44aa', emoji:'🌟', desc:'Dégâts massifs zone', campRequired:6 },
+  TOWER_CANNON:  { id:'TOWER_CANNON',  name:'Canon Boulet',    type:'tower', hp:130, dmg:320, range:4.5, rate:0.45, cost:{gold:420, scrap:160},              aoe:true, color:'#8a6a2a', emoji:'💥', desc:'Boulet explosif, AoE puissant', campRequired:3 },
+  TOWER_ICE:     { id:'TOWER_ICE',     name:'Tour de Glace',   type:'tower', hp:90,  dmg:20,  range:3.5, rate:1.8,  cost:{gold:380, energy:50, crystals:3},  slow:1.5, color:'#4aaacc', emoji:'❄', desc:'Gèle les zombies en zone', campRequired:3 },
+  TOWER_MORTAR:  { id:'TOWER_MORTAR',  name:'Mortier',         type:'tower', hp:110, dmg:220, range:8,   rate:0.3,  cost:{gold:650, scrap:200, energy:40},   aoe:true, color:'#6a5a2a', emoji:'💣', desc:'Artillerie longue portée AoE', campRequired:5 },
+  TOWER_RAILGUN: { id:'TOWER_RAILGUN', name:'Railgun',         type:'tower', hp:100, dmg:550, range:14,  rate:0.25, cost:{gold:900, energy:140, crystals:18},pierce:true, color:'#2a8aaa', emoji:'⚡', desc:'Perce tous les zombies en ligne', campRequired:6 },
   // TRAPS
   TRAP_BARBED:   { id:'TRAP_BARBED',   name:'Barbelés',      type:'trap', hp:40,  dmg:4,   cost:{gold:35, scrap:20},        slow:0.5,        color:'#5a3a1a', emoji:'🔗', desc:'Ralentit +blesse zombies' },
   TRAP_MINE:     { id:'TRAP_MINE',     name:'Mine',          type:'trap', hp:5,   dmg:180, cost:{gold:60, scrap:35},        aoe:true, oneShot:true, color:'#3a3a1a', emoji:'💣', desc:'Explose au contact (usage unique)' },
@@ -448,6 +452,14 @@ const TOWER_PATHS = {
                        B:{name:'🔺 Prisme',             desc:'3 faisceaux, dégâts ×0.9',      dmgM:0.9, prism:true} },
   TOWER_PLASMA:      { A:{name:'💥 Supernova',          desc:'Zone ×3, dégâts ×3',            dmgM:3,   aoeM:3},
                        B:{name:'🛰 Canon Orbital',      desc:'Portée infinie, dégâts ×5',     dmgM:5,   infinite:true} },
+  TOWER_CANNON:  { A:{name:'🔥 Shrapnel',     desc:'Éclats: portée ×1.5, dégâts ×2',   dmgM:2,  rangeM:1.5},
+                   B:{name:'💥 Obus Nucléaire',desc:'Zone ×3, dégâts ×3',               dmgM:3,  aoeM:3}    },
+  TOWER_ICE:     { A:{name:'❄ Blizzard',       desc:'Zone ×2, ralentit tout',            aoeM:2,  dmgM:1.5},
+                   B:{name:'🧊 Congélation',   desc:'Fige 3s, dégâts ×2',               dmgM:2,  stun:3}    },
+  TOWER_MORTAR:  { A:{name:'🔥 Napalm Obus',  desc:'Feu persistant 4s, zone ×2',       dmgM:1.5,aoeM:2},
+                   B:{name:'💥 Volée',         desc:'×4 bombes, dégâts ×0.6',           multishot:4,dmgM:0.6}},
+  TOWER_RAILGUN: { A:{name:'⚡ Surcharge',     desc:'Dégâts ×4, stun 2s',               dmgM:4,  stun:2},
+                   B:{name:'🌀 Canon Orbital', desc:'Portée infinie, dégâts ×6',         dmgM:6,  infinite:true}},
 };
 
 const SPECIALS_DATA = {
