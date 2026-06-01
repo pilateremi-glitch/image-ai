@@ -2374,6 +2374,26 @@ function updateZombies(dt) {
       continue;
     }
 
+    // Check for nearby troops to attack (zombies attack soldiers!)
+    let attackingTroop = false;
+    for (const troop of G.troops) {
+      if (troop.hp <= 0) continue;
+      const dist = Math.hypot(troop.px - z.px, troop.py - z.py);
+      if (dist < CELL * 0.75) {
+        attackingTroop = true;
+        z.attackTimer = (z.attackTimer || 0) + dt;
+        if (z.attackTimer >= 0.4) {
+          z.attackTimer = 0;
+          troop.hp -= z.dmgPerSec * 0.4;
+          // Visual hit flash on troop
+          troop._hit = 0.3;
+          addEffect({ type:'chain', x1:z.px, y1:z.py, x2:troop.px, y2:troop.py, alpha:0.5, life:0.1 });
+        }
+        break;
+      }
+    }
+    if (attackingTroop) continue;
+
     // Check cell ahead (to the left)
     const targetCol = col - 1;
     if (targetCol <= 0) {
