@@ -511,6 +511,7 @@ let animTime = 0;
 // SECTION 3: STATE
 // ================================================================
 let G = {}; // game state
+let _pendingKills = []; // deferred kill queue — prevents mutating G.zombies during iteration
 
 function defaultState() {
   const grid = [];
@@ -724,7 +725,7 @@ function updateTroops(dt) {
         const dmg = Math.ceil(mu.dmg * getTroopMult(t.typeId));
         if(mu.aoe){
           addEffect({type:'explosion',px:nz.px,py:nz.py,radius:CELL*1.8,alpha:.8,life:.35});
-          for(const zId in G.zombies){const z2=G.zombies[zId];if(!z2||!z2.spawned)continue;if(Math.hypot(z2.px-nz.px,z2.py-nz.py)<CELL*1.8){z2.hp-=dmg;if(z2.hp<=0)killZombie(z2);}}
+          for(const zId in G.zombies){const z2=G.zombies[zId];if(!z2||!z2.spawned)continue;if(Math.hypot(z2.px-nz.px,z2.py-nz.py)<CELL*1.8){z2.hp-=dmg;if(z2.hp<=0)_pendingKills.push(z2);}}
         } else if(mu.ranged){
           G.projectiles.push({px:t.px,py:t.py,tx:nz.px,ty:nz.py,targetId:nz.id,dmg,color:'#ffcc44',size:2.5,speed:600});
         } else {
@@ -2301,6 +2302,7 @@ function waveLoop(ts) {
   updateEffects(dt);
   updateSpecialCooldowns(dt);
   updateNapalm(dt);
+  flushPendingKills(); // process all deferred kills from chain explosions/mines
   if(G.berserkTimer>0) G.berserkTimer=Math.max(0,G.berserkTimer-dt);
 
   renderFrame();
@@ -2429,11 +2431,11 @@ function triggerMine(col, row) {
   addEffect({ type:'explosion', px:cx, py:cy, radius:radius*1.5, alpha:1, life:0.6 });
   for (const zId in G.zombies) {
     const z = G.zombies[zId];
-    if (!z.spawned) continue;
+    if (!z || !z.spawned) continue;
     const dx = z.px - cx, dy = z.py - cy;
     if (Math.sqrt(dx*dx+dy*dy) < radius) {
       z.hp -= 180;
-      if (z.hp <= 0) killZombie(z);
+      if (z.hp <= 0) _pendingKills.push(z); // defer to avoid mutating during iteration
     }
   }
 }
@@ -2453,21 +2455,26 @@ function damageBase(amount) {
 }
 
 function killZombie(z) {
+  if (!z || !G.zombies[z.id]) return; // already dead
+  // Mark dead immediately so it won't be targeted / double-killed
+  delete G.zombies[z.id];
+
   const zt = ZOMBIE_TYPES[z.typeId];
-  // Exploder: AoE on death (queue deaths to avoid recursive iterator corruption)
+  // Exploder: queue AoE damages (safe — G.zombies no longer contains z)
   if (zt.special === 'explode') {
     const radius = CELL * 1.2;
     addEffect({ type:'explosion', px:z.px, py:z.py, radius:radius, alpha:1, life:0.5 });
-    const toKill = [];
     for (const zId in G.zombies) {
       const z2 = G.zombies[zId];
-      if (!z2 || z2.id === z.id) continue;
+      if (!z2 || !z2.spawned) continue;
       const dx = z2.px-z.px, dy = z2.py-z.py;
-      if (Math.sqrt(dx*dx+dy*dy) < radius) { z2.hp -= 60; if(z2.hp<=0) toKill.push(z2); }
+      if (Math.sqrt(dx*dx+dy*dy) < radius) {
+        z2.hp -= 60;
+        if (z2.hp <= 0) _pendingKills.push(z2); // defer — don't recurse
+      }
     }
-    for (const dead of toKill) { if (G.zombies[dead.id]) killZombie(dead); }
   }
-  // Toxic: leave poison cloud (handled via effect)
+  // Toxic: leave poison cloud
   if (zt.special === 'poison') {
     addEffect({ type:'flame', px:z.px, py:z.py, radius:CELL*1.5, alpha:0.5, life:2, poison:true });
   }
@@ -2482,9 +2489,15 @@ function killZombie(z) {
   G.stats.totalGold     += Math.ceil(zt.reward * mult * goldBonus);
   G.stats.totalKills++;
   G.stats.zombiesKilled[z.typeId] = (G.stats.zombiesKilled[z.typeId] || 0) + 1;
-
-  delete G.zombies[z.id];
   updateTopBar();
+}
+
+// Called once per frame after all game logic — flushes deferred kills
+function flushPendingKills() {
+  while (_pendingKills.length > 0) {
+    const batch = _pendingKills.splice(0);
+    for (const z of batch) killZombie(z);
+  }
 }
 
 function updateTowers(dt) {
@@ -2633,7 +2646,7 @@ function fireTower(b, bt, target) {
       ct.stun=Math.max(ct.stun||0, p.stun||0.5);
       const prev=i>0?chainTargets[i-1]:null;
       addEffect({type:'chain',x1:prev?prev.px:bx,y1:prev?prev.py:by,x2:ct.px,y2:ct.py,alpha:1,life:.25});
-      if(ct.hp<=0) killZombie(ct);
+      if(ct.hp<=0)_pendingKills.push(ct);
     }
     return;
   }
@@ -2832,7 +2845,7 @@ function activateSpecial(id) {
       for (let i=0;i<3;i++) setTimeout(()=>{
         const row=Math.floor(Math.random()*ROWS);
         addEffect({type:'explosion',px:(COLS/2)*CELL,py:row*CELL+CELL/2,radius:CELL*2.5,alpha:1,life:.6});
-        for(const zId in G.zombies){const z=G.zombies[zId];if(!z||!z.spawned)continue;if(Math.floor(z.py/CELL)===row){z.hp-=250;if(z.hp<=0)killZombie(z);}}
+        for(const zId in G.zombies){const z=G.zombies[zId];if(!z||!z.spawned)continue;if(Math.floor(z.py/CELL)===row){z.hp-=250;if(z.hp<=0)_pendingKills.push(z);}}
       }, i*400);
       break;
     case 'EMP':
@@ -2869,7 +2882,7 @@ function updateNapalm(dt) {
     addEffect({type:'flame',px:z.px+Math.random()*z.r*.6-z.r*.3,py:z.py+Math.random()*z.r*.6-z.r*.3,radius:z.r*.5,alpha:.6,life:.25});
     for(const zId in G.zombies){
       const zm=G.zombies[zId];if(!zm||!zm.spawned)continue;
-      if(Math.hypot(zm.px-z.px,zm.py-z.py)<z.r){zm.hp-=30*dt;if(zm.hp<=0)killZombie(zm);}
+      if(Math.hypot(zm.px-z.px,zm.py-z.py)<z.r){zm.hp-=30*dt;if(zm.hp<=0)_pendingKills.push(zm);}
     }
   }
   G.napalmZones=G.napalmZones.filter(z=>z.life>0);
