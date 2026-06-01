@@ -713,7 +713,7 @@ function updateTroops(dt) {
     }
     // Find nearest zombie
     let nz=null,nzd=Infinity;
-    for(const zId in G.zombies){const z=G.zombies[zId];if(!z.spawned)continue;const d=Math.hypot(z.px-t.px,z.py-t.py);if(d<nzd){nzd=d;nz=z;}}
+    for(const zId in G.zombies){const z=G.zombies[zId];if(!z||!z.spawned)continue;const d=Math.hypot(z.px-t.px,z.py-t.py);if(d<nzd){nzd=d;nz=z;}}
     const rng=(mu.range||1.5)*CELL;
     t.cooldown=(t.cooldown||0)-dt;
     if(nz&&nzd<=rng){
@@ -724,7 +724,7 @@ function updateTroops(dt) {
         const dmg = Math.ceil(mu.dmg * getTroopMult(t.typeId));
         if(mu.aoe){
           addEffect({type:'explosion',px:nz.px,py:nz.py,radius:CELL*1.8,alpha:.8,life:.35});
-          for(const zId in G.zombies){const z2=G.zombies[zId];if(!z2.spawned)continue;if(Math.hypot(z2.px-nz.px,z2.py-nz.py)<CELL*1.8){z2.hp-=dmg;if(z2.hp<=0)killZombie(z2);}}
+          for(const zId in G.zombies){const z2=G.zombies[zId];if(!z2||!z2.spawned)continue;if(Math.hypot(z2.px-nz.px,z2.py-nz.py)<CELL*1.8){z2.hp-=dmg;if(z2.hp<=0)killZombie(z2);}}
         } else if(mu.ranged){
           G.projectiles.push({px:t.px,py:t.py,tx:nz.px,ty:nz.py,targetId:nz.id,dmg,color:'#ffcc44',size:2.5,speed:600});
         } else {
@@ -1928,13 +1928,50 @@ function drawZombies() {
 
 function drawProjectiles() {
   for (const p of G.projectiles) {
+    if (!p.px || !p.py) continue;
     ctx.save();
-    ctx.fillStyle = p.color;
+    const ang = Math.atan2(p.ty - p.py, p.tx - p.px);
+    const sz = p.size || 3;
     ctx.shadowColor = p.color;
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.arc(p.px, p.py, p.size || 3, 0, Math.PI*2);
-    ctx.fill();
+    ctx.shadowBlur = sz * 3;
+
+    if (p.btId === 'TOWER_ARCHER' || p.troopRanged) {
+      // Arrow: thin elongated shape
+      ctx.translate(p.px, p.py);
+      ctx.rotate(ang);
+      ctx.fillStyle = '#cc8800';
+      ctx.fillRect(-sz*2, -1, sz*4, 2);
+      ctx.fillStyle = '#aaaaaa';
+      ctx.beginPath(); ctx.moveTo(sz*2,0); ctx.lineTo(sz*1,- sz*.7); ctx.lineTo(sz*1,sz*.7); ctx.fill();
+      ctx.fillStyle = '#cc4400';
+      ctx.fillRect(-sz*2,-1.5,sz*.8,3);
+    } else if (p.btId === 'TOWER_SNIPER') {
+      // Sniper: bright fast streak
+      ctx.translate(p.px, p.py); ctx.rotate(ang);
+      const grad = ctx.createLinearGradient(-sz*4,0,sz*2,0);
+      grad.addColorStop(0,'transparent'); grad.addColorStop(1,'#ffff88');
+      ctx.fillStyle = grad;
+      ctx.fillRect(-sz*4,-1,sz*6,2);
+      ctx.fillStyle='#ffffff'; ctx.beginPath(); ctx.arc(sz,0,sz*.7,0,Math.PI*2); ctx.fill();
+    } else if (p.btId === 'TOWER_PLASMA' || p.btId === 'TOWER_CANNON') {
+      // Plasma/cannon orb
+      ctx.translate(p.px, p.py);
+      const grd = ctx.createRadialGradient(0,0,0,0,0,sz*2.5);
+      grd.addColorStop(0,'#ffffff');
+      grd.addColorStop(0.4, p.btId==='TOWER_PLASMA'?'#ff44ff':'#ffaa22');
+      grd.addColorStop(1,'transparent');
+      ctx.fillStyle=grd; ctx.beginPath(); ctx.arc(0,0,sz*2.5,0,Math.PI*2); ctx.fill();
+    } else {
+      // Default glowing bullet with trail
+      ctx.translate(p.px, p.py); ctx.rotate(ang);
+      const tGrad = ctx.createLinearGradient(-sz*3,0,sz,0);
+      tGrad.addColorStop(0,'transparent'); tGrad.addColorStop(1,p.color+'aa');
+      ctx.fillStyle = tGrad;
+      ctx.fillRect(-sz*3,-sz*.5,sz*3,sz);
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(0,0,sz,0,Math.PI*2); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
     ctx.restore();
   }
 }
@@ -1943,47 +1980,99 @@ function drawEffects() {
   for (const e of G.effects) {
     ctx.save();
     ctx.globalAlpha = e.alpha;
+
     if (e.type === 'explosion') {
-      const grad = ctx.createRadialGradient(e.px, e.py, 0, e.px, e.py, e.radius);
-      grad.addColorStop(0, '#ffffff');
-      grad.addColorStop(0.3, '#ff6600');
-      grad.addColorStop(1, 'transparent');
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(e.px, e.py, e.radius, 0, Math.PI*2);
-      ctx.fill();
+      // Multi-ring explosion with shockwave
+      const r = e.radius;
+      const prog = 1 - (e.life / (e._origLife || 0.5));
+      const inner = ctx.createRadialGradient(e.px, e.py, 0, e.px, e.py, r * 0.55);
+      inner.addColorStop(0, '#ffffff');
+      inner.addColorStop(0.25, '#ffcc00');
+      inner.addColorStop(0.6, '#ff4400');
+      inner.addColorStop(1, 'transparent');
+      ctx.fillStyle = inner;
+      ctx.beginPath(); ctx.arc(e.px, e.py, r * 0.55, 0, Math.PI*2); ctx.fill();
+      // Outer shockwave ring
+      ctx.globalAlpha = e.alpha * 0.5;
+      ctx.strokeStyle = '#ff8800';
+      ctx.lineWidth = 3;
+      ctx.shadowColor = '#ff4400'; ctx.shadowBlur = 12;
+      ctx.beginPath(); ctx.arc(e.px, e.py, r * (0.6 + prog * 0.4), 0, Math.PI*2); ctx.stroke();
+      ctx.shadowBlur = 0;
+      // Debris particles (4 sparks)
+      ctx.fillStyle = '#ffcc00';
+      for (let i=0;i<4;i++) {
+        const da = (e._seedAngle||0) + i * Math.PI/2 + prog * 1.5;
+        const dr = r * prog * 0.9;
+        ctx.beginPath(); ctx.arc(e.px+Math.cos(da)*dr, e.py+Math.sin(da)*dr, 2.5, 0, Math.PI*2); ctx.fill();
+      }
+
     } else if (e.type === 'laser') {
-      ctx.strokeStyle = '#ff2222';
-      ctx.lineWidth = 2;
-      ctx.shadowColor = '#ff2222';
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.moveTo(e.x1, e.y1);
-      ctx.lineTo(e.x2, e.y2);
-      ctx.stroke();
+      // Laser beam with glow layers
+      const col = e.color || '#ff2222';
+      ctx.shadowColor = col; ctx.shadowBlur = 16;
+      // Outer glow
+      ctx.strokeStyle = col + '44'; ctx.lineWidth = 7;
+      ctx.beginPath(); ctx.moveTo(e.x1,e.y1); ctx.lineTo(e.x2,e.y2); ctx.stroke();
+      // Core
+      ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.shadowBlur = 8;
+      ctx.beginPath(); ctx.moveTo(e.x1,e.y1); ctx.lineTo(e.x2,e.y2); ctx.stroke();
+      // White hot center
+      ctx.strokeStyle = '#ffffff88'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(e.x1,e.y1); ctx.lineTo(e.x2,e.y2); ctx.stroke();
+      ctx.shadowBlur = 0;
+
     } else if (e.type === 'emp') {
-      const eR = e.maxR*(1-e.life/(e.maxLife||1));
-      ctx.strokeStyle=`rgba(0,200,255,${e.alpha})`;ctx.lineWidth=3;ctx.shadowColor='#00ccff';ctx.shadowBlur=12;
-      ctx.beginPath();ctx.arc(e.px,e.py,eR,0,Math.PI*2);ctx.stroke();ctx.shadowBlur=0;
+      // EMP expanding rings (3 rings)
+      const eR = e.maxR*(1-e.life/(e.maxLife||0.4));
+      ctx.shadowColor='#00eeff'; ctx.shadowBlur=14;
+      for (let i=0;i<3;i++) {
+        const ringR = eR * (1 - i*0.18);
+        ctx.strokeStyle=`rgba(0,${180+i*25},255,${e.alpha*(1-i*0.3)})`;
+        ctx.lineWidth=3-i;
+        ctx.beginPath(); ctx.arc(e.px,e.py,Math.max(1,ringR),0,Math.PI*2); ctx.stroke();
+      }
+      ctx.shadowBlur=0;
+
     } else if (e.type === 'repair_flash') {
-      ctx.fillStyle=`rgba(57,255,20,${e.alpha*.3})`;ctx.fillRect(0,0,CW,CH);
+      ctx.fillStyle=`rgba(57,255,20,${e.alpha*.25})`;ctx.fillRect(0,0,CW,CH);
+
     } else if (e.type === 'chain') {
+      // Lightning arc with zigzag
       ctx.strokeStyle = '#88aaff';
-      ctx.lineWidth = 2;
-      ctx.shadowColor = '#88aaff';
-      ctx.shadowBlur = 10;
+      ctx.shadowColor = '#aabbff'; ctx.shadowBlur = 14;
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.moveTo(e.x1, e.y1);
-      ctx.lineTo(e.x2, e.y2);
+      const dx=e.x2-e.x1, dy=e.y2-e.y1, dist=Math.hypot(dx,dy);
+      ctx.moveTo(e.x1,e.y1);
+      const segs=Math.max(2,Math.floor(dist/20));
+      for(let i=1;i<=segs;i++){
+        const t=i/segs;
+        const mx=e.x1+dx*t+(Math.random()-.5)*(dist*.18);
+        const my=e.y1+dy*t+(Math.random()-.5)*(dist*.18);
+        ctx.lineTo(mx,my);
+      }
       ctx.stroke();
+      ctx.shadowBlur=0;
+
     } else if (e.type === 'flame') {
-      const g2 = ctx.createRadialGradient(e.px, e.py, 0, e.px, e.py, e.radius);
-      g2.addColorStop(0, '#ffaa00');
-      g2.addColorStop(1, 'transparent');
+      // Flame with multiple layered gradients
+      const g2 = ctx.createRadialGradient(e.px, e.py-e.radius*.15, 0, e.px, e.py, e.radius);
+      if (e.poison) {
+        g2.addColorStop(0,'#88ff22bb'); g2.addColorStop(0.4,'#44aa0088'); g2.addColorStop(1,'transparent');
+      } else {
+        g2.addColorStop(0,'#ffffff'); g2.addColorStop(0.15,'#ffdd00cc');
+        g2.addColorStop(0.5,'#ff4400aa'); g2.addColorStop(1,'transparent');
+      }
       ctx.fillStyle = g2;
-      ctx.beginPath();
-      ctx.arc(e.px, e.py, e.radius, 0, Math.PI*2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(e.px, e.py, e.radius, 0, Math.PI*2); ctx.fill();
+      // Flickering inner core
+      if (!e.poison) {
+        ctx.globalAlpha = e.alpha * (0.4 + 0.3*Math.sin(animTime*20 + e.px));
+        const fc = ctx.createRadialGradient(e.px,e.py,0,e.px,e.py,e.radius*.4);
+        fc.addColorStop(0,'#ffffff'); fc.addColorStop(1,'transparent');
+        ctx.fillStyle=fc; ctx.beginPath(); ctx.arc(e.px,e.py,e.radius*.4,0,Math.PI*2); ctx.fill();
+      }
     }
     ctx.restore();
   }
@@ -2235,7 +2324,7 @@ function spawnPendingZombies(t) {
 function updateZombies(dt) {
   for (const zId in G.zombies) {
     const z = G.zombies[zId];
-    if (!z.spawned) continue;
+    if (!z || !z.spawned) continue; // null-check: may have been deleted by chain explosion
     if (z.stun > 0) { z.stun -= dt; continue; }
 
     const speedMult = z.slow > 0 ? 0.45 : 1;
@@ -2365,16 +2454,18 @@ function damageBase(amount) {
 
 function killZombie(z) {
   const zt = ZOMBIE_TYPES[z.typeId];
-  // Exploder: AoE on death
+  // Exploder: AoE on death (queue deaths to avoid recursive iterator corruption)
   if (zt.special === 'explode') {
     const radius = CELL * 1.2;
     addEffect({ type:'explosion', px:z.px, py:z.py, radius:radius, alpha:1, life:0.5 });
+    const toKill = [];
     for (const zId in G.zombies) {
       const z2 = G.zombies[zId];
-      if (z2.id === z.id) continue;
+      if (!z2 || z2.id === z.id) continue;
       const dx = z2.px-z.px, dy = z2.py-z.py;
-      if (Math.sqrt(dx*dx+dy*dy) < radius) { z2.hp -= 60; if(z2.hp<=0) killZombie(z2); }
+      if (Math.sqrt(dx*dx+dy*dy) < radius) { z2.hp -= 60; if(z2.hp<=0) toKill.push(z2); }
     }
+    for (const dead of toKill) { if (G.zombies[dead.id]) killZombie(dead); }
   }
   // Toxic: leave poison cloud (handled via effect)
   if (zt.special === 'poison') {
@@ -2465,14 +2556,14 @@ function fireTower(b, bt, target) {
     if (p.pierce) {
       const angle = Math.atan2(target.py-by, target.px-bx);
       for (const zId in G.zombies) {
-        const z = G.zombies[zId]; if(!z.spawned) continue;
+        const z = G.zombies[zId]; if(!z||!z.spawned) continue;
         const d = Math.abs((z.py-by)*Math.cos(angle)-(z.px-bx)*Math.sin(angle));
         if (d < CELL*.4) { z.hp -= applyArmor(z,dmg); if(z.hp<=0) killZombie(z); }
       }
     } else {
       target.hp -= applyArmor(target, dmg); if(target.hp<=0) killZombie(target);
     }
-    addEffect({type:'laser',x1:bx,y1:by,x2:target.px,y2:target.py,alpha:1,life:.15});
+    addEffect({type:'laser',x1:bx,y1:by,x2:target.px,y2:target.py,alpha:1,life:.15,color:'#ff2222'});
     return;
   }
 
@@ -2481,7 +2572,7 @@ function fireTower(b, bt, target) {
     const splashR = CELL * (bt.range || 3) * 0.5 * (p.aoeM || 1);
     addEffect({type:'emp', px:bx, py:by, maxR:splashR, alpha:0.6, life:0.4, maxLife:0.4});
     for (const zId in G.zombies) {
-      const z = G.zombies[zId]; if(!z.spawned) continue;
+      const z = G.zombies[zId]; if(!z||!z.spawned) continue;
       if (Math.hypot(z.px-bx, z.py-by) < splashR) {
         z.hp -= applyArmor(z, dmg);
         z.slow = Math.max(z.slow||0, p.stun||1.5);
@@ -2497,11 +2588,11 @@ function fireTower(b, bt, target) {
   if (bt.id === 'TOWER_RAILGUN') {
     const angle = Math.atan2(target.py-by, target.px-bx);
     for (const zId in G.zombies) {
-      const z = G.zombies[zId]; if(!z.spawned) continue;
+      const z = G.zombies[zId]; if(!z||!z.spawned) continue;
       const d = Math.abs((z.py-by)*Math.cos(angle)-(z.px-bx)*Math.sin(angle));
       if (d < CELL*0.5) { z.hp -= applyArmor(z,dmg); if(z.hp<=0) killZombie(z); }
     }
-    addEffect({type:'laser',x1:bx,y1:by,x2:SPAWN_COL*CELL,y2:by,alpha:1,life:.2});
+    addEffect({type:'laser',x1:bx,y1:by,x2:SPAWN_COL*CELL,y2:by,alpha:1,life:.2,color:'#00eeff'});
     b.aimAngle = angle; b._flash = 0.25;
     return;
   }
@@ -2512,7 +2603,7 @@ function fireTower(b, bt, target) {
     const splashR = CELL * 1.5 * (p.aoeM||1);
     addEffect({type:bt.id==='TOWER_FLAME'?'flame':'explosion', px:target.px,py:target.py,radius:splashR,alpha:.85,life:.35});
     for (const zId in G.zombies) {
-      const z = G.zombies[zId]; if(!z.spawned) continue;
+      const z = G.zombies[zId]; if(!z||!z.spawned) continue;
       if (Math.hypot(z.px-target.px,z.py-target.py)<splashR) {
         const reduced = applyArmor(z,dmg); z.hp -= reduced;
         if (p.poison) z.poison = Math.max(z.poison,4);
@@ -2530,7 +2621,7 @@ function fireTower(b, bt, target) {
     for (let i=1;i<maxChain;i++) {
       const last=chainTargets[chainTargets.length-1]; let next=null,nd=Infinity;
       for (const zId in G.zombies) {
-        const z=G.zombies[zId]; if(!z.spawned||used.has(z.id)) continue;
+        const z=G.zombies[zId]; if(!z||!z.spawned||used.has(z.id)) continue;
         const d=Math.hypot(z.px-last.px,z.py-last.py);
         if(d<CELL*2.8&&d<nd){nd=d;next=z;}
       }
@@ -2657,6 +2748,8 @@ function updateEffects(dt) {
 
 function addEffect(e) {
   e.maxLife = e.life;
+  e._origLife = e.life;
+  e._seedAngle = Math.random() * Math.PI * 2;
   G.effects.push(e);
 }
 
@@ -2739,7 +2832,7 @@ function activateSpecial(id) {
       for (let i=0;i<3;i++) setTimeout(()=>{
         const row=Math.floor(Math.random()*ROWS);
         addEffect({type:'explosion',px:(COLS/2)*CELL,py:row*CELL+CELL/2,radius:CELL*2.5,alpha:1,life:.6});
-        for(const zId in G.zombies){const z=G.zombies[zId];if(!z.spawned)continue;if(Math.floor(z.py/CELL)===row){z.hp-=250;if(z.hp<=0)killZombie(z);}}
+        for(const zId in G.zombies){const z=G.zombies[zId];if(!z||!z.spawned)continue;if(Math.floor(z.py/CELL)===row){z.hp-=250;if(z.hp<=0)killZombie(z);}}
       }, i*400);
       break;
     case 'EMP':
@@ -2775,7 +2868,7 @@ function updateNapalm(dt) {
     z.life-=dt;
     addEffect({type:'flame',px:z.px+Math.random()*z.r*.6-z.r*.3,py:z.py+Math.random()*z.r*.6-z.r*.3,radius:z.r*.5,alpha:.6,life:.25});
     for(const zId in G.zombies){
-      const zm=G.zombies[zId];if(!zm.spawned)continue;
+      const zm=G.zombies[zId];if(!zm||!zm.spawned)continue;
       if(Math.hypot(zm.px-z.px,zm.py-z.py)<z.r){zm.hp-=30*dt;if(zm.hp<=0)killZombie(zm);}
     }
   }
