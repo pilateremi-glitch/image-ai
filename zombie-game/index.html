@@ -2203,17 +2203,17 @@ function getBuildDiscount() {
 // ================================================================
 function generateWave(waveNum) {
   const zombies = [];
-  // Count grows forever: linear until 30, then log-capped so it stays playable
+  // Count grows forever with harder scaling
   let count = Math.ceil(5 + waveNum * 3.5 + Math.floor(waveNum / 5) * 7 + Math.floor(waveNum / 10) * 12);
   count = Math.min(count, 25 + waveNum * 2.5); // safety cap: manageable but huge
   if (G.eventModifiers.superHorde) count = Math.floor(count * 1.5);
 
-  // HP scale: gentle +5% per wave from start, steeper scaling after wave 25
-  let scaleFactor = 1 + waveNum * 0.05;
-  if (waveNum > 25) scaleFactor *= Math.pow(1.07, Math.min(waveNum - 25, 25));
-  if (waveNum > 50) scaleFactor *= Math.pow(1.09, Math.min(waveNum - 50, 50));
-  if (waveNum > 100) scaleFactor *= Math.pow(1.12, waveNum - 100);
-  // Speed bonus at high waves (starts at 35 instead of 40)
+  // HP scale: harder difficulty
+  let scaleFactor = 1 + waveNum * 0.05;  // +5% per wave (was +4%)
+  if (waveNum > 25) scaleFactor *= Math.pow(1.07, Math.min(waveNum - 25, 25));  // Kick in earlier
+  if (waveNum > 50) scaleFactor *= Math.pow(1.09, Math.min(waveNum - 50, 50));  // Steeper
+  if (waveNum > 100) scaleFactor *= Math.pow(1.12, waveNum - 100);  // Much steeper
+  // Speed bonus at high waves (faster earlier, was 40 → 35)
   const speedMult = waveNum > 35 ? 1 + (waveNum - 35) * 0.015 : 1;
 
   // Composition weights by wave (unlocked more gradually for wave 50 design)
@@ -2248,7 +2248,7 @@ function generateWave(waveNum) {
       py: (row + 0.5) * CELL,
       spawnRow: row,
       speed: zt.speed * Math.min(speedMult, 2.5), // capped at 2.5× so they don't teleport
-      dmgPerSec: zt.dmgPerSec * (1 + (waveNum > 15 ? (waveNum-15)*0.03 : 0)),
+      dmgPerSec: zt.dmgPerSec * (1 + (waveNum > 15 ? (waveNum-15)*0.03 : 0)),  // Was 20, now 15; was *0.02, now *0.03
       poison: 0, stun: 0, slow: 0,
       attackTimer: 0,
       spawnDelay: Math.max(0.08, 0.35 - waveNum*0.003) * i + Math.random() * 0.15,
