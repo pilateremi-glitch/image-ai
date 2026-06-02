@@ -568,6 +568,11 @@ function drawTroops() {
     ctx.save();
     const {sx:_tpx,sy:_tpy}=isoFromPx(t.px,t.py);
     ctx.translate(_tpx, _tpy+bob);
+    // Drop shadow
+    ctx.shadowColor = '#00000066';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 6;
     // Berserk glow
     if (G.berserkTimer>0){ctx.shadowColor='#ff1744';ctx.shadowBlur=8;}
     // Body (facing right toward zombies)
@@ -672,6 +677,9 @@ function drawTroops() {
     const hpR=t.hp/t.maxHp;
     ctx.fillStyle=hpR>.5?'#39ff14':hpR>.25?'#ffaa00':'#ff1744';
     ctx.fillRect(-bw/2,-r-8,bw*hpR,bh);
+    ctx.shadowBlur=0;
+    ctx.shadowOffsetX=0;
+    ctx.shadowOffsetY=0;
     ctx.restore();
     t._hit=Math.max(0,(t._hit||0)-.05);
   }
@@ -815,6 +823,12 @@ function drawZombieAnimated(z) {
   ctx.save();
   const {sx:_zpx,sy:_zpy}=isoFromPx(z.px,z.py);
   ctx.translate(_zpx, _zpy+bob);
+
+  // Drop shadow
+  ctx.shadowColor = '#00000066';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 6;
 
   if (z.typeId==='PHANTOM') ctx.globalAlpha = 0.35+0.5*Math.abs(Math.sin(t*2.2+ph));
 
@@ -973,6 +987,9 @@ function drawZombieAnimated(z) {
     default:
       zBody(r,zt.color||'#3a5a3a');zHead(r,zt.color||'#3a5a3a');zEyes(r,'#ff3333');zArms(r,t,ph,zt.color||'#3a5a3a');zLegs(r,t,ph,zt.color||'#3a5a3a');
   }
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
   ctx.restore();
 }
 
@@ -986,6 +1003,12 @@ function drawHeroAnimated(h) {
 
   ctx.save();
   ctx.translate(bx, by+bob);
+
+  // Drop shadow
+  ctx.shadowColor = '#00000066';
+  ctx.shadowBlur = 8;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 6;
 
   // Berserk glow
   if (G.berserkTimer > 0) { ctx.shadowColor='#ff1744'; ctx.shadowBlur=10; }
@@ -1081,6 +1104,8 @@ function drawHeroAnimated(h) {
       break;}
   }
   ctx.shadowBlur=0;
+  ctx.shadowOffsetX=0;
+  ctx.shadowOffsetY=0;
   // Level badge
   ctx.fillStyle='#ffcc00';ctx.font='bold 8px Courier New';ctx.textAlign='left';ctx.textBaseline='top';
   ctx.fillText('H'+h.level,-r*.9,-r*.9);
@@ -1107,6 +1132,9 @@ function renderFrame() {
   drawZombies();
   drawProjectiles();
   drawEffects();
+  // Optional: subtle depth fog
+  ctx.fillStyle = 'rgba(10,10,10,0.05)';
+  ctx.fillRect(0, CH*0.6, CW, CH*0.4);
   drawHoverHighlight();
   drawRangeIndicator();
 }
@@ -1120,7 +1148,12 @@ function drawGrid() {
       let fill,stroke;
       if(cc===0){fill='#1e1e4a';stroke='#3a3a8a66';}
       else if(cc===SPAWN_COL){fill='#2e1414';stroke='#7a282866';}
-      else{fill=(cc+rr)%2===0?'#131f13':'#111b11';stroke='#1e2e1e44';}
+      else{
+        // Terrain shading: darker for columns closer to spawn (col > 10) for depth cues
+        if(cc>10){fill=(cc+rr)%2===0?'#0a0f0a':'#090d09';}
+        else{fill=(cc+rr)%2===0?'#131f13':'#111b11';}
+        stroke='#1e2e1e44';
+      }
       ctx.fillStyle=fill;
       drawIsoDiamond(sx,sy,ISO_TW,ISO_TH);
       ctx.fill();
@@ -1926,7 +1959,7 @@ function drawProjectiles() {
     const ang = Math.atan2(_pty - _ppy, _ptx - _ppx);
     const sz = p.size || 3;
     ctx.shadowColor = p.color;
-    ctx.shadowBlur = sz * 3;
+    ctx.shadowBlur = 12 + (p.size || 3) * 2;
 
     if (p.btId === 'TOWER_ARCHER' || p.troopRanged) {
       // Arrow: thin elongated shape
@@ -2171,17 +2204,17 @@ function getBuildDiscount() {
 function generateWave(waveNum) {
   const zombies = [];
   // Count grows forever: linear until 30, then log-capped so it stays playable
-  let count = Math.ceil(5 + waveNum * 3 + Math.floor(waveNum / 5) * 5 + Math.floor(waveNum / 10) * 10);
-  count = Math.min(count, 20 + waveNum * 2); // safety cap: manageable but huge
+  let count = Math.ceil(5 + waveNum * 3.5 + Math.floor(waveNum / 5) * 7 + Math.floor(waveNum / 10) * 12);
+  count = Math.min(count, 25 + waveNum * 2.5); // safety cap: manageable but huge
   if (G.eventModifiers.superHorde) count = Math.floor(count * 1.5);
 
-  // HP scale: gentle +4% per wave from start, steeper scaling after wave 30
-  let scaleFactor = 1 + waveNum * 0.04;
-  if (waveNum > 30) scaleFactor *= Math.pow(1.06, Math.min(waveNum - 30, 20));
-  if (waveNum > 50) scaleFactor *= Math.pow(1.08, Math.min(waveNum - 50, 50));
-  if (waveNum > 100) scaleFactor *= Math.pow(1.10, waveNum - 100);
-  // Speed bonus at high waves (starts at 40 instead of 30)
-  const speedMult = waveNum > 40 ? 1 + (waveNum - 40) * 0.01 : 1;
+  // HP scale: gentle +5% per wave from start, steeper scaling after wave 25
+  let scaleFactor = 1 + waveNum * 0.05;
+  if (waveNum > 25) scaleFactor *= Math.pow(1.07, Math.min(waveNum - 25, 25));
+  if (waveNum > 50) scaleFactor *= Math.pow(1.09, Math.min(waveNum - 50, 50));
+  if (waveNum > 100) scaleFactor *= Math.pow(1.12, waveNum - 100);
+  // Speed bonus at high waves (starts at 35 instead of 40)
+  const speedMult = waveNum > 35 ? 1 + (waveNum - 35) * 0.015 : 1;
 
   // Composition weights by wave (unlocked more gradually for wave 50 design)
   const pool = [];
@@ -2215,7 +2248,7 @@ function generateWave(waveNum) {
       py: (row + 0.5) * CELL,
       spawnRow: row,
       speed: zt.speed * Math.min(speedMult, 2.5), // capped at 2.5× so they don't teleport
-      dmgPerSec: zt.dmgPerSec * (1 + (waveNum > 20 ? (waveNum-20)*0.02 : 0)),
+      dmgPerSec: zt.dmgPerSec * (1 + (waveNum > 15 ? (waveNum-15)*0.03 : 0)),
       poison: 0, stun: 0, slow: 0,
       attackTimer: 0,
       spawnDelay: Math.max(0.08, 0.35 - waveNum*0.003) * i + Math.random() * 0.15,
@@ -2389,29 +2422,45 @@ function updateZombies(dt) {
     }
     if (attackingTroop) continue;
 
-    // Check cell ahead (to the left)
+    // Pathfinding: look for unblocked lane if blocked ahead
     const targetCol = col - 1;
     if (targetCol <= 0) {
-      // About to enter base
-      z.px -= z.speed * speedMult * dt;
+      z.px -= z.speed * speedMult * berserkBoost * dt;
       continue;
     }
-    const targetCell = G.grid[row] ? G.grid[row][targetCol] : null;
 
-    if (!targetCell || targetCell.type === 'empty' || targetCell.type === 'base') {
-      z.px -= z.speed * speedMult * berserkBoost * dt;
-    } else if (targetCell.type !== 'empty') {
-      // Spider + Bat + Phantom ignore walls
-      if (zt.special === 'climb' || zt.special === 'fly' || zt.special === 'phase') {
-        z.px -= z.speed * speedMult * dt;
-      } else {
-        // Attack the building
-        z.attackTimer += dt;
-        if (z.attackTimer >= 0.5) {
-          z.attackTimer = 0;
-          const dmg = z.dmgPerSec * 0.5;
-          damageBuilding(targetCell.buildingId, row, targetCol, dmg, z);
+    // Check current row + nearby rows for unblocked path
+    let bestRow = row, bestDist = Infinity;
+    const searchRange = 3;
+    for (let sr = Math.max(0, row - searchRange); sr <= Math.min(ROWS-1, row + searchRange); sr++) {
+      const checkCell = G.grid[sr] ? G.grid[sr][targetCol] : null;
+      if (!checkCell || checkCell.type === 'empty' || checkCell.type === 'base') {
+        const vertDist = Math.abs(sr - row);
+        if (vertDist < bestDist) {
+          bestDist = vertDist;
+          bestRow = sr;
         }
+      }
+    }
+
+    const targetCell = G.grid[row] ? G.grid[row][targetCol] : null;
+    const blockCell = targetCell && targetCell.type !== 'empty' && targetCell.type !== 'base';
+
+    if (!blockCell) {
+      // Path is clear ahead, move forward
+      z.px -= z.speed * speedMult * berserkBoost * dt;
+    } else if (bestRow !== row && bestDist <= searchRange) {
+      // Move toward unblocked lane
+      const laneDir = bestRow > row ? 1 : -1;
+      z.py += z.speed * speedMult * 0.5 * laneDir * dt;
+      z.px -= z.speed * speedMult * 0.3 * dt; // move forward slower while navigating
+    } else {
+      // Trapped: attack the building
+      z.attackTimer += dt;
+      if (z.attackTimer >= 0.5) {
+        z.attackTimer = 0;
+        const dmg = z.dmgPerSec * 0.5;
+        damageBuilding(targetCell.buildingId, row, targetCol, dmg, z);
       }
     }
   }
@@ -2705,6 +2754,9 @@ function updateProjectiles(dt) {
     }
   }
   for (let i = toRemove.length-1; i >= 0; i--) G.projectiles.splice(toRemove[i], 1);
+  // Cleanup: filter out dead projectiles and cap at 100 to prevent accumulation
+  G.projectiles = G.projectiles.filter(p => (p.life || 1) > 0);
+  if (G.projectiles.length > 100) G.projectiles.splice(0, G.projectiles.length - 100);
 }
 
 function updateHeroAttacks(dt) {
@@ -2772,6 +2824,8 @@ function updateEffects(dt) {
     }
     if (e.life <= 0) G.effects.splice(i, 1);
   }
+  // Cleanup: keep only last 50 effects to prevent accumulation at wave 36+
+  if (G.effects.length > 50) G.effects.splice(0, G.effects.length - 50);
 }
 
 function addEffect(e) {
