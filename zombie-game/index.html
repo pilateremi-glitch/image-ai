@@ -564,10 +564,16 @@ function drawTroops() {
     const r = CELL * 0.28;
     const ph = t.phase||0, tm = animTime;
     const moving = t.state==='moving';
-    const bob = moving ? Math.sin(tm*6+ph)*1.8 : 0;
+    const _tspd = Math.hypot(t.vx||0, t.vy||0);
+    const _tspdR = moving ? Math.min(1, _tspd / Math.max(1, mu.speed)) : 0;
+    const bob = _tspdR > 0.05 ? Math.sin(tm*5*Math.max(0.4,_tspdR)+ph)*1.8*Math.max(0.3,_tspdR) : 0;
     ctx.save();
     const {sx:_tpx,sy:_tpy}=isoFromPx(t.px,t.py);
     ctx.translate(_tpx, _tpy+bob);
+    // Lean sideways when steering
+    if (_tspd > 5 && Math.abs(t.vy||0) > 2) {
+      ctx.rotate((t.vy||0) / Math.max(1, _tspd) * 0.14);
+    }
     // Drop shadow
     ctx.shadowColor = '#00000066';
     ctx.shadowBlur = 8;
@@ -701,7 +707,7 @@ function updateTroops(dt) {
       // Follow nearest ally
       let nearA=null,nearAD=Infinity;
       for(const t2 of G.troops) if(t2.id!==t.id&&t2.hp>0){const d=Math.hypot(t2.px-t.px,t2.py-t.py);if(d<nearAD){nearAD=d;nearA=t2;}}
-      if(nearA&&nearAD>CELL*.8){const a=Math.atan2(nearA.py-t.py,nearA.px-t.px);t.px+=Math.cos(a)*mu.speed*dt;t.py+=Math.sin(a)*mu.speed*dt;}
+      if(nearA&&nearAD>CELL*.8){const a=Math.atan2(nearA.py-t.py,nearA.px-t.px);const _hvx=Math.cos(a)*mu.speed,_hvy=Math.sin(a)*mu.speed;t.vx=(t.vx||0)+(_hvx-(t.vx||0))*Math.min(1,10*dt);t.vy=(t.vy||0)+(_hvy-(t.vy||0))*Math.min(1,10*dt);t.px+=t.vx*dt;t.py+=t.vy*dt;}
       t.state='moving';continue;
     }
     // Repairer: finds nearest damaged building and repairs it
@@ -721,7 +727,7 @@ function updateTroops(dt) {
         if(t.repairCd<=0){t.repairCd=1;bestB.hp=Math.min(bestB.maxHp,bestB.hp+mu.repairAmt);t._hit=0.3;addEffect({type:'chain',x1:t.px,y1:t.py,x2:bestBPos.x,y2:bestBPos.y,alpha:.5,life:.2});}
       } else if(bestB){
         t.state='moving';
-        const a=Math.atan2(bestBPos.y-t.py,bestBPos.x-t.px);t.px+=Math.cos(a)*mu.speed*dt;t.py+=Math.sin(a)*mu.speed*dt;
+        const a=Math.atan2(bestBPos.y-t.py,bestBPos.x-t.px);const _rvx=Math.cos(a)*mu.speed,_rvy=Math.sin(a)*mu.speed;t.vx=(t.vx||0)+(_rvx-(t.vx||0))*Math.min(1,10*dt);t.vy=(t.vy||0)+(_rvy-(t.vy||0))*Math.min(1,10*dt);t.px+=t.vx*dt;t.py+=t.vy*dt;
       } else {
         t.state='idle';
       }
@@ -752,8 +758,13 @@ function updateTroops(dt) {
       }
     } else {
       t.state='moving';
-      if(nz){const a=Math.atan2(nz.py-t.py,nz.px-t.px);t.px+=Math.cos(a)*mu.speed*dt;t.py+=Math.sin(a)*mu.speed*dt;}
-      else{t.px+=mu.speed*dt;}
+      let _ttvx=0, _ttvy=0;
+      if(nz){const _ta=Math.atan2(nz.py-t.py,nz.px-t.px);_ttvx=Math.cos(_ta)*mu.speed;_ttvy=Math.sin(_ta)*mu.speed;}
+      else{_ttvx=mu.speed;}
+      const _tlr=Math.min(1,10*dt);
+      t.vx=(t.vx||0)+(_ttvx-(t.vx||0))*_tlr;
+      t.vy=(t.vy||0)+(_ttvy-(t.vy||0))*_tlr;
+      t.px+=t.vx*dt; t.py+=t.vy*dt;
       t.px=Math.min(t.px,(SPAWN_COL-.5)*CELL);
       t.py=Math.max(CELL*.5,Math.min(t.py,(ROWS-.5)*CELL));
     }
@@ -817,12 +828,22 @@ function drawZombieAnimated(z) {
   const zt = ZOMBIE_TYPES[z.typeId];
   const r = CELL * zt.r * 0.5;
   const ph = z.phase||0, t = animTime;
-  const bob = z.stun>0 ? 0 : Math.sin(t*3.5+ph)*2.2;
+  // Scale animation speed and amplitude to actual movement velocity
+  const _spd = Math.hypot(z.vx||0, z.vy||0);
+  const _spdR = Math.min(1, _spd / Math.max(1, z.speed));
+  const bob = z.stun>0 ? 0 : Math.sin(t*3.5*Math.max(0.3,_spdR)+ph)*2.2*Math.max(0.2,_spdR);
   const isAttacking = z.attackTimer > 0;
 
   ctx.save();
+  // Smooth fade-in on spawn
+  const _fadeIn = z.spawnTime !== undefined ? Math.min(1, (animTime - z.spawnTime) / 0.4) : 1;
+  if (_fadeIn < 1) ctx.globalAlpha = _fadeIn;
   const {sx:_zpx,sy:_zpy}=isoFromPx(z.px,z.py);
   ctx.translate(_zpx, _zpy+bob);
+  // Lean in movement direction (sideways lean when steering)
+  if (_spd > 3 && (z.vy||0) !== 0) {
+    ctx.rotate((z.vy||0) / Math.max(1,_spd) * 0.18);
+  }
 
   // Drop shadow
   ctx.shadowColor = '#00000066';
@@ -2347,6 +2368,7 @@ function spawnPendingZombies(t) {
     if (!z.spawned && t >= z.spawnDelay) {
       z.spawned = true;
       z.phase = Math.random()*Math.PI*2;
+      z.spawnTime = t; // track for fade-in
     }
   }
 }
@@ -2446,23 +2468,32 @@ function updateZombies(dt) {
     const targetCell = G.grid[row] ? G.grid[row][targetCol] : null;
     const blockCell = targetCell && targetCell.type !== 'empty' && targetCell.type !== 'base';
 
+    // Compute target velocity
+    let _tvx = 0, _tvy = 0;
     if (!blockCell) {
-      // Path is clear ahead, move forward
-      z.px -= z.speed * speedMult * berserkBoost * dt;
+      _tvx = -z.speed * speedMult * berserkBoost;
+      // Gradually center in lane (reduce vertical drift)
+      const laneCenterY = (row + 0.5) * CELL;
+      const yOff = laneCenterY - z.py;
+      _tvy = Math.sign(yOff) * Math.min(Math.abs(yOff) * 3, z.speed * 0.3);
     } else if (bestRow !== row && bestDist <= searchRange) {
-      // Move toward unblocked lane
       const laneDir = bestRow > row ? 1 : -1;
-      z.py += z.speed * speedMult * 0.5 * laneDir * dt;
-      z.px -= z.speed * speedMult * 0.3 * dt; // move forward slower while navigating
+      _tvx = -z.speed * speedMult * 0.4;
+      _tvy = z.speed * speedMult * 0.7 * laneDir;
     } else {
       // Trapped: attack the building
       z.attackTimer += dt;
       if (z.attackTimer >= 0.5) {
         z.attackTimer = 0;
-        const dmg = z.dmgPerSec * 0.5;
-        damageBuilding(targetCell.buildingId, row, targetCol, dmg, z);
+        damageBuilding(targetCell.buildingId, row, targetCol, z.dmgPerSec * 0.5, z);
       }
     }
+    // Smooth velocity with lerp (prevents jarring direction snaps)
+    const _lr = Math.min(1, 9 * dt);
+    z.vx = (z.vx || 0) + (_tvx - (z.vx || 0)) * _lr;
+    z.vy = (z.vy || 0) + (_tvy - (z.vy || 0)) * _lr;
+    z.px += z.vx * dt;
+    z.py = Math.max(CELL * 0.5, Math.min(z.py + z.vy * dt, (ROWS - 0.5) * CELL));
   }
 }
 
@@ -2738,7 +2769,11 @@ function updateProjectiles(dt) {
     const p = G.projectiles[i];
     const target = G.zombies[p.targetId];
     if (!target || !target.spawned) { toRemove.push(i); continue; }
-    p.tx = target.px; p.ty = target.py;
+    // Lead target by predicted position (smoother hit arcs)
+    const _rawDist = Math.hypot(target.px-p.px, target.py-p.py);
+    const _lead = Math.min(0.4, _rawDist / Math.max(1, p.speed));
+    p.tx = target.px + (target.vx||0) * _lead;
+    p.ty = target.py + (target.vy||0) * _lead;
     const dx = p.tx-p.px, dy = p.ty-p.py;
     const dist = Math.sqrt(dx*dx+dy*dy);
     const move = p.speed * dt;
@@ -3738,16 +3773,19 @@ document.getElementById('btn-erase').addEventListener('click', () => {
 
 // Boot
 initMenu();
-// Idle render (build phase)
-(function idleRender() {
+// Idle render (build phase) — uses real timestamps for smooth 60fps
+let _idleLastTs = 0;
+(function idleRender(ts) {
+  const _idt = Math.min((ts - _idleLastTs) / 1000, 0.05);
+  _idleLastTs = ts;
   if (document.getElementById('main-menu').style.display !== 'none') {
-    animTime += 0.016;
+    animTime += _idt;
     requestAnimationFrame(idleRender);
     return;
   }
-  if (G.phase === 'build') { animTime += 0.016; renderFrame(); }
+  if (G.phase === 'build') { animTime += _idt; renderFrame(); }
   requestAnimationFrame(idleRender);
-})();
+})(0);
 
 // Init specials buttons on wave start/end
 const _origUpdateUI = updateUI;
