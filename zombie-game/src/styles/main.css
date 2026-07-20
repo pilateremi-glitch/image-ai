@@ -1,0 +1,39 @@
+/* Main stylesheet extracted from index.html */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --neon: #39ff14;
+  --neon2: #00eeff;
+  --danger: #ff1744;
+  --warn: #ffaa00;
+  --dark: #060a06;
+  --panel: #0c120c;
+  --border: #1a2a1a;
+}
+
+body {
+  background: var(--dark);
+  color: #b0c0b0;
+  font-family: 'Courier New', monospace;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a2a1a;
+}

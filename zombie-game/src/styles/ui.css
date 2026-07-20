@@ -1,0 +1,140 @@
+/* UI components stylesheet */
+
+/* Main Menu */
+#main-menu {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #0a1f0a 0%, #060a06 70%);
+  z-index: 100;
+}
+
+#main-menu::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 31px,
+      #39ff1406 31px,
+      #39ff1406 32px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 31px,
+      #39ff1406 31px,
+      #39ff1406 32px
+    );
+  pointer-events: none;
+}
+
+#main-menu h1 {
+  font-size: 3.2rem;
+  color: var(--neon);
+  text-shadow: 0 0 20px var(--neon), 0 0 60px #39ff1444;
+  margin-bottom: 0.4rem;
+  letter-spacing: 6px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    text-shadow: 0 0 20px var(--neon), 0 0 60px #39ff1444;
+  }
+  50% {
+    text-shadow: 0 0 30px var(--neon), 0 0 80px #39ff1466, 0 0 120px #39ff1422;
+  }
+}
+
+#main-menu .subtitle {
+  color: #4a6a4a;
+  margin-bottom: 3rem;
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+}
+
+.menu-btn {
+  display: block;
+  width: 260px;
+  padding: 13px 0;
+  margin: 7px auto;
+  border: 1px solid var(--neon);
+  background: transparent;
+  color: var(--neon);
+  font-family: inherit;
+  font-size: 0.95rem;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--neon);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s;
+  opacity: 0.1;
+}
+
+.menu-btn:hover::before {
+  transform: scaleX(1);
+}
+
+.menu-btn:hover {
+  box-shadow: 0 0 12px #39ff1444;
+  text-shadow: 0 0 8px var(--neon);
+}
+
+.menu-btn.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.menu-btn.danger:hover {
+  box-shadow: 0 0 12px #ff174444;
+}
+
+.menu-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+/* Game Over Screen */
+#gameover-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000d;
+  z-index: 300;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#gameover-screen.open {
+  display: flex;
+}
+
+#gameover-screen h1 {
+  font-size: 3rem;
+  color: var(--danger);
+  text-shadow: 0 0 30px #ff174488;
+  margin-bottom: 1rem;
+  animation: pulse 1s infinite;
+}
+
+#gameover-screen p {
+  color: #4a6a4a;
+  margin-bottom: 2rem;
+}
