@@ -1,0 +1,198 @@
+/**
+ * Zombie type definitions with stats and characteristics
+ * Imported by: game logic, rendering, wave generation
+ */
+
+export const ZOMBIE_TYPES = {
+  WALKER: {
+    id: 'WALKER',
+    name: 'Zombie',
+    emoji: '🧟',
+    hp: 30,
+    speed: 28,
+    dmgPerSec: 4,
+    reward: 10,
+    color: '#4a7c4a',
+    r: 0.45,
+    xp: 5
+  },
+  RUNNER: {
+    id: 'RUNNER',
+    name: 'Coureur',
+    emoji: '💨',
+    hp: 20,
+    speed: 90,
+    dmgPerSec: 3,
+    reward: 15,
+    color: '#7acc4a',
+    r: 0.35,
+    xp: 8
+  },
+  TANK: {
+    id: 'TANK',
+    name: 'Tank',
+    emoji: '🛡',
+    hp: 200,
+    speed: 14,
+    dmgPerSec: 12,
+    reward: 30,
+    color: '#4a4a9a',
+    r: 0.55,
+    xp: 15
+  },
+  TOXIC: {
+    id: 'TOXIC',
+    name: 'Toxique',
+    emoji: '☢',
+    hp: 70,
+    speed: 25,
+    dmgPerSec: 7,
+    reward: 35,
+    color: '#88cc22',
+    r: 0.45,
+    xp: 20,
+    special: 'poison'
+  },
+  ARMORED: {
+    id: 'ARMORED',
+    name: 'Blindé',
+    emoji: '⚔',
+    hp: 120,
+    speed: 20,
+    dmgPerSec: 10,
+    reward: 45,
+    color: '#6a6a6a',
+    r: 0.5,
+    xp: 25,
+    armor: 6
+  },
+  EXPLODER: {
+    id: 'EXPLODER',
+    name: 'Explosif',
+    emoji: '💥',
+    hp: 50,
+    speed: 40,
+    dmgPerSec: 5,
+    reward: 55,
+    color: '#cc5522',
+    r: 0.45,
+    xp: 30,
+    special: 'explode'
+  },
+  GIANT: {
+    id: 'GIANT',
+    name: 'Géant',
+    emoji: '👹',
+    hp: 600,
+    speed: 10,
+    dmgPerSec: 25,
+    reward: 120,
+    color: '#2a5a2a',
+    r: 0.7,
+    xp: 60
+  },
+  SPIDER: {
+    id: 'SPIDER',
+    name: 'Araignée',
+    emoji: '🕷',
+    hp: 60,
+    speed: 55,
+    dmgPerSec: 10,
+    reward: 80,
+    color: '#5a2a7a',
+    r: 0.4,
+    xp: 40,
+    special: 'climb'
+  },
+  BOSS_TITAN: {
+    id: 'BOSS_TITAN',
+    name: 'TITAN',
+    emoji: '💀',
+    hp: 2500,
+    speed: 8,
+    dmgPerSec: 40,
+    reward: 500,
+    color: '#2a0a0a',
+    r: 0.85,
+    xp: 300,
+    isBoss: true
+  },
+  BOSS_BEHEMOTH: {
+    id: 'BOSS_BEHEMOTH',
+    name: 'BÉHÉMOTH',
+    emoji: '👾',
+    hp: 6000,
+    speed: 6,
+    dmgPerSec: 70,
+    reward: 1500,
+    color: '#0a0a2a',
+    r: 1.0,
+    xp: 800,
+    isBoss: true
+  },
+  BOSS_ZOMBIE_KING: {
+    id: 'BOSS_ZOMBIE_KING',
+    name: 'ROI ZOMBIE',
+    emoji: '👑',
+    hp: 15000,
+    speed: 5,
+    dmgPerSec: 100,
+    reward: 4000,
+    color: '#1a001a',
+    r: 1.1,
+    xp: 2000,
+    isBoss: true
+  },
+  BAT: {
+    id: 'BAT',
+    name: 'Chauve-Souris',
+    emoji: '🦇',
+    hp: 45,
+    speed: 75,
+    dmgPerSec: 8,
+    reward: 60,
+    color: '#3a1a5a',
+    r: 0.38,
+    xp: 35,
+    special: 'fly'
+  },
+  BERSERKER: {
+    id: 'BERSERKER',
+    name: 'Berserk',
+    emoji: '💢',
+    hp: 90,
+    speed: 30,
+    dmgPerSec: 20,
+    reward: 75,
+    color: '#8a1a00',
+    r: 0.5,
+    xp: 45,
+    special: 'berserk'
+  },
+  PHANTOM: {
+    id: 'PHANTOM',
+    name: 'Fantôme',
+    emoji: '👻',
+    hp: 40,
+    speed: 42,
+    dmgPerSec: 6,
+    reward: 90,
+    color: '#8a8aaa',
+    r: 0.42,
+    xp: 50,
+    special: 'phase'
+  },
+  RAT_KING: {
+    id: 'RAT_KING',
+    name: 'Roi des Rats',
+    emoji: '🐀',
+    hp: 100,
+    speed: 18,
+    dmgPerSec: 9,
+    reward: 110,
+    color: '#5a3a00',
+    r: 0.55,
+    xp: 60,
+    special: 'summon'
+  }
+};

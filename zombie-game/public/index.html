@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧟 Zombie Survival — Tour par Tour</title>
+  <link rel="stylesheet" href="../src/styles/main.css">
+  <link rel="stylesheet" href="../src/styles/ui.css">
+</head>
+<body>
+
+<!-- MAIN MENU -->
+<div id="main-menu">
+  <h1>🧟 ZOMBIE SURVIVAL</h1>
+  <div class="subtitle">— STRATÉGIE TOUR PAR TOUR —</div>
+  <button class="menu-btn" id="btn-new-game">NOUVELLE PARTIE</button>
+  <button class="menu-btn" id="btn-continue" disabled>CONTINUER</button>
+  <button class="menu-btn" id="btn-tech-tree-menu" disabled>ARBRE TECHNOLOGIQUE</button>
+  <button class="menu-btn" id="btn-stats-menu" disabled>STATISTIQUES</button>
+  <button class="menu-btn danger" id="btn-erase">EFFACER SAUVEGARDE</button>
+</div>
+
+<!-- GAME CONTAINER -->
+<div id="game-container">
+  <!-- TOP BAR -->
+  <div id="top-bar">
+    <div class="res-item res-gold"><span class="icon">🪙</span><span class="val" id="r-gold">0</span></div>
+    <div class="res-item res-scrap"><span class="icon">⚙️</span><span class="val" id="r-scrap">0</span></div>
+    <div class="res-item res-wood"><span class="icon">🌲</span><span class="val" id="r-wood">0</span></div>
+    <div class="res-item res-energy"><span class="icon">⚡</span><span class="val" id="r-energy">0</span></div>
+    <div class="res-item res-crystal"><span class="icon">💎</span><span class="val" id="r-crystal">0</span></div>
+    <div class="res-item res-tech"><span class="icon">🔬</span><span class="val" id="r-techPoints">0</span></div>
+    <div class="res-item res-xp"><span class="icon">⭐</span><span class="val" id="r-xp">0</span></div>
+    <div id="wave-info">
+      <span id="wave-badge">VAGUE 0</span>
+      <span id="phase-label" style="font-size:.75rem;color:#6b7280">CONSTRUCTION</span>
+    </div>
+  </div>
+
+  <!-- MAIN BODY -->
+  <div id="game-body">
+    <!-- LEFT PANEL (desktop) + MOBILE DRAWER -->
+    <div id="left-panel">
+      <!-- Mobile drawer handle -->
+      <div id="drawer-handle">
+        <span id="drawer-handle-arrow">▼</span>
+        <span style="flex:1;text-align:center">🏗 CONSTRUIRE</span>
+      </div>
+      <div id="build-tabs">
+        <button class="build-tab active" data-tab="walls">Murs</button>
+        <button class="build-tab" data-tab="towers">Tours</button>
+        <button class="build-tab" data-tab="traps">Pièges</button>
+        <button class="build-tab" data-tab="support">Bâtim.</button>
+        <button class="build-tab" data-tab="heroes">Héros</button>
+        <button class="build-tab" data-tab="troops" style="color:#ff8800">Troupes</button>
+      </div>
+      <div id="build-list"></div>
+    </div>
+
+    <!-- CANVAS -->
+    <div id="canvas-container">
+      <canvas id="game-canvas"></canvas>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div id="right-panel">
+      <h3>ÉVÉNEMENT</h3>
+      <div id="event-box"><div class="ev-desc">Aucun événement</div></div>
+
+      <h3>CELLULE SÉLECT.</h3>
+      <div id="cell-info"><div class="ci-title">Cliquez une cellule</div></div>
+
+      <h3>BASE</h3>
+      <div id="camp-box">
+        <div class="camp-name" id="camp-name-lbl">Camp Niv.1</div>
+        <div id="camp-hp-bar"><div id="camp-hp-fill" style="width:100%"></div></div>
+        <div style="font-size:.62rem;color:#6b7280;margin-bottom:5px" id="camp-hp-lbl">500 / 500 HP</div>
+        <button id="camp-upgrade-btn">⬆ AMÉLIORER</button>
+      </div>
+
+      <h3>HÉROS ACTIFS</h3>
+      <div id="heroes-list"></div>
+    </div>
+  </div>
+
+  <!-- SPECIALS BAR -->
+  <div id="specials-bar">
+    <span class="sp-label">⚡ CAPACITÉS:</span>
+    <button class="sp-btn" id="sp-AIRSTRIKE">
+      <span class="sp-icon">✈</span><span class="sp-name">FRAPPE AÉRIENNE</span>
+      <div class="sp-bar"><div class="sp-fill" id="spfill-AIRSTRIKE" style="width:100%"></div></div>
+      <span class="sp-timer" id="sptxt-AIRSTRIKE">PRÊT!</span>
+    </button>
+    <button class="sp-btn" id="sp-EMP">
+      <span class="sp-icon">⚡</span><span class="sp-name">IMPULSION EMP</span>
+      <div class="sp-bar"><div class="sp-fill" id="spfill-EMP" style="width:100%"></div></div>
+      <span class="sp-timer" id="sptxt-EMP">PRÊT!</span>
+    </button>
+    <button class="sp-btn" id="sp-REPAIR">
+      <span class="sp-icon">🔧</span><span class="sp-name">RÉPARATION</span>
+      <div class="sp-bar"><div class="sp-fill" id="spfill-REPAIR" style="width:100%"></div></div>
+      <span class="sp-timer" id="sptxt-REPAIR">PRÊT!</span>
+    </button>
+    <button class="sp-btn" id="sp-BERSERK">
+      <span class="sp-icon">💢</span><span class="sp-name">MODE BERSERK</span>
+      <div class="sp-bar"><div class="sp-fill" id="spfill-BERSERK" style="width:100%"></div></div>
+      <span class="sp-timer" id="sptxt-BERSERK">PRÊT!</span>
+    </button>
+    <button class="sp-btn" id="sp-NAPALM">
+      <span class="sp-icon">🔥</span><span class="sp-name">NAPALM</span>
+      <div class="sp-bar"><div class="sp-fill" id="spfill-NAPALM" style="width:100%"></div></div>
+      <span class="sp-timer" id="sptxt-NAPALM">PRÊT!</span>
+    </button>
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div id="bottom-bar">
+    <button id="launch-btn">⚔ LANCER LA VAGUE</button>
+    <div style="display:flex;gap:4px;align-items:center">
+      <span style="font-size:.7rem;color:#6b7280">VITESSE:</span>
+      <button class="speed-btn active" data-speed="1">1×</button>
+      <button class="speed-btn" data-speed="2">2×</button>
+      <button class="speed-btn" data-speed="4">4×</button>
+    </div>
+    <button id="sell-btn">💰 VENDRE</button>
+    <button class="menu-btn" id="btn-tech-ingame" style="width:auto;padding:6px 12px;font-size:.72rem;display:inline-block;margin:0">🔬 TECHNO</button>
+    <button class="menu-btn" id="btn-stats-ingame" style="width:auto;padding:6px 12px;font-size:.72rem;display:inline-block;margin:0">📊 STATS</button>
+    <button class="menu-btn danger" id="btn-menu-ingame" style="width:auto;padding:6px 12px;font-size:.72rem;display:inline-block;margin:0">🏠 MENU</button>
+    <div id="msg-bar"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay">
+  <div id="modal-box">
+    <button id="modal-close">✕</button>
+    <h2 id="modal-title"></h2>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- GAME OVER SCREEN -->
+<div id="gameover-screen">
+  <h1 id="go-title">GAME OVER</h1>
+  <p id="go-msg">Votre base a été détruite à la vague <span id="go-wave">0</span></p>
+  <button class="menu-btn" id="btn-go-menu">RETOUR AU MENU</button>
+</div>
+
+<!-- Game entry point -->
+<script type="module" src="../src/index.js"></script>
+
+</body>
+</html>
