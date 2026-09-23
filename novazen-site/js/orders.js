@@ -20,13 +20,13 @@ const Orders = {
     return `${rand}-${String(seq).padStart(4, '0')}`;
   },
 
-  create({ customer, method, items, subtotal, promo, discount, total }) {
+  create({ customer, method, items, subtotal, promo, discount, shipping, total }) {
     const order = {
       ref: this.newRef(),
       customer: customer.trim().replace(/^@?/, '@'),
       method,
       items: items.map(i => ({ name: i.name, variant: i.variant || null, qty: i.qty, price: i.price })),
-      subtotal, promo: promo || null, discount: discount || 0, total,
+      subtotal, promo: promo || null, discount: discount || 0, shipping: shipping || 0, total,
       status: 'En attente',
       createdAt: new Date().toISOString(),
     };
@@ -53,7 +53,7 @@ const Orders = {
   recap(o) {
     const date = new Date(o.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
     const lines = [
-      '🛍️ COMMANDE NOVAZEN',
+      `🛍️ COMMANDE ${SHOP_CONFIG.name.toUpperCase()}`,
       `Réf : ${o.ref}`,
       `Client : ${o.customer}`,
       `Date : ${date}`,
@@ -64,7 +64,7 @@ const Orders = {
       `Sous-total : ${fmt(o.subtotal)}`,
     ];
     if (o.discount) lines.push(`Réduction${o.promo ? ` (${o.promo})` : ''} : -${fmt(o.discount)}`);
-    lines.push('Livraison : Offerte', `TOTAL : ${fmt(o.total)}`);
+    lines.push(`Livraison : ${o.shipping ? fmt(o.shipping) : 'Offerte'}`, `TOTAL : ${fmt(o.total)}`);
     return lines.join('\n');
   },
 
@@ -80,6 +80,7 @@ const Orders = {
       return { name, variant: variant || null, qty, price: parseAmount(m[3]) / qty };
     });
     const sub = field(/Sous-total\s*:\s*([^\n]+)/i);
+    const ship = field(/Livraison\s*:\s*([^\n]+)/i);
     const disc = text.match(/Réduction(?:\s*\(([^)]*)\))?\s*:\s*-?([^\n]+)/i);
     return {
       ref: ref[1].toUpperCase(),
@@ -89,6 +90,7 @@ const Orders = {
       subtotal: sub ? parseAmount(sub) : parseAmount(total[1]),
       promo: disc?.[1] || null,
       discount: disc ? parseAmount(disc[2]) : 0,
+      shipping: ship ? parseAmount(ship) : 0,
       total: parseAmount(total[1]),
       status: 'En attente',
       createdAt: new Date().toISOString(),
@@ -100,15 +102,12 @@ function parseAmount(str) {
   return parseFloat(String(str).replace(/[^\d,.-]/g, '').replace(/\.(?=\d{3}\b)/g, '').replace(',', '.')) || 0;
 }
 
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
 
 function paypalLink(total) {
   return `https://paypal.me/${SHOP_CONFIG.paypalMe}/${total.toFixed(2)}${SHOP_CONFIG.currency}`;
 }
 
-async function copyText(text) {
+async function copyText(text, msg = '✓ Récap copié !') {
   try {
     await navigator.clipboard.writeText(text);
   } catch {
@@ -119,5 +118,5 @@ async function copyText(text) {
     document.execCommand('copy');
     ta.remove();
   }
-  showToast('✓ Récap copié !');
+  showToast(msg);
 }

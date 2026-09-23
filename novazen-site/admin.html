@@ -4,60 +4,57 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="robots" content="noindex, nofollow"/>
-  <title>Admin – Commandes – NovaZen</title>
+  <title>Admin commandes – PokéPop</title>
+  <meta name="theme-color" content="#fff7ea"/>
   <link rel="stylesheet" href="css/style.css"/>
-  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0a0a0a] text-white">
-
-<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN <span class="text-xs text-white/40 font-sans tracking-normal">admin</span></a>
-    <button id="logout-btn" onclick="logout()" class="hidden text-sm text-white/50 hover:text-white transition-colors">Déconnexion</button>
-  </div>
-</nav>
+<body>
+<div id="site-header"></div>
 
 <!-- Login -->
-<div id="login" class="pt-40 max-w-sm mx-auto px-4">
-  <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-6 space-y-4">
-    <h1 class="font-display text-2xl font-bold">Mode <span class="gold-text">admin</span></h1>
-    <input id="pin" type="password" inputmode="numeric" placeholder="Code d'accès" class="form-input w-full"
-      onkeydown="if(event.key==='Enter')login()"/>
-    <button onclick="login()" class="btn-gold w-full justify-center">Entrer</button>
+<main id="login" class="page container" style="max-width:420px">
+  <div class="panel stack center">
+    <span class="ball" style="--s:64px;margin:0 auto"></span>
+    <h1 style="font-size:2rem">Mode <span class="hl">admin</span></h1>
+    <input id="pin" type="password" inputmode="numeric" placeholder="Code d'accès" class="input" style="text-align:center" onkeydown="if(event.key==='Enter')login()"/>
+    <button onclick="login()" class="btn btn-red btn-block">Entrer</button>
   </div>
-</div>
+</main>
 
 <!-- Dashboard -->
-<div id="dashboard" class="hidden pt-24 max-w-6xl mx-auto px-4 sm:px-6 pb-24 space-y-8">
-  <div class="flex flex-wrap items-end justify-between gap-4">
-    <h1 class="font-display text-4xl font-bold">Commandes <span class="gold-text">passées</span></h1>
-    <div class="flex gap-2 text-sm" id="filters"></div>
+<main id="dashboard" class="page container stack hidden" style="--gap:24px">
+  <div class="row-between">
+    <h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">Commandes <span class="hl hl-pink">passées</span></h1>
+    <button onclick="logout()" class="btn btn-sm">Déconnexion</button>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="stats"></div>
+  <div class="stats" id="stats"></div>
 
-  <!-- Import from DM -->
-  <details class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-5">
-    <summary class="cursor-pointer font-semibold">➕ Ajouter une commande reçue en DM</summary>
-    <p class="text-sm text-white/50 mt-3 mb-3">Colle ici le récap envoyé par le client : la référence, les produits et le total sont repris automatiquement.</p>
-    <textarea id="import-text" rows="8" placeholder="🛍️ COMMANDE NOVAZEN&#10;Réf : Z3F4-0001&#10;…" class="form-input w-full text-xs font-mono"></textarea>
-    <button onclick="importRecap()" class="btn-gold mt-3">Ajouter la commande</button>
+  <details class="panel-flat" style="background:#fffbe6">
+    <summary style="cursor:pointer;font-family:var(--font-display);font-weight:600;font-size:1.1rem">➕ Ajouter une commande reçue en DM</summary>
+    <p class="small muted" style="font-weight:700;margin:10px 0">Colle le récap envoyé par le client : la référence, les produits et le total sont repris automatiquement.</p>
+    <textarea id="import-text" rows="8" placeholder="🛍️ COMMANDE…&#10;Réf : Z3F4-0001&#10;…" class="input recap"></textarea>
+    <button onclick="importRecap()" class="btn btn-yellow" style="margin-top:12px">Ajouter la commande</button>
   </details>
 
-  <div id="orders" class="space-y-3"></div>
-  <p id="no-orders" class="hidden text-center text-white/40 py-16">Aucune commande pour le moment.</p>
-</div>
+  <div class="row-between">
+    <div class="chips" id="filters"></div>
+    <input id="search" type="search" placeholder="🔍 Réf ou pseudo" class="input" style="max-width:240px;padding:9px 14px" oninput="render()"/>
+  </div>
+
+  <div id="orders" class="stack"></div>
+  <div id="no-orders" class="empty hidden"><span class="ball"></span><h3>Aucune commande ici pour le moment.</h3></div>
+</main>
+
+<div id="site-footer"></div>
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/layout.js"></script>
 <script src="js/orders.js"></script>
 <script>
-const STATUS_STYLES = {
-  'En attente': 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-  'Payée':      'bg-green-500/15 text-green-400 border-green-500/30',
-  'Envoyée':    'bg-sky-500/15 text-sky-400 border-sky-500/30',
-};
+const STATUS_CLASS = { 'En attente': 'status-attente', 'Payée': 'status-payee', 'Envoyée': 'status-envoyee' };
+const STATUS_EMOJI = { 'En attente': '⏳', 'Payée': '💰', 'Envoyée': '📦' };
 let filter = 'Toutes';
 
 function isAuthed() {
@@ -81,53 +78,59 @@ function logout() {
 function showDashboard() {
   document.getElementById('login').classList.add('hidden');
   document.getElementById('dashboard').classList.remove('hidden');
-  document.getElementById('logout-btn').classList.remove('hidden');
+  render();
+}
+
+function setFilter(f) {
+  filter = f;
   render();
 }
 
 function render() {
   const all = Orders.all();
-  const orders = filter === 'Toutes' ? all : all.filter(o => o.status === filter);
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const orders = all
+    .filter(o => filter === 'Toutes' || o.status === filter)
+    .filter(o => !q || o.ref.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q));
 
   document.getElementById('filters').innerHTML = ['Toutes', ...ORDER_STATUSES].map(f => {
     const n = f === 'Toutes' ? all.length : all.filter(o => o.status === f).length;
-    const active = f === filter;
-    return `<button onclick="filter='${f}';render()" class="px-3 py-1.5 rounded-lg border ${active ? 'border-[#c9a84c] text-[#c9a84c] bg-[#c9a84c]/10' : 'border-[#1e1e1e] text-white/50 hover:text-white'}">${f} <span class="opacity-60">${n}</span></button>`;
+    return `<button class="chip ${f === filter ? 'active' : ''}" onclick="setFilter('${f}')">${STATUS_EMOJI[f] || '⭐'} ${f} · ${n}</button>`;
   }).join('');
 
-  const paidTotal = all.filter(o => o.status !== 'En attente').reduce((s, o) => s + o.total, 0);
+  const cashed = all.filter(o => o.status !== 'En attente').reduce((s, o) => s + o.total, 0);
   document.getElementById('stats').innerHTML = [
-    ['Commandes', all.length],
-    ['En attente', all.filter(o => o.status === 'En attente').length],
-    ['À envoyer', all.filter(o => o.status === 'Payée').length],
-    ['CA encaissé', fmt(paidTotal)],
-  ].map(([label, val]) => `
-    <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-4">
-      <p class="text-xs text-white/40 uppercase tracking-wider">${label}</p>
-      <p class="text-2xl font-bold mt-1">${val}</p>
-    </div>`).join('');
+    ['Commandes', all.length, 'bg-lav'],
+    ['En attente', all.filter(o => o.status === 'En attente').length, 'bg-yellow'],
+    ['À envoyer', all.filter(o => o.status === 'Payée').length, 'bg-mint'],
+    ['Encaissé', fmt(cashed), 'bg-pink'],
+  ].map(([label, val, bg]) => `<div class="stat ${bg}"><small>${label}</small><b>${val}</b></div>`).join('');
 
   document.getElementById('no-orders').classList.toggle('hidden', orders.length > 0);
-  document.getElementById('orders').innerHTML = orders.map(o => `
-    <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-4 sm:p-5">
-      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <span class="font-bold text-[#c9a84c] tracking-wider">${escapeHtml(o.ref)}</span>
-        <span class="text-sm">${escapeHtml(o.customer)}</span>
-        <span class="text-xs text-white/40">${new Date(o.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })} · ${escapeHtml(o.method)}</span>
-        <span class="ml-auto font-bold">${fmt(o.total)}</span>
-        <select onchange="Orders.setStatus('${escapeHtml(o.ref)}', this.value);render()" class="text-sm rounded-lg border px-2 py-1.5 cursor-pointer ${STATUS_STYLES[o.status] || ''}">
-          ${ORDER_STATUSES.map(s => `<option value="${s}" class="bg-[#141414] text-white" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
+  document.getElementById('orders').innerHTML = orders.map(o => {
+    const ref = escapeHtml(o.ref);
+    return `
+    <div class="order">
+      <div class="order-head">
+        <span class="order-ref">${ref}</span>
+        <span class="tag">${escapeHtml(o.customer)}</span>
+        <span class="xs muted" style="font-weight:700">${new Date(o.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })} · ${escapeHtml(o.method)}</span>
+        <span class="price" style="margin-left:auto;font-size:1.25rem">${fmt(o.total)}</span>
+        <select onchange="Orders.setStatus('${ref}', this.value);render()" class="status ${STATUS_CLASS[o.status] || ''}" aria-label="Statut">
+          ${ORDER_STATUSES.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${STATUS_EMOJI[s]} ${s}</option>`).join('')}
         </select>
       </div>
-      <ul class="mt-3 text-sm text-white/60 space-y-0.5">
+      <ul style="list-style:none;margin-top:10px;display:grid;gap:2px;font-weight:600;font-size:.92rem">
         ${o.items.map(i => `<li>• ${escapeHtml(i.name)}${i.variant ? ` (${escapeHtml(i.variant)})` : ''} ×${i.qty} — ${fmt(i.price * i.qty)}</li>`).join('')}
-        ${o.discount ? `<li class="text-green-400">Réduction${o.promo ? ` (${escapeHtml(o.promo)})` : ''} : -${fmt(o.discount)}</li>` : ''}
+        ${o.discount ? `<li style="color:var(--green)">Réduction${o.promo ? ` (${escapeHtml(o.promo)})` : ''} : -${fmt(o.discount)}</li>` : ''}
+        ${o.shipping ? `<li class="muted">Livraison : ${fmt(o.shipping)}</li>` : ''}
       </ul>
-      <div class="mt-3 flex gap-4 text-xs">
-        <button onclick="copyText(Orders.recap(Orders.all().find(x => x.ref === '${escapeHtml(o.ref)}')))" class="text-white/40 hover:text-white">📋 Copier le récap</button>
-        <button onclick="deleteOrder('${escapeHtml(o.ref)}')" class="text-white/40 hover:text-red-400">Supprimer</button>
+      <div class="row" style="margin-top:8px;gap:16px">
+        <button onclick="copyText(Orders.recap(Orders.all().find(x => x.ref === '${ref}')))" class="btn-ghost">📋 Copier le récap</button>
+        <button onclick="deleteOrder('${ref}')" class="btn-ghost">🗑️ Supprimer</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function importRecap() {

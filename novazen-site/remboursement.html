@@ -3,88 +3,46 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Politique de remboursement – NovaZen</title>
+  <title>Retours & remboursement – PokéPop</title>
+  <meta name="theme-color" content="#fff7ea"/>
   <link rel="stylesheet" href="css/style.css"/>
-  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','dark-card':'#141414','dark-border':'#1e1e1e'}}}}</script>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0a0a0a] text-white">
-<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-    <a href="index.html" class="font-display text-xl font-bold"><span class="gold-text">NOVA</span>ZEN</a>
-    <a href="boutique.html" class="text-sm text-white/50 hover:text-white transition-colors">← Boutique</a>
+<body>
+<div id="site-header"></div>
+
+<main class="page container">
+  <div class="center" style="margin-bottom:30px">
+    <span class="tag tag-pink">↩️ Retours</span>
+    <h1 style="margin-top:12px">Retours & <span class="hl hl-mint">remboursement</span></h1>
   </div>
-</nav>
-
-<div class="pt-24 max-w-3xl mx-auto px-4 sm:px-6 pb-24">
-  <h1 class="font-display text-4xl font-bold mb-2">Politique de Remboursement</h1>
-  <p class="text-white/40 text-sm mb-10">Dernière mise à jour : janvier 2025</p>
-
-  <!-- Key points -->
-  <div class="grid sm:grid-cols-3 gap-4 mb-12">
-    <div class="bg-[#141414] border border-[#1e1e1e] rounded-xl p-5 text-center">
-      <p class="text-3xl mb-2">30</p>
-      <p class="text-[#c9a84c] font-semibold text-sm">jours pour retourner</p>
-      <p class="text-white/40 text-xs mt-1">Après réception</p>
-    </div>
-    <div class="bg-[#141414] border border-[#1e1e1e] rounded-xl p-5 text-center">
-      <p class="text-3xl mb-2">100%</p>
-      <p class="text-[#c9a84c] font-semibold text-sm">remboursé</p>
-      <p class="text-white/40 text-xs mt-1">Du montant payé</p>
-    </div>
-    <div class="bg-[#141414] border border-[#1e1e1e] rounded-xl p-5 text-center">
-      <p class="text-3xl mb-2">5–7</p>
-      <p class="text-[#c9a84c] font-semibold text-sm">jours ouvrés</p>
-      <p class="text-white/40 text-xs mt-1">Pour le remboursement</p>
-    </div>
+  <div class="stats" style="grid-template-columns:repeat(3,1fr);max-width:780px;margin:0 auto 30px">
+    <div class="stat bg-yellow center"><small>Délai</small><b>14 j</b><span class="xs" style="font-weight:700">après réception</span></div>
+    <div class="stat bg-mint center"><small>Remboursé</small><b>100%</b><span class="xs" style="font-weight:700">du montant payé</span></div>
+    <div class="stat bg-lav center"><small>Sous</small><b>5 j</b><span class="xs" style="font-weight:700">après réception du retour</span></div>
   </div>
+  <article class="prose panel" style="margin:0 auto">
+    <h2 style="margin-top:0">Conditions</h2>
+    <ul>
+      <li>✓ Article neuf, non utilisé, dans son emballage d'origine</li>
+      <li>✓ Demande faite dans les 14 jours après réception</li>
+      <li>✗ Boosters, coffrets et produits scellés ouverts : ni repris ni échangés</li>
+    </ul>
+    <h2>Comment faire ?</h2>
+    <ol class="steps" style="margin-top:10px">
+      <li>Envoie-nous un DM avec ta référence de commande (ex : Z3F4-0001) et la raison du retour</li>
+      <li>On te répond avec l'adresse de retour sous 24 h</li>
+      <li>Renvoie l'article bien protégé (frais de retour à ta charge, sauf article défectueux)</li>
+      <li>Remboursement PayPal sous 5 jours après réception</li>
+    </ol>
+    <h2>Article abîmé ou erroné ?</h2>
+    <p>Pas de panique ! Prends une photo du colis et de l'article dès réception et envoie-la en DM : on prend en charge le retour et on te renvoie le bon article ou on te rembourse entièrement.</p>
+  </article>
+</main>
 
-  <div class="space-y-8 text-white/70 leading-relaxed">
-    <section>
-      <h2 class="text-white font-semibold text-xl mb-3">Notre engagement</h2>
-      <p>Chez NovaZen, votre satisfaction est notre priorité. Si pour une raison quelconque vous n'êtes pas satisfait de votre achat, nous vous proposons un remboursement complet ou un échange dans un délai de 30 jours après réception.</p>
-    </section>
-    <section>
-      <h2 class="text-white font-semibold text-xl mb-3">Conditions de retour</h2>
-      <ul class="space-y-2 mt-3">
-        <li class="flex items-start gap-3"><span class="text-[#c9a84c] mt-0.5">✓</span><span>Le produit doit être dans son état d'origine, non utilisé et dans son emballage d'origine</span></li>
-        <li class="flex items-start gap-3"><span class="text-[#c9a84c] mt-0.5">✓</span><span>La demande de retour doit être faite dans les 30 jours suivant la réception</span></li>
-        <li class="flex items-start gap-3"><span class="text-[#c9a84c] mt-0.5">✓</span><span>Tous les accessoires, notices et emballages doivent être inclus</span></li>
-        <li class="flex items-start gap-3"><span class="text-red-400] mt-0.5">✗</span><span>Les produits utilisés, endommagés ou incomplets ne sont pas éligibles au retour</span></li>
-      </ul>
-    </section>
-    <section>
-      <h2 class="text-white font-semibold text-xl mb-3">Comment initier un retour</h2>
-      <ol class="space-y-3 mt-3">
-        <li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-[#c9a84c]/15 text-[#c9a84c] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span><span>Contactez-nous via WhatsApp ou le formulaire de contact en indiquant votre numéro de commande et la raison du retour</span></li>
-        <li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-[#c9a84c]/15 text-[#c9a84c] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span><span>Nous vous envoyons les instructions d'expédition dans les 24 heures</span></li>
-        <li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-[#c9a84c]/15 text-[#c9a84c] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span><span>Expédiez le produit à l'adresse fournie (frais de retour à votre charge, sauf en cas de défaut)</span></li>
-        <li class="flex items-start gap-3"><span class="w-6 h-6 rounded-full bg-[#c9a84c]/15 text-[#c9a84c] text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span><span>Dès réception et vérification du produit, nous procédons au remboursement sous 5 à 7 jours ouvrés</span></li>
-      </ol>
-    </section>
-    <section>
-      <h2 class="text-white font-semibold text-xl mb-3">Produits défectueux</h2>
-      <p>Si vous recevez un produit défectueux ou endommagé, nous prenons en charge l'intégralité des frais de retour et procédons à un remplacement ou un remboursement complet dans les meilleurs délais. Prenez des photos du défaut et contactez-nous immédiatement.</p>
-    </section>
-    <section>
-      <h2 class="text-white font-semibold text-xl mb-3">Remboursement</h2>
-      <p>Le remboursement est effectué via le même mode de paiement que celui utilisé lors de l'achat. Délai : 5 à 7 jours ouvrés après réception du retour.</p>
-    </section>
-  </div>
-
-  <div class="mt-12 text-center bg-[#141414] border border-[#1e1e1e] rounded-2xl p-8">
-    <p class="text-2xl mb-3">💬</p>
-    <h2 class="font-semibold text-lg mb-2">Une question sur un retour ?</h2>
-    <p class="text-white/50 text-sm mb-6">Notre équipe vous guide à chaque étape.</p>
-    <a href="contact.html" class="btn-gold">Nous contacter →</a>
-  </div>
-</div>
-
-<footer class="bg-[#141414] border-t border-[#1e1e1e] py-10">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-white/30 text-xs">© 2025 NovaZen. Tous droits réservés.</div>
-</footer>
+<div id="site-footer"></div>
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/layout.js"></script>
 </body>
 </html>

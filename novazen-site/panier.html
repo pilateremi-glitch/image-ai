@@ -3,159 +3,115 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panier – NovaZen</title>
+  <title>Panier – PokéPop</title>
+  <meta name="theme-color" content="#fff7ea"/>
   <link rel="stylesheet" href="css/style.css"/>
-  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-[#0a0a0a] text-white">
+<body>
+<div id="site-header"></div>
 
-<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN</a>
-    <div class="hidden md:flex items-center gap-8 text-sm">
-      <a href="boutique.html" class="text-white/60 hover:text-white transition-colors">Boutique</a>
-      <a href="faq.html" class="text-white/60 hover:text-white transition-colors">FAQ</a>
-      <a href="contact.html" class="text-white/60 hover:text-white transition-colors">Contact</a>
-    </div>
-    <a href="panier.html" class="relative p-2">
-      <svg class="w-6 h-6 text-[#c9a84c]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
-      <span class="cart-count hidden absolute -top-1 -right-1 bg-[#c9a84c] text-[#0a0a0a] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
-    </a>
-  </div>
-</nav>
+<main class="page container">
+  <h1 style="margin-bottom:26px">Mon <span class="hl">panier</span> 🛒</h1>
 
-<div class="pt-24 max-w-5xl mx-auto px-4 sm:px-6 pb-24">
-  <h1 class="font-display text-4xl font-bold mb-10">Mon <span class="gold-text">Panier</span></h1>
-
-  <!-- Empty state -->
-  <div id="empty-cart" class="hidden text-center py-24">
-    <p class="text-6xl mb-6">🛒</p>
-    <p class="text-xl font-semibold mb-2">Votre panier est vide</p>
-    <p class="text-white/40 mb-8">Découvrez nos produits bien-être</p>
-    <a href="boutique.html" class="btn-gold">Découvrir la boutique</a>
+  <div id="empty-cart" class="empty panel hidden">
+    <span class="ball"></span>
+    <h2>Ton panier est vide</h2>
+    <p class="muted" style="margin:10px 0 22px;font-weight:700">Aucun Pokémon capturé pour le moment…</p>
+    <a href="boutique.html" class="btn btn-red">Partir à l'aventure →</a>
   </div>
 
-  <!-- Cart content -->
-  <div id="cart-content" class="hidden grid lg:grid-cols-3 gap-8">
-    <!-- Items -->
-    <div class="lg:col-span-2 space-y-4" id="cart-items"></div>
+  <div id="cart-content" class="grid-cart hidden">
+    <div class="stack" id="cart-items"></div>
 
-    <!-- Summary -->
-    <div class="space-y-4">
-      <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-6 space-y-4">
-        <h2 class="font-semibold text-lg">Récapitulatif</h2>
+    <aside class="panel stack" style="position:sticky;top:96px">
+      <h3 style="font-size:1.35rem">Récapitulatif</h3>
 
-        <!-- Promo code -->
-        <div>
-          <div class="flex gap-2">
-            <input id="promo-input" type="text" placeholder="Code promo" class="form-input flex-1 text-sm py-2.5"/>
-            <button onclick="applyPromoCode()" class="px-4 py-2.5 bg-[#c9a84c]/10 border border-[#c9a84c]/30 text-[#c9a84c] rounded-xl text-sm font-medium hover:bg-[#c9a84c]/20 transition-all">Appliquer</button>
-          </div>
-          <div id="promo-result" class="hidden mt-2 text-sm text-green-400 flex items-center gap-2"></div>
-          <p class="text-xs text-white/30 mt-1">Codes : NOVAZEN10, BIENVENUE, NOVAZEN5</p>
+      <div>
+        <div class="row" style="gap:8px">
+          <input id="promo-input" type="text" placeholder="Code promo" class="input" style="text-transform:uppercase" onkeydown="if(event.key==='Enter')applyPromoCode()"/>
+          <button onclick="applyPromoCode()" class="btn btn-sm">OK</button>
         </div>
-
-        <div class="border-t border-[#1e1e1e] pt-4 space-y-2 text-sm">
-          <div class="flex justify-between text-white/60"><span>Sous-total</span><span id="subtotal-val"></span></div>
-          <div id="discount-row" class="hidden flex justify-between text-green-400"><span id="discount-label"></span><span id="discount-val"></span></div>
-          <div class="flex justify-between text-white/60"><span>Livraison</span><span class="text-green-400">Offerte</span></div>
-        </div>
-        <div class="border-t border-[#1e1e1e] pt-4 flex justify-between font-bold text-lg">
-          <span>Total</span><span id="total-val" class="text-[#c9a84c]"></span>
-        </div>
-        <!-- Order options -->
-        <div class="border-t border-[#1e1e1e] pt-4 space-y-3">
-          <label for="customer-pseudo" class="text-sm font-medium">Ton pseudo Instagram / TikTok</label>
-          <input id="customer-pseudo" type="text" placeholder="@ton_pseudo" autocomplete="off" class="form-input w-full text-sm py-2.5"/>
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="orderPaypal()" class="flex flex-col items-center gap-1 p-3 rounded-xl bg-[#0070ba] hover:bg-[#005ea6] transition-colors text-white text-center">
-              <span class="text-lg">💳</span><span class="text-sm font-bold leading-tight">Payer avec PayPal</span>
-            </button>
-            <button onclick="orderDM()" class="flex flex-col items-center gap-1 p-3 rounded-xl bg-[#c9a84c] hover:bg-[#e0c675] transition-colors text-[#0a0a0a] text-center">
-              <span class="text-lg">💬</span><span class="text-sm font-bold leading-tight">Commander en DM</span>
-            </button>
-          </div>
-        </div>
-        <a href="boutique.html" class="block text-center text-sm text-white/40 hover:text-white/60 transition-colors">← Continuer les achats</a>
+        <p id="promo-result" class="small hidden" style="margin-top:6px;font-weight:800"></p>
       </div>
 
-      <!-- Trust -->
-      <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-4 space-y-3 text-sm text-white/50">
-        <div class="flex items-center gap-2"><span>🔒</span><span>Paiement 100% sécurisé</span></div>
-        <div class="flex items-center gap-2"><span>🚚</span><span>Livraison offerte dès 35€</span></div>
-        <div class="flex items-center gap-2"><span>↩️</span><span>Retour gratuit sous 30 jours</span></div>
+      <div class="lines">
+        <div><span>Sous-total</span><span id="subtotal-val"></span></div>
+        <div id="discount-row" class="hidden" style="color:var(--green)"><span id="discount-label"></span><span id="discount-val"></span></div>
+        <div><span>Livraison</span><span id="shipping-val"></span></div>
+        <p id="ship-hint" class="xs muted hidden" style="font-weight:700"></p>
+        <div class="total-line"><span>Total</span><span id="total-val" style="color:var(--red-d)"></span></div>
       </div>
-    </div>
+
+      <div>
+        <label for="customer-pseudo" class="label">Ton pseudo Insta / TikTok</label>
+        <input id="customer-pseudo" type="text" placeholder="@ton_pseudo" autocomplete="off" autocapitalize="off" class="input"/>
+      </div>
+
+      <div class="order-options">
+        <button class="order-opt btn-paypal" onclick="orderPaypal()"><span class="ico">💳</span>Payer avec PayPal<small>montant pré-rempli</small></button>
+        <button class="order-opt btn-pink" onclick="orderDM()"><span class="ico">💬</span>Commander en DM<small>Insta ou TikTok</small></button>
+      </div>
+      <a href="boutique.html" class="btn-ghost center" style="display:block">← Continuer mes achats</a>
+    </aside>
   </div>
-</div>
+</main>
 
 <!-- Order modal -->
-<div id="order-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-  <div class="bg-[#141414] border border-[#c9a84c]/30 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-4">
-    <div class="flex items-start justify-between gap-4">
-      <h2 id="modal-title" class="font-display text-2xl font-bold"></h2>
-      <button onclick="closeModal()" class="text-white/40 hover:text-white text-2xl leading-none" aria-label="Fermer">×</button>
+<div id="order-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="if(event.target===this)closeModal()">
+  <div class="modal-card stack">
+    <div class="row-between" style="flex-wrap:nowrap">
+      <h2 id="modal-title" style="font-size:1.6rem"></h2>
+      <button onclick="closeModal()" class="close-btn" aria-label="Fermer">×</button>
     </div>
-    <div class="bg-[#0a0a0a] border border-[#1e1e1e] rounded-xl p-4 text-center">
-      <p class="text-xs text-white/40 uppercase tracking-wider">Ta référence de commande</p>
-      <p id="modal-ref" class="text-2xl font-bold text-[#c9a84c] tracking-widest mt-1 select-all"></p>
+    <div class="ref-box">
+      <p class="xs" style="font-weight:800;text-transform:uppercase;letter-spacing:.06em">Ta référence de commande</p>
+      <p id="modal-ref" class="ref"></p>
     </div>
-    <p id="modal-text" class="text-sm text-white/70"></p>
-    <a id="modal-paypal" target="_blank" rel="noopener" class="hidden w-full justify-center items-center gap-2 p-3 rounded-xl bg-[#0070ba] hover:bg-[#005ea6] transition-colors text-white font-bold text-sm">Rouvrir PayPal ↗</a>
-    <textarea id="modal-recap" readonly rows="10" class="form-input w-full text-xs font-mono leading-relaxed resize-none"></textarea>
-    <button onclick="copyText(document.getElementById('modal-recap').value)" class="btn-gold w-full justify-center">📋 Copier le récap</button>
-    <div class="grid grid-cols-2 gap-2">
-      <a id="modal-ig" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 p-3 rounded-xl text-white font-semibold text-sm" style="background:linear-gradient(45deg,#f09433,#dc2743,#bc1888)">Instagram ↗</a>
-      <a id="modal-tt" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 p-3 rounded-xl bg-black border border-white/20 text-white font-semibold text-sm">TikTok ↗</a>
+    <ol class="steps" id="modal-steps"></ol>
+    <a id="modal-paypal" target="_blank" rel="noopener" class="btn btn-paypal btn-block hidden">💳 Rouvrir PayPal</a>
+    <textarea id="modal-recap" readonly rows="9" class="input recap"></textarea>
+    <button onclick="copyText(document.getElementById('modal-recap').value)" class="btn btn-red btn-block">📋 Copier le récap</button>
+    <div class="socials">
+      <a id="modal-ig" target="_blank" rel="noopener" class="btn btn-ig">Instagram ↗</a>
+      <a id="modal-tt" target="_blank" rel="noopener" class="btn btn-tt">TikTok ↗</a>
     </div>
   </div>
 </div>
 
-<footer class="bg-[#141414] border-t border-[#1e1e1e] py-10">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-white/30 text-xs">© 2025 NovaZen. Tous droits réservés.</div>
-</footer>
+<div id="site-footer"></div>
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/layout.js"></script>
 <script src="js/orders.js"></script>
 <script>
 let appliedPromo = null;
 
 function renderCart() {
   const items = Cart.items;
-  const empty = document.getElementById('empty-cart');
-  const content = document.getElementById('cart-content');
+  document.getElementById('empty-cart').classList.toggle('hidden', items.length > 0);
+  document.getElementById('cart-content').classList.toggle('hidden', items.length === 0);
+  if (!items.length) return;
 
-  if (items.length === 0) {
-    empty.classList.remove('hidden');
-    content.classList.add('hidden');
-    return;
-  }
-  empty.classList.add('hidden');
-  content.classList.remove('hidden');
-
-  document.getElementById('cart-items').innerHTML = items.map(item => `
-    <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-4 flex gap-4">
-      <a href="produit.html?id=${item.id}">
-        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 rounded-xl object-cover bg-[#1a1a1a]"/>
-      </a>
-      <div class="flex-1 min-w-0">
-        <a href="produit.html?id=${item.id}" class="font-semibold text-sm hover:text-[#c9a84c] transition-colors line-clamp-2">${item.name}</a>
-        ${item.variant ? `<p class="text-xs text-white/40 mt-0.5">${item.variant}</p>` : ''}
-        <p class="text-[#c9a84c] font-bold mt-1">${fmt(item.price)}</p>
-        <div class="flex items-center gap-3 mt-3">
-          <div class="flex items-center border border-[#1e1e1e] rounded-lg overflow-hidden">
-            <button onclick="changeQty('${item.key}', ${item.qty - 1})" class="w-8 h-8 flex items-center justify-center hover:bg-[#1e1e1e] transition-colors text-sm">−</button>
-            <span class="w-8 text-center text-sm">${item.qty}</span>
-            <button onclick="changeQty('${item.key}', ${item.qty + 1})" class="w-8 h-8 flex items-center justify-center hover:bg-[#1e1e1e] transition-colors text-sm">+</button>
-          </div>
-          <button onclick="Cart.remove('${item.key}');renderCart();" class="text-white/30 hover:text-red-400 transition-colors text-sm">Supprimer</button>
+  document.getElementById('cart-items').innerHTML = items.map(item => {
+    const p = PRODUCTS.find(x => x.id === item.id) || {};
+    const url = `produit.html?id=${encodeURIComponent(item.id)}`;
+    return `
+    <div class="citem">
+      <a href="${url}" class="citem-media">${productVisual(p)}</a>
+      <div class="citem-body">
+        <div class="row-between" style="align-items:flex-start;flex-wrap:nowrap">
+          <a href="${url}" class="citem-name">${escapeHtml(item.name)}</a>
+          <span class="price" style="font-size:1.1rem">${fmt(item.price * item.qty)}</span>
+        </div>
+        ${item.variant ? `<span class="tag tag-lav" style="margin-top:6px">${escapeHtml(item.variant)}</span>` : ''}
+        <div class="row-between" style="margin-top:10px">
+          <div class="qty"><button onclick="changeQty('${escapeHtml(item.key)}', ${item.qty - 1})" aria-label="Moins">−</button><span>${item.qty}</span><button onclick="changeQty('${escapeHtml(item.key)}', ${item.qty + 1})" aria-label="Plus">+</button></div>
+          <button onclick="changeQty('${escapeHtml(item.key)}', 0)" class="btn-ghost">Retirer</button>
         </div>
       </div>
-      <div class="text-right text-sm font-bold">${fmt(item.price * item.qty)}</div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   updateTotals();
 }
@@ -166,39 +122,59 @@ function changeQty(key, qty) {
 }
 
 function updateTotals() {
-  const sub = Cart.subtotal();
-  document.getElementById('subtotal-val').textContent = fmt(sub);
-
-  if (appliedPromo) {
-    const result = Cart.applyPromo(appliedPromo);
-    document.getElementById('discount-row').classList.remove('hidden');
+  const t = Cart.totals(appliedPromo);
+  document.getElementById('subtotal-val').textContent = fmt(t.subtotal);
+  document.getElementById('discount-row').classList.toggle('hidden', !t.promo);
+  if (t.promo) {
     document.getElementById('discount-label').textContent = `Code ${appliedPromo}`;
-    document.getElementById('discount-val').textContent = '-' + fmt(result.discountAmount);
-    document.getElementById('total-val').textContent = fmt(result.total);
-  } else {
-    document.getElementById('discount-row').classList.add('hidden');
-    document.getElementById('total-val').textContent = fmt(sub);
+    document.getElementById('discount-val').textContent = '-' + fmt(t.discount);
   }
+  document.getElementById('shipping-val').textContent = t.shipping ? fmt(t.shipping) : 'Offerte 🎉';
+  const hint = document.getElementById('ship-hint');
+  const missing = SHOP_CONFIG.freeShippingFrom - (t.subtotal - t.discount);
+  hint.classList.toggle('hidden', !t.shipping);
+  if (t.shipping) hint.textContent = `Plus que ${fmt(missing)} pour la livraison offerte !`;
+  document.getElementById('total-val').textContent = fmt(t.total);
+}
+
+function applyPromoCode() {
+  const code = document.getElementById('promo-input').value.trim().toUpperCase();
+  const result = Cart.applyPromo(code);
+  const el = document.getElementById('promo-result');
+  el.classList.remove('hidden');
+  if (!result) {
+    el.style.color = 'var(--red-d)';
+    el.textContent = '✗ Code invalide';
+    appliedPromo = null;
+  } else {
+    el.style.color = 'var(--green)';
+    el.textContent = `✓ Code ${code} appliqué (${result.label})`;
+    appliedPromo = code;
+  }
+  updateTotals();
+}
+
+function pseudoValue() {
+  return document.getElementById('customer-pseudo').value.trim();
 }
 
 function placeOrder(method) {
-  const input = document.getElementById('customer-pseudo');
-  const pseudo = input.value.trim();
+  const pseudo = pseudoValue();
   if (!pseudo.replace('@', '')) {
-    showToast('Indique ton pseudo Instagram / TikTok.', true);
-    input.focus();
+    showToast('Indique ton pseudo Insta / TikTok 😉', true);
+    document.getElementById('customer-pseudo').focus();
     return null;
   }
-  const subtotal = Cart.subtotal();
-  const promo = appliedPromo ? Cart.applyPromo(appliedPromo) : null;
+  const t = Cart.totals(appliedPromo);
   const order = Orders.create({
     customer: pseudo,
     method,
     items: Cart.items,
-    subtotal,
-    promo: promo ? appliedPromo : null,
-    discount: promo ? promo.discountAmount : 0,
-    total: promo ? promo.total : subtotal,
+    subtotal: t.subtotal,
+    promo: t.promo ? appliedPromo : null,
+    discount: t.discount,
+    shipping: t.shipping,
+    total: t.total,
   });
   Cart.clear();
   appliedPromo = null;
@@ -206,8 +182,8 @@ function placeOrder(method) {
 }
 
 function orderPaypal() {
-  // Ouvre PayPal dans le clic (évite le blocage des popups), puis crée la commande
-  if (!document.getElementById('customer-pseudo').value.replace('@', '').trim()) { placeOrder('PayPal'); return; }
+  if (!pseudoValue().replace('@', '')) { placeOrder('PayPal'); return; }
+  // Ouvre l'onglet pendant le clic (évite le blocage des popups), puis crée la commande
   const win = window.open('', '_blank');
   const order = placeOrder('PayPal');
   const url = paypalLink(order.total);
@@ -222,20 +198,23 @@ function orderDM() {
 
 function showOrderModal(order, paypalUrl) {
   const isPaypal = Boolean(paypalUrl);
-  document.getElementById('modal-title').innerHTML = isPaypal
-    ? 'Paiement <span class="gold-text">PayPal</span>'
-    : 'Commande <span class="gold-text">en DM</span>';
+  const ref = `<b style="color:var(--red-d)">${order.ref}</b>`;
+  document.getElementById('modal-title').innerHTML = isPaypal ? 'Presque fini ! 💳' : 'Commande prête ! 💬';
   document.getElementById('modal-ref').textContent = order.ref;
-  document.getElementById('modal-text').innerHTML = isPaypal
-    ? `Finalise le paiement de <b class="text-white">${fmt(order.total)}</b> sur PayPal (ajoute ta référence <b class="text-[#c9a84c]">${order.ref}</b> en note), puis <b class="text-white">envoie ce récap en DM</b> pour valider ta commande.`
-    : `Copie ce récap et <b class="text-white">envoie-le en DM</b> sur Instagram ou TikTok avec ta référence <b class="text-[#c9a84c]">${order.ref}</b>. On te répond au plus vite !`;
+  const steps = isPaypal
+    ? `<li>Finalise le paiement de <b>${fmt(order.total)}</b> sur PayPal (ajoute ${ref} en note)</li>
+       <li>Copie ton récap ci-dessous</li>
+       <li>Envoie-le-nous en DM pour valider ta commande ✨</li>`
+    : `<li>Copie ton récap ci-dessous</li>
+       <li>Envoie-le en DM sur Instagram ou TikTok avec ta référence ${ref}</li>
+       <li>On te répond vite pour le paiement et l'envoi 💖</li>`;
+  document.getElementById('modal-steps').innerHTML = steps.replace(/<li>(.*?)<\/li>/gs, '<li><span>$1</span></li>');
   const pp = document.getElementById('modal-paypal');
   pp.classList.toggle('hidden', !isPaypal);
-  pp.classList.toggle('flex', isPaypal);
   if (isPaypal) pp.href = paypalUrl;
   document.getElementById('modal-recap').value = Orders.recap(order);
-  document.getElementById('modal-ig').href = `https://ig.me/m/${SHOP_CONFIG.instagram}`;
-  document.getElementById('modal-tt').href = `https://www.tiktok.com/@${SHOP_CONFIG.tiktok}`;
+  document.getElementById('modal-ig').href = `https://ig.me/m/${encodeURIComponent(SHOP_CONFIG.instagram)}`;
+  document.getElementById('modal-tt').href = `https://www.tiktok.com/@${encodeURIComponent(SHOP_CONFIG.tiktok)}`;
   document.getElementById('order-modal').classList.remove('hidden');
 }
 
@@ -244,25 +223,7 @@ function closeModal() {
   renderCart();
 }
 
-function applyPromoCode() {
-  const code = document.getElementById('promo-input').value.trim().toUpperCase();
-  const result = Cart.applyPromo(code);
-  const el = document.getElementById('promo-result');
-  if (!result) {
-    el.className = 'mt-2 text-sm text-red-400 flex items-center gap-2';
-    el.textContent = '✗ Code invalide';
-    el.classList.remove('hidden');
-    appliedPromo = null;
-  } else {
-    el.className = 'mt-2 text-sm text-green-400 flex items-center gap-2';
-    el.textContent = `✓ Code appliqué : ${result.label} (-${fmt(result.discountAmount)})`;
-    el.classList.remove('hidden');
-    appliedPromo = code;
-  }
-  updateTotals();
-}
-
-renderCart();
+document.addEventListener('DOMContentLoaded', renderCart);
 </script>
 </body>
 </html>
