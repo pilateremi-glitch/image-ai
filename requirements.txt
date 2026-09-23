@@ -1,7 +1,7 @@
 # Core (obligatoire)
 aiohttp>=3.9.0
 
-# Comparaison photo (compare.py)
+# Comparaison photo (compare.py) + manga.py
 Pillow>=10.0.0
 numpy>=1.24.0
 scikit-image>=0.21.0
