@@ -13,7 +13,7 @@ Usage:
   python manga.py photo.jpg --engine both         # les deux
 """
 
-import asyncio, argparse, base64, json, sys, time
+import asyncio, argparse, base64, json, os, sys, time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
@@ -161,7 +161,7 @@ async def main():
         print("❌ Aucune image trouvée")
         return
 
-    key = cfg["keys"].get("replicate", "").strip()
+    key = (os.environ.get("REPLICATE_API_TOKEN") or cfg["keys"].get("replicate", "")).strip()
     use_ai = args.engine in ("ai", "both")
     if use_ai and not key:
         print("⚠️  Clé Replicate manquante dans config.json → moteur IA désactivé")
