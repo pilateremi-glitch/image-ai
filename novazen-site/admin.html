@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>Admin – Commandes – NovaZen</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0a0a0a] text-white">
+
+<nav class="fixed top-0 inset-x-0 z-50 bg-[#0a0a0a]/90 backdrop-blur-md border-b border-[#1e1e1e]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+    <a href="index.html" class="font-display text-xl font-bold tracking-wider"><span class="gold-text">NOVA</span>ZEN <span class="text-xs text-white/40 font-sans tracking-normal">admin</span></a>
+    <button id="logout-btn" onclick="logout()" class="hidden text-sm text-white/50 hover:text-white transition-colors">Déconnexion</button>
+  </div>
+</nav>
+
+<!-- Login -->
+<div id="login" class="pt-40 max-w-sm mx-auto px-4">
+  <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-6 space-y-4">
+    <h1 class="font-display text-2xl font-bold">Mode <span class="gold-text">admin</span></h1>
+    <input id="pin" type="password" inputmode="numeric" placeholder="Code d'accès" class="form-input w-full"
+      onkeydown="if(event.key==='Enter')login()"/>
+    <button onclick="login()" class="btn-gold w-full justify-center">Entrer</button>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="hidden pt-24 max-w-6xl mx-auto px-4 sm:px-6 pb-24 space-y-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <h1 class="font-display text-4xl font-bold">Commandes <span class="gold-text">passées</span></h1>
+    <div class="flex gap-2 text-sm" id="filters"></div>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3" id="stats"></div>
+
+  <!-- Import from DM -->
+  <details class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-5">
+    <summary class="cursor-pointer font-semibold">➕ Ajouter une commande reçue en DM</summary>
+    <p class="text-sm text-white/50 mt-3 mb-3">Colle ici le récap envoyé par le client : la référence, les produits et le total sont repris automatiquement.</p>
+    <textarea id="import-text" rows="8" placeholder="🛍️ COMMANDE NOVAZEN&#10;Réf : Z3F4-0001&#10;…" class="form-input w-full text-xs font-mono"></textarea>
+    <button onclick="importRecap()" class="btn-gold mt-3">Ajouter la commande</button>
+  </details>
+
+  <div id="orders" class="space-y-3"></div>
+  <p id="no-orders" class="hidden text-center text-white/40 py-16">Aucune commande pour le moment.</p>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/orders.js"></script>
+<script>
+const STATUS_STYLES = {
+  'En attente': 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+  'Payée':      'bg-green-500/15 text-green-400 border-green-500/30',
+  'Envoyée':    'bg-sky-500/15 text-sky-400 border-sky-500/30',
+};
+let filter = 'Toutes';
+
+function isAuthed() {
+  try { return sessionStorage.getItem('nz-admin') === '1'; } catch { return false; }
+}
+
+function login() {
+  if (document.getElementById('pin').value === SHOP_CONFIG.adminPin) {
+    try { sessionStorage.setItem('nz-admin', '1'); } catch {}
+    showDashboard();
+  } else {
+    showToast('Code incorrect.', true);
+  }
+}
+
+function logout() {
+  try { sessionStorage.removeItem('nz-admin'); } catch {}
+  location.reload();
+}
+
+function showDashboard() {
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  document.getElementById('logout-btn').classList.remove('hidden');
+  render();
+}
+
+function render() {
+  const all = Orders.all();
+  const orders = filter === 'Toutes' ? all : all.filter(o => o.status === filter);
+
+  document.getElementById('filters').innerHTML = ['Toutes', ...ORDER_STATUSES].map(f => {
+    const n = f === 'Toutes' ? all.length : all.filter(o => o.status === f).length;
+    const active = f === filter;
+    return `<button onclick="filter='${f}';render()" class="px-3 py-1.5 rounded-lg border ${active ? 'border-[#c9a84c] text-[#c9a84c] bg-[#c9a84c]/10' : 'border-[#1e1e1e] text-white/50 hover:text-white'}">${f} <span class="opacity-60">${n}</span></button>`;
+  }).join('');
+
+  const paidTotal = all.filter(o => o.status !== 'En attente').reduce((s, o) => s + o.total, 0);
+  document.getElementById('stats').innerHTML = [
+    ['Commandes', all.length],
+    ['En attente', all.filter(o => o.status === 'En attente').length],
+    ['À envoyer', all.filter(o => o.status === 'Payée').length],
+    ['CA encaissé', fmt(paidTotal)],
+  ].map(([label, val]) => `
+    <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-4">
+      <p class="text-xs text-white/40 uppercase tracking-wider">${label}</p>
+      <p class="text-2xl font-bold mt-1">${val}</p>
+    </div>`).join('');
+
+  document.getElementById('no-orders').classList.toggle('hidden', orders.length > 0);
+  document.getElementById('orders').innerHTML = orders.map(o => `
+    <div class="bg-[#141414] border border-[#1e1e1e] rounded-2xl p-4 sm:p-5">
+      <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <span class="font-bold text-[#c9a84c] tracking-wider">${escapeHtml(o.ref)}</span>
+        <span class="text-sm">${escapeHtml(o.customer)}</span>
+        <span class="text-xs text-white/40">${new Date(o.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })} · ${escapeHtml(o.method)}</span>
+        <span class="ml-auto font-bold">${fmt(o.total)}</span>
+        <select onchange="Orders.setStatus('${escapeHtml(o.ref)}', this.value);render()" class="text-sm rounded-lg border px-2 py-1.5 cursor-pointer ${STATUS_STYLES[o.status] || ''}">
+          ${ORDER_STATUSES.map(s => `<option value="${s}" class="bg-[#141414] text-white" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <ul class="mt-3 text-sm text-white/60 space-y-0.5">
+        ${o.items.map(i => `<li>• ${escapeHtml(i.name)}${i.variant ? ` (${escapeHtml(i.variant)})` : ''} ×${i.qty} — ${fmt(i.price * i.qty)}</li>`).join('')}
+        ${o.discount ? `<li class="text-green-400">Réduction${o.promo ? ` (${escapeHtml(o.promo)})` : ''} : -${fmt(o.discount)}</li>` : ''}
+      </ul>
+      <div class="mt-3 flex gap-4 text-xs">
+        <button onclick="copyText(Orders.recap(Orders.all().find(x => x.ref === '${escapeHtml(o.ref)}')))" class="text-white/40 hover:text-white">📋 Copier le récap</button>
+        <button onclick="deleteOrder('${escapeHtml(o.ref)}')" class="text-white/40 hover:text-red-400">Supprimer</button>
+      </div>
+    </div>`).join('');
+}
+
+function importRecap() {
+  const el = document.getElementById('import-text');
+  const order = Orders.parseRecap(el.value);
+  if (!order) { showToast('Récap non reconnu (référence ou total manquant).', true); return; }
+  const existing = Orders.all().find(o => o.ref === order.ref);
+  if (existing && !confirm(`La commande ${order.ref} existe déjà. La remplacer ?`)) return;
+  if (existing) order.status = existing.status;
+  Orders.upsert(order);
+  el.value = '';
+  showToast(`✓ Commande ${order.ref} ajoutée`);
+  render();
+}
+
+function deleteOrder(ref) {
+  if (confirm(`Supprimer la commande ${ref} ?`)) { Orders.remove(ref); render(); }
+}
+
+if (isAuthed()) showDashboard();
+</script>
+</body>
+</html>

@@ -164,3 +164,12 @@ const PROMO_CODES = {
 };
 
 const CATEGORIES = ['Tous', 'Massage', 'Sommeil', 'Fitness', 'Santé', 'Bien-être'];
+
+// ── Boutique : à personnaliser ────────────────────────────────────────────────
+const SHOP_CONFIG = {
+  paypalMe: 'MON_PSEUDO',      // https://paypal.me/MON_PSEUDO
+  instagram: 'MON_INSTAGRAM',  // pseudo Instagram sans @
+  tiktok: 'MON_TIKTOK',        // pseudo TikTok sans @
+  currency: 'EUR',
+  adminPin: '1234',            // code d'accès à admin.html (à changer)
+};

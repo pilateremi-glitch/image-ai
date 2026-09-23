@@ -64,7 +64,19 @@
         <div class="border-t border-[#1e1e1e] pt-4 flex justify-between font-bold text-lg">
           <span>Total</span><span id="total-val" class="text-[#c9a84c]"></span>
         </div>
-        <a href="commande.html" id="checkout-btn" class="btn-gold w-full justify-center">Commander →</a>
+        <!-- Order options -->
+        <div class="border-t border-[#1e1e1e] pt-4 space-y-3">
+          <label for="customer-pseudo" class="text-sm font-medium">Ton pseudo Instagram / TikTok</label>
+          <input id="customer-pseudo" type="text" placeholder="@ton_pseudo" autocomplete="off" class="form-input w-full text-sm py-2.5"/>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="orderPaypal()" class="flex flex-col items-center gap-1 p-3 rounded-xl bg-[#0070ba] hover:bg-[#005ea6] transition-colors text-white text-center">
+              <span class="text-lg">💳</span><span class="text-sm font-bold leading-tight">Payer avec PayPal</span>
+            </button>
+            <button onclick="orderDM()" class="flex flex-col items-center gap-1 p-3 rounded-xl bg-[#c9a84c] hover:bg-[#e0c675] transition-colors text-[#0a0a0a] text-center">
+              <span class="text-lg">💬</span><span class="text-sm font-bold leading-tight">Commander en DM</span>
+            </button>
+          </div>
+        </div>
         <a href="boutique.html" class="block text-center text-sm text-white/40 hover:text-white/60 transition-colors">← Continuer les achats</a>
       </div>
 
@@ -78,12 +90,35 @@
   </div>
 </div>
 
+<!-- Order modal -->
+<div id="order-modal" class="hidden fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+  <div class="bg-[#141414] border border-[#c9a84c]/30 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-4">
+    <div class="flex items-start justify-between gap-4">
+      <h2 id="modal-title" class="font-display text-2xl font-bold"></h2>
+      <button onclick="closeModal()" class="text-white/40 hover:text-white text-2xl leading-none" aria-label="Fermer">×</button>
+    </div>
+    <div class="bg-[#0a0a0a] border border-[#1e1e1e] rounded-xl p-4 text-center">
+      <p class="text-xs text-white/40 uppercase tracking-wider">Ta référence de commande</p>
+      <p id="modal-ref" class="text-2xl font-bold text-[#c9a84c] tracking-widest mt-1 select-all"></p>
+    </div>
+    <p id="modal-text" class="text-sm text-white/70"></p>
+    <a id="modal-paypal" target="_blank" rel="noopener" class="hidden w-full justify-center items-center gap-2 p-3 rounded-xl bg-[#0070ba] hover:bg-[#005ea6] transition-colors text-white font-bold text-sm">Rouvrir PayPal ↗</a>
+    <textarea id="modal-recap" readonly rows="10" class="form-input w-full text-xs font-mono leading-relaxed resize-none"></textarea>
+    <button onclick="copyText(document.getElementById('modal-recap').value)" class="btn-gold w-full justify-center">📋 Copier le récap</button>
+    <div class="grid grid-cols-2 gap-2">
+      <a id="modal-ig" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 p-3 rounded-xl text-white font-semibold text-sm" style="background:linear-gradient(45deg,#f09433,#dc2743,#bc1888)">Instagram ↗</a>
+      <a id="modal-tt" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 p-3 rounded-xl bg-black border border-white/20 text-white font-semibold text-sm">TikTok ↗</a>
+    </div>
+  </div>
+</div>
+
 <footer class="bg-[#141414] border-t border-[#1e1e1e] py-10">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 text-center text-white/30 text-xs">© 2025 NovaZen. Tous droits réservés.</div>
 </footer>
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/orders.js"></script>
 <script>
 let appliedPromo = null;
 
@@ -140,12 +175,73 @@ function updateTotals() {
     document.getElementById('discount-label').textContent = `Code ${appliedPromo}`;
     document.getElementById('discount-val').textContent = '-' + fmt(result.discountAmount);
     document.getElementById('total-val').textContent = fmt(result.total);
-    document.getElementById('checkout-btn').href = `commande.html?promo=${appliedPromo}`;
   } else {
     document.getElementById('discount-row').classList.add('hidden');
     document.getElementById('total-val').textContent = fmt(sub);
-    document.getElementById('checkout-btn').href = 'commande.html';
   }
+}
+
+function placeOrder(method) {
+  const input = document.getElementById('customer-pseudo');
+  const pseudo = input.value.trim();
+  if (!pseudo.replace('@', '')) {
+    showToast('Indique ton pseudo Instagram / TikTok.', true);
+    input.focus();
+    return null;
+  }
+  const subtotal = Cart.subtotal();
+  const promo = appliedPromo ? Cart.applyPromo(appliedPromo) : null;
+  const order = Orders.create({
+    customer: pseudo,
+    method,
+    items: Cart.items,
+    subtotal,
+    promo: promo ? appliedPromo : null,
+    discount: promo ? promo.discountAmount : 0,
+    total: promo ? promo.total : subtotal,
+  });
+  Cart.clear();
+  appliedPromo = null;
+  return order;
+}
+
+function orderPaypal() {
+  // Ouvre PayPal dans le clic (évite le blocage des popups), puis crée la commande
+  if (!document.getElementById('customer-pseudo').value.replace('@', '').trim()) { placeOrder('PayPal'); return; }
+  const win = window.open('', '_blank');
+  const order = placeOrder('PayPal');
+  const url = paypalLink(order.total);
+  if (win) win.location.href = url; else window.open(url, '_blank');
+  showOrderModal(order, url);
+}
+
+function orderDM() {
+  const order = placeOrder('Commande en DM');
+  if (order) showOrderModal(order);
+}
+
+function showOrderModal(order, paypalUrl) {
+  const isPaypal = Boolean(paypalUrl);
+  document.getElementById('modal-title').innerHTML = isPaypal
+    ? 'Paiement <span class="gold-text">PayPal</span>'
+    : 'Commande <span class="gold-text">en DM</span>';
+  document.getElementById('modal-ref').textContent = order.ref;
+  document.getElementById('modal-text').innerHTML = isPaypal
+    ? `Finalise le paiement de <b class="text-white">${fmt(order.total)}</b> sur PayPal (ajoute ta référence <b class="text-[#c9a84c]">${order.ref}</b> en note), puis <b class="text-white">envoie ce récap en DM</b> pour valider ta commande.`
+    : `Copie ce récap et <b class="text-white">envoie-le en DM</b> sur Instagram ou TikTok avec ta référence <b class="text-[#c9a84c]">${order.ref}</b>. On te répond au plus vite !`;
+  const pp = document.getElementById('modal-paypal');
+  pp.classList.toggle('hidden', !isPaypal);
+  pp.classList.toggle('flex', isPaypal);
+  if (isPaypal) pp.href = paypalUrl;
+  document.getElementById('modal-recap').value = Orders.recap(order);
+  document.getElementById('modal-ig').href = `https://ig.me/m/${SHOP_CONFIG.instagram}`;
+  document.getElementById('modal-tt').href = `https://www.tiktok.com/@${SHOP_CONFIG.tiktok}`;
+  document.getElementById('order-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('order-modal').classList.add('hidden');
+  renderCart();
 }
 
 function applyPromoCode() {
