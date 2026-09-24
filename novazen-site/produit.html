@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Produit – PokéPop</title>
-  <meta name="theme-color" content="#fff7ea"/>
+  <title>Produit – PokéShop</title>
+  <meta name="theme-color" content="#080b16"/>
   <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
@@ -26,10 +26,10 @@
         <h1 id="p-name" style="font-size:clamp(1.9rem,5vw,2.8rem);margin-top:4px"></h1>
       </div>
       <div class="row" style="align-items:baseline">
-        <span class="price" id="p-price" style="font-size:2.2rem"></span>
+        <span class="price" id="p-price" style="font-size:1.6rem"></span>
         <span class="price-old" id="p-old" style="font-size:1.05rem"></span>
       </div>
-      <p id="p-desc" style="font-weight:600;color:#4a4160"></p>
+      <p id="p-desc" style="color:#c9cfee;font-size:1.05rem"></p>
 
       <div id="variants-wrap" class="hidden">
         <p class="label">Choisis ton option :</p>
@@ -41,20 +41,16 @@
 
       <div class="row" style="flex-wrap:wrap">
         <div class="qty"><button onclick="setQty(qty-1)" aria-label="Moins">−</button><span id="qty">1</span><button onclick="setQty(qty+1)" aria-label="Plus">+</button></div>
-        <button class="btn btn-red" style="flex:1;min-width:200px" onclick="addToCart()">🛒 Ajouter au panier</button>
+        <button class="btn btn-yellow" style="flex:1;min-width:200px" onclick="addToCart()">Ajouter au panier</button>
       </div>
-      <button class="btn btn-yellow btn-block" onclick="addToCart(true)">⚡ Commander maintenant</button>
+      <button class="btn btn-block" onclick="addToCart(true)">Commander maintenant ▶</button>
 
-      <div class="perks" style="grid-template-columns:repeat(3,1fr)">
-        <div class="perk" style="flex-direction:column;text-align:center;gap:6px;padding:12px 8px"><span>🚚</span><small id="ship-note" style="font-weight:700"></small></div>
-        <div class="perk" style="flex-direction:column;text-align:center;gap:6px;padding:12px 8px"><span>📦</span><small style="font-weight:700">Envoi protégé</small></div>
-        <div class="perk" style="flex-direction:column;text-align:center;gap:6px;padding:12px 8px"><span>💬</span><small style="font-weight:700">Réponse rapide en DM</small></div>
-      </div>
+      <div class="perks" style="grid-template-columns:repeat(3,1fr)" id="p-perks"></div>
     </div>
   </div>
 
   <section class="section" style="padding-bottom:0">
-    <h2 style="margin-bottom:20px">Tu vas <span class="hl hl-mint">aimer aussi</span></h2>
+    <div class="section-head"><div><span class="eyebrow">Suggestions</span><h2>Tu vas <span class="hl">aimer aussi</span></h2></div></div>
     <div class="products" id="related"></div>
   </section>
 </main>
@@ -63,6 +59,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/art.js"></script>
 <script src="js/layout.js"></script>
 <script>
 const p = PRODUCTS.find(x => x.id === getParam('id'));
@@ -87,7 +84,7 @@ function addToCart(go) {
 }
 
 if (!p) {
-  document.getElementById('product-page').innerHTML = '<div class="empty"><span class="ball"></span><h2>Ce Pokémon s\'est échappé…</h2><p class="muted" style="margin:10px 0 20px">Produit introuvable.</p><a href="boutique.html" class="btn btn-red">Retour à la boutique</a></div>';
+  document.getElementById('product-page').innerHTML = '<div class="empty"><span class="ball"></span><div class="dialog" style="max-width:420px;margin:12px auto 24px;text-align:left">Oh non ! Ce produit s\'est échappé…</div><p class="muted" style="margin:10px 0 20px">Produit introuvable.</p><a href="boutique.html" class="btn btn-red">Retour à la boutique</a></div>';
 } else {
   document.title = `${p.name} – ${SHOP_CONFIG.name}`;
   document.getElementById('crumb').textContent = p.name;
@@ -98,7 +95,8 @@ if (!p) {
   document.getElementById('p-desc').textContent = p.description;
   document.getElementById('badges').innerHTML = productBadges(p);
   document.getElementById('p-benefits').innerHTML = (p.benefits || []).map(b => `<li>${escapeHtml(b)}</li>`).join('');
-  document.getElementById('ship-note').textContent = `Offerte dès ${fmt(SHOP_CONFIG.freeShippingFrom)}`;
+  document.getElementById('p-perks').innerHTML = [['truck', `Offerte dès ${fmt(SHOP_CONFIG.freeShippingFrom)}`], ['shield', 'Envoi protégé'], ['chat', 'Réponse en DM']]
+    .map(([ic, t]) => `<div class="perk" style="flex-direction:column;text-align:center;gap:8px;padding:14px 8px"><span class="perk-ico">${icon(ic)}</span><small style="font-weight:600;color:var(--text)">${t}</small></div>`).join('');
 
   const n = Math.max(1, p.images?.length || 0);
   const showVis = i => {
@@ -119,7 +117,7 @@ if (!p) {
   }
   if (p.stock <= 5) {
     const w = document.getElementById('stock-warn');
-    w.textContent = p.stock > 0 ? `🔥 Plus que ${p.stock} en stock !` : '😢 Rupture de stock – écris-nous en DM pour être prévenu·e';
+    w.textContent = p.stock > 0 ? `Plus que ${p.stock} en stock !` : 'Rupture de stock – écris-nous en DM pour être prévenu·e';
     w.classList.remove('hidden');
   }
   const related = PRODUCTS.filter(x => x.id !== p.id && x.category === p.category)

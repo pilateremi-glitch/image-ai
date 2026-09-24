@@ -4,8 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="robots" content="noindex, nofollow"/>
-  <title>Admin commandes – PokéPop</title>
-  <meta name="theme-color" content="#fff7ea"/>
+  <title>Admin commandes – PokéShop</title>
+  <meta name="theme-color" content="#080b16"/>
   <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
@@ -15,31 +15,31 @@
 <main id="login" class="page container" style="max-width:420px">
   <div class="panel stack center">
     <span class="ball" style="--s:64px;margin:0 auto"></span>
-    <h1 style="font-size:2rem">Mode <span class="hl">admin</span></h1>
+    <div class="dialog" style="text-align:left">Accès réservé au maître de la boutique.</div>
     <input id="pin" type="password" inputmode="numeric" placeholder="Code d'accès" class="input" style="text-align:center" onkeydown="if(event.key==='Enter')login()"/>
-    <button onclick="login()" class="btn btn-red btn-block">Entrer</button>
+    <button onclick="login()" class="btn btn-yellow btn-block">Entrer ▶</button>
   </div>
 </main>
 
 <!-- Dashboard -->
 <main id="dashboard" class="page container stack hidden" style="--gap:24px">
   <div class="row-between">
-    <h1 style="font-size:clamp(1.9rem,5vw,2.8rem)">Commandes <span class="hl hl-pink">passées</span></h1>
+    <div><span class="eyebrow">Admin</span><h1 style="font-size:clamp(1.9rem,5vw,2.8rem);margin-top:10px">Commandes <span class="hl">passées</span></h1></div>
     <button onclick="logout()" class="btn btn-sm">Déconnexion</button>
   </div>
 
   <div class="stats" id="stats"></div>
 
-  <details class="panel-flat" style="background:#fffbe6">
-    <summary style="cursor:pointer;font-family:var(--font-display);font-weight:600;font-size:1.1rem">➕ Ajouter une commande reçue en DM</summary>
-    <p class="small muted" style="font-weight:700;margin:10px 0">Colle le récap envoyé par le client : la référence, les produits et le total sont repris automatiquement.</p>
-    <textarea id="import-text" rows="8" placeholder="🛍️ COMMANDE…&#10;Réf : Z3F4-0001&#10;…" class="input recap"></textarea>
+  <details class="panel-flat">
+    <summary style="cursor:pointer;font-weight:700;font-size:1.05rem">+ Ajouter une commande reçue en DM</summary>
+    <p class="small muted" style="margin:10px 0">Colle le récap envoyé par le client : la référence, les produits et le total sont repris automatiquement.</p>
+    <textarea id="import-text" rows="8" placeholder="COMMANDE…&#10;Réf : Z3F4-0001&#10;…" class="input recap"></textarea>
     <button onclick="importRecap()" class="btn btn-yellow" style="margin-top:12px">Ajouter la commande</button>
   </details>
 
   <div class="row-between">
     <div class="chips" id="filters"></div>
-    <input id="search" type="search" placeholder="🔍 Réf ou pseudo" class="input" style="max-width:240px;padding:9px 14px" oninput="render()"/>
+    <input id="search" type="search" placeholder="Rechercher réf ou pseudo" class="input" style="max-width:240px;padding:9px 14px" oninput="render()"/>
   </div>
 
   <div id="orders" class="stack"></div>
@@ -50,11 +50,11 @@
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/art.js"></script>
 <script src="js/layout.js"></script>
 <script src="js/orders.js"></script>
 <script>
 const STATUS_CLASS = { 'En attente': 'status-attente', 'Payée': 'status-payee', 'Envoyée': 'status-envoyee' };
-const STATUS_EMOJI = { 'En attente': '⏳', 'Payée': '💰', 'Envoyée': '📦' };
 let filter = 'Toutes';
 
 function isAuthed() {
@@ -95,7 +95,7 @@ function render() {
 
   document.getElementById('filters').innerHTML = ['Toutes', ...ORDER_STATUSES].map(f => {
     const n = f === 'Toutes' ? all.length : all.filter(o => o.status === f).length;
-    return `<button class="chip ${f === filter ? 'active' : ''}" onclick="setFilter('${f}')">${STATUS_EMOJI[f] || '⭐'} ${f} · ${n}</button>`;
+    return `<button class="chip ${f === filter ? 'active' : ''}" onclick="setFilter('${f}')">${f} · ${n}</button>`;
   }).join('');
 
   const cashed = all.filter(o => o.status !== 'En attente').reduce((s, o) => s + o.total, 0);
@@ -115,19 +115,19 @@ function render() {
         <span class="order-ref">${ref}</span>
         <span class="tag">${escapeHtml(o.customer)}</span>
         <span class="xs muted" style="font-weight:700">${new Date(o.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' })} · ${escapeHtml(o.method)}</span>
-        <span class="price" style="margin-left:auto;font-size:1.25rem">${fmt(o.total)}</span>
+        <span class="price" style="margin-left:auto">${fmt(o.total)}</span>
         <select onchange="Orders.setStatus('${ref}', this.value);render()" class="status ${STATUS_CLASS[o.status] || ''}" aria-label="Statut">
-          ${ORDER_STATUSES.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${STATUS_EMOJI[s]} ${s}</option>`).join('')}
+          ${ORDER_STATUSES.map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
       </div>
-      <ul style="list-style:none;margin-top:10px;display:grid;gap:2px;font-weight:600;font-size:.92rem">
+      <ul style="list-style:none;margin-top:12px;display:grid;gap:4px;color:#c9cfee;font-size:.94rem">
         ${o.items.map(i => `<li>• ${escapeHtml(i.name)}${i.variant ? ` (${escapeHtml(i.variant)})` : ''} ×${i.qty} — ${fmt(i.price * i.qty)}</li>`).join('')}
         ${o.discount ? `<li style="color:var(--green)">Réduction${o.promo ? ` (${escapeHtml(o.promo)})` : ''} : -${fmt(o.discount)}</li>` : ''}
         ${o.shipping ? `<li class="muted">Livraison : ${fmt(o.shipping)}</li>` : ''}
       </ul>
       <div class="row" style="margin-top:8px;gap:16px">
-        <button onclick="copyText(Orders.recap(Orders.all().find(x => x.ref === '${ref}')))" class="btn-ghost">📋 Copier le récap</button>
-        <button onclick="deleteOrder('${ref}')" class="btn-ghost">🗑️ Supprimer</button>
+        <button onclick="copyText(Orders.recap(Orders.all().find(x => x.ref === '${ref}')))" class="btn-ghost">Copier le récap</button>
+        <button onclick="deleteOrder('${ref}')" class="btn-ghost">Supprimer</button>
       </div>
     </div>`;
   }).join('');

@@ -53,7 +53,7 @@ const Orders = {
   recap(o) {
     const date = new Date(o.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
     const lines = [
-      `🛍️ COMMANDE ${SHOP_CONFIG.name.toUpperCase()}`,
+      `COMMANDE ${SHOP_CONFIG.name.toUpperCase()}`,
       `Réf : ${o.ref}`,
       `Client : ${o.customer}`,
       `Date : ${date}`,

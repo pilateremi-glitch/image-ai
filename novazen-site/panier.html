@@ -3,28 +3,28 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panier – PokéPop</title>
-  <meta name="theme-color" content="#fff7ea"/>
+  <title>Panier – PokéShop</title>
+  <meta name="theme-color" content="#080b16"/>
   <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
 <div id="site-header"></div>
 
 <main class="page container">
-  <h1 style="margin-bottom:26px">Mon <span class="hl">panier</span> 🛒</h1>
+  <span class="eyebrow">Ton sac</span>
+  <h1 style="margin:12px 0 30px">Mon <span class="hl">panier</span></h1>
 
   <div id="empty-cart" class="empty panel hidden">
     <span class="ball"></span>
-    <h2>Ton panier est vide</h2>
-    <p class="muted" style="margin:10px 0 22px;font-weight:700">Aucun Pokémon capturé pour le moment…</p>
-    <a href="boutique.html" class="btn btn-red">Partir à l'aventure →</a>
+    <div class="dialog" style="max-width:440px;margin:12px auto 28px;text-align:left">Ton sac est vide !<br/>Aucun objet capturé pour le moment…</div>
+    <a href="boutique.html" class="btn btn-yellow">Partir à l'aventure ▶</a>
   </div>
 
   <div id="cart-content" class="grid-cart hidden">
     <div class="stack" id="cart-items"></div>
 
     <aside class="panel stack" style="position:sticky;top:96px">
-      <h3 style="font-size:1.35rem">Récapitulatif</h3>
+      <h3 style="font-size:1.3rem">Récapitulatif</h3>
 
       <div>
         <div class="row" style="gap:8px">
@@ -48,17 +48,17 @@
       </div>
 
       <div class="order-options">
-        <button class="order-opt btn-paypal" onclick="orderPaypal()"><span class="ico">💳</span>Payer avec PayPal<small>montant pré-rempli</small></button>
-        <button class="order-opt btn-pink" onclick="orderDM()"><span class="ico">💬</span>Commander en DM<small>Insta ou TikTok</small></button>
+        <button class="order-opt btn-paypal" onclick="orderPaypal()"><span class="ico" id="ico-pp"></span>Payer avec PayPal<small>montant pré-rempli</small></button>
+        <button class="order-opt btn-pink" onclick="orderDM()"><span class="ico" id="ico-dm"></span>Commander en DM<small>Insta ou TikTok</small></button>
       </div>
-      <a href="boutique.html" class="btn-ghost center" style="display:block">← Continuer mes achats</a>
+      <a href="boutique.html" class="btn-ghost center" style="display:block;width:100%">← Continuer mes achats</a>
     </aside>
   </div>
 </main>
 
 <!-- Order modal -->
 <div id="order-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="if(event.target===this)closeModal()">
-  <div class="modal-card stack">
+  <div class="modal-card holo-border stack">
     <div class="row-between" style="flex-wrap:nowrap">
       <h2 id="modal-title" style="font-size:1.6rem"></h2>
       <button onclick="closeModal()" class="close-btn" aria-label="Fermer">×</button>
@@ -68,12 +68,12 @@
       <p id="modal-ref" class="ref"></p>
     </div>
     <ol class="steps" id="modal-steps"></ol>
-    <a id="modal-paypal" target="_blank" rel="noopener" class="btn btn-paypal btn-block hidden">💳 Rouvrir PayPal</a>
+    <a id="modal-paypal" target="_blank" rel="noopener" class="btn btn-paypal btn-block hidden">Rouvrir PayPal ▶</a>
     <textarea id="modal-recap" readonly rows="9" class="input recap"></textarea>
-    <button onclick="copyText(document.getElementById('modal-recap').value)" class="btn btn-red btn-block">📋 Copier le récap</button>
+    <button onclick="copyText(document.getElementById('modal-recap').value)" class="btn btn-yellow btn-block">Copier le récap</button>
     <div class="socials">
-      <a id="modal-ig" target="_blank" rel="noopener" class="btn btn-ig">Instagram ↗</a>
-      <a id="modal-tt" target="_blank" rel="noopener" class="btn btn-tt">TikTok ↗</a>
+      <a id="modal-ig" target="_blank" rel="noopener" class="btn-ig">Instagram ↗</a>
+      <a id="modal-tt" target="_blank" rel="noopener" class="btn-tt">TikTok ↗</a>
     </div>
   </div>
 </div>
@@ -82,6 +82,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/art.js"></script>
 <script src="js/layout.js"></script>
 <script src="js/orders.js"></script>
 <script>
@@ -102,9 +103,9 @@ function renderCart() {
       <div class="citem-body">
         <div class="row-between" style="align-items:flex-start;flex-wrap:nowrap">
           <a href="${url}" class="citem-name">${escapeHtml(item.name)}</a>
-          <span class="price" style="font-size:1.1rem">${fmt(item.price * item.qty)}</span>
+          <span class="price" style="font-size:.8rem;white-space:nowrap">${fmt(item.price * item.qty)}</span>
         </div>
-        ${item.variant ? `<span class="tag tag-lav" style="margin-top:6px">${escapeHtml(item.variant)}</span>` : ''}
+        ${item.variant ? `<span class="tag" style="margin-top:8px">${escapeHtml(item.variant)}</span>` : ''}
         <div class="row-between" style="margin-top:10px">
           <div class="qty"><button onclick="changeQty('${escapeHtml(item.key)}', ${item.qty - 1})" aria-label="Moins">−</button><span>${item.qty}</span><button onclick="changeQty('${escapeHtml(item.key)}', ${item.qty + 1})" aria-label="Plus">+</button></div>
           <button onclick="changeQty('${escapeHtml(item.key)}', 0)" class="btn-ghost">Retirer</button>
@@ -129,7 +130,7 @@ function updateTotals() {
     document.getElementById('discount-label').textContent = `Code ${appliedPromo}`;
     document.getElementById('discount-val').textContent = '-' + fmt(t.discount);
   }
-  document.getElementById('shipping-val').textContent = t.shipping ? fmt(t.shipping) : 'Offerte 🎉';
+  document.getElementById('shipping-val').textContent = t.shipping ? fmt(t.shipping) : 'Offerte';
   const hint = document.getElementById('ship-hint');
   const missing = SHOP_CONFIG.freeShippingFrom - (t.subtotal - t.discount);
   hint.classList.toggle('hidden', !t.shipping);
@@ -143,7 +144,7 @@ function applyPromoCode() {
   const el = document.getElementById('promo-result');
   el.classList.remove('hidden');
   if (!result) {
-    el.style.color = 'var(--red-d)';
+    el.style.color = 'var(--red)';
     el.textContent = '✗ Code invalide';
     appliedPromo = null;
   } else {
@@ -161,7 +162,7 @@ function pseudoValue() {
 function placeOrder(method) {
   const pseudo = pseudoValue();
   if (!pseudo.replace('@', '')) {
-    showToast('Indique ton pseudo Insta / TikTok 😉', true);
+    showToast('Indique ton pseudo Insta / TikTok !', true);
     document.getElementById('customer-pseudo').focus();
     return null;
   }
@@ -198,16 +199,16 @@ function orderDM() {
 
 function showOrderModal(order, paypalUrl) {
   const isPaypal = Boolean(paypalUrl);
-  const ref = `<b style="color:var(--red-d)">${order.ref}</b>`;
-  document.getElementById('modal-title').innerHTML = isPaypal ? 'Presque fini ! 💳' : 'Commande prête ! 💬';
+  const ref = `<b style="color:var(--yellow)">${order.ref}</b>`;
+  document.getElementById('modal-title').innerHTML = isPaypal ? 'Presque <span class="hl">fini</span> !' : 'Commande <span class="hl">prête</span> !';
   document.getElementById('modal-ref').textContent = order.ref;
   const steps = isPaypal
     ? `<li>Finalise le paiement de <b>${fmt(order.total)}</b> sur PayPal (ajoute ${ref} en note)</li>
        <li>Copie ton récap ci-dessous</li>
-       <li>Envoie-le-nous en DM pour valider ta commande ✨</li>`
+       <li>Envoie-le-nous en DM pour valider ta commande</li>`
     : `<li>Copie ton récap ci-dessous</li>
        <li>Envoie-le en DM sur Instagram ou TikTok avec ta référence ${ref}</li>
-       <li>On te répond vite pour le paiement et l'envoi 💖</li>`;
+       <li>On te répond vite pour le paiement et l'envoi</li>`;
   document.getElementById('modal-steps').innerHTML = steps.replace(/<li>(.*?)<\/li>/gs, '<li><span>$1</span></li>');
   const pp = document.getElementById('modal-paypal');
   pp.classList.toggle('hidden', !isPaypal);
@@ -223,6 +224,8 @@ function closeModal() {
   renderCart();
 }
 
+document.getElementById('ico-pp').innerHTML = icon('card');
+document.getElementById('ico-dm').innerHTML = icon('chat');
 document.addEventListener('DOMContentLoaded', renderCart);
 </script>
 </body>

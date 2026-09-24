@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PokéPop – Merch Pokémon kawaii</title>
-  <meta name="description" content="Cartes, peluches, figurines et goodies Pokémon. Commande en DM ou paiement PayPal."/>
-  <meta name="theme-color" content="#fff7ea"/>
+  <title>PokéShop – Merch & cartes Pokémon</title>
+  <meta name="description" content="Boosters, coffrets, peluches, figurines et goodies Pokémon. Commande en DM ou paiement PayPal."/>
+  <meta name="theme-color" content="#080b16"/>
   <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
@@ -16,100 +16,94 @@
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <span class="tag tag-pink">✨ Nouveautés chaque semaine</span>
-        <h1 style="margin-top:16px">Attrape-les <span class="hl">tous</span>,<br/>en version <span class="hl hl-pink">kawaii</span> 💖</h1>
-        <p class="lead">Cartes, peluches, figurines et goodies Pokémon sélectionnés avec amour. Commande en 2 clics : PayPal ou directement en DM.</p>
+        <span class="eyebrow">Nouveau drop disponible</span>
+        <h1>La boutique des <span class="holo-text">dresseurs</span> collectionneurs.</h1>
+        <p class="lead">Boosters scellés, coffrets, peluches et goodies. Sélectionnés, protégés et envoyés comme des cartes rares.</p>
+        <div class="dialog" style="margin-top:28px;max-width:520px">
+          <span id="typed"></span><br/>
+          <a href="boutique.html" class="choice">ACHETER</a><a href="#comment-commander" class="choice">INFOS</a>
+        </div>
         <div class="hero-ctas">
-          <a href="boutique.html" class="btn btn-red">Voir la boutique →</a>
-          <a href="#comment-commander" class="btn">Comment commander ?</a>
+          <a href="boutique.html" class="btn btn-yellow">Voir la boutique ▶</a>
+          <a href="#comment-commander" class="btn">Comment commander</a>
         </div>
-        <div class="proof">
-          <div class="avatars"><span class="bg-yellow">⚡</span><span class="bg-pink">🌸</span><span class="bg-mint">🍃</span><span class="bg-lav">🔮</span></div>
-          <div><span class="stars">★★★★★</span><br/><span class="small muted">Des dresseurs heureux partout en France</span></div>
+        <div class="hero-stats">
+          <div><b id="stat-ship"></b><span>Livraison offerte</span></div>
+          <div><b>24H</b><span>Réponse en DM</span></div>
+          <div><b>100%</b><span>Produits scellés</span></div>
         </div>
       </div>
-      <div class="hero-art" aria-hidden="true">
-        <div class="hero-blob"></div>
-        <span class="ball big"></span>
-        <div class="hero-sticker" style="left:-2%;top:14%;--r:-6deg;transform:rotate(-6deg)">🧸 Peluches</div>
-        <div class="hero-sticker" style="right:-2%;top:38%;--r:5deg;animation-delay:.8s;background:var(--yellow)">🃏 Boosters</div>
-        <div class="hero-sticker" style="left:6%;bottom:8%;--r:3deg;animation-delay:1.6s;background:var(--mint)">✨ Goodies</div>
-        <span class="spark" style="right:14%;top:6%">✦</span>
-        <span class="spark" style="left:14%;top:48%;animation-delay:.6s">✧</span>
-        <span class="spark" style="right:10%;bottom:10%;animation-delay:1.2s">⭐</span>
-      </div>
+      <div class="fan" id="fan" aria-hidden="true"><div class="fan-glow"></div></div>
     </div>
   </section>
 
   <!-- PERKS -->
   <section class="container">
-    <div class="perks">
-      <div class="perk"><span class="perk-ico bg-yellow">🚚</span><div><b>Livraison offerte</b><small id="perk-ship"></small></div></div>
-      <div class="perk"><span class="perk-ico bg-pink">📦</span><div><b>Envoi protégé</b><small>Cartes sous sleeve rigide</small></div></div>
-      <div class="perk"><span class="perk-ico bg-mint">💬</span><div><b>Commande en DM</b><small>Insta ou TikTok</small></div></div>
-      <div class="perk"><span class="perk-ico bg-lav">💳</span><div><b>PayPal</b><small>Rapide & protégé</small></div></div>
-    </div>
+    <div class="perks" id="perks"></div>
   </section>
 
-  <!-- CATEGORIES -->
+  <!-- NEW DROPS -->
   <section class="section container">
-    <div class="row-between" style="margin-bottom:22px">
-      <h2>Choisis ton <span class="hl hl-mint">univers</span></h2>
-    </div>
-    <div class="cats" id="cats"></div>
-  </section>
-
-  <!-- BEST SELLERS -->
-  <section class="container">
-    <div class="row-between" style="margin-bottom:22px">
-      <h2>Les <span class="hl">coups de cœur</span> ⚡</h2>
-      <a href="boutique.html" class="btn btn-sm">Tout voir →</a>
+    <div class="section-head">
+      <div><span class="eyebrow">Nouveautés</span><h2>Les derniers <span class="hl">drops</span></h2></div>
+      <a href="boutique.html" class="btn btn-sm">Tout voir ▶</a>
     </div>
     <div class="products" id="featured"></div>
   </section>
 
+  <!-- CATEGORIES -->
+  <section class="container">
+    <div class="section-head">
+      <div><span class="eyebrow">Explorer</span><h2>Choisis ton <span class="hl">type</span></h2></div>
+    </div>
+    <div class="cats" id="cats"></div>
+  </section>
+
   <!-- HOW TO ORDER -->
   <section class="section container" id="comment-commander">
-    <h2 class="center" style="margin-bottom:26px">Commander, c'est <span class="hl hl-pink">super simple</span></h2>
-    <div class="grid-2" style="gap:22px">
-      <div class="panel" style="background:#fffbe6">
-        <div class="row" style="margin-bottom:12px"><span class="perk-ico bg-yellow">💳</span><h3>Payer avec PayPal</h3></div>
+    <div class="section-head">
+      <div><span class="eyebrow">Commander</span><h2>2 façons de <span class="hl">commander</span></h2></div>
+    </div>
+    <div class="grid-2" style="gap:20px">
+      <div class="panel">
+        <div class="row" style="margin-bottom:18px"><span class="perk-ico"></span><h3>Payer avec PayPal</h3></div>
         <ol class="steps">
           <li>Remplis ton panier et indique ton pseudo Insta / TikTok</li>
-          <li>Clique sur « Payer avec PayPal » : le montant est déjà rempli</li>
-          <li>Envoie-nous ton récap en DM avec ta référence (ex : Z3F4-0001)</li>
+          <li>Clique sur <b>Payer avec PayPal</b> : le montant est déjà rempli</li>
+          <li>Envoie ton récap en DM avec ta référence (ex : <b>Z3F4-0001</b>)</li>
         </ol>
       </div>
-      <div class="panel" style="background:#fff0f5">
-        <div class="row" style="margin-bottom:12px"><span class="perk-ico bg-pink">💬</span><h3>Commander en DM</h3></div>
+      <div class="panel">
+        <div class="row" style="margin-bottom:18px"><span class="perk-ico" style="background:rgba(255,111,181,.14);color:var(--pink)"></span><h3>Commander en DM</h3></div>
         <ol class="steps">
           <li>Remplis ton panier et indique ton pseudo</li>
-          <li>Clique sur « Commander en DM » puis « Copier le récap »</li>
-          <li>Colle-le en DM sur Insta ou TikTok, on s'occupe du reste 💖</li>
+          <li>Clique sur <b>Commander en DM</b> puis <b>Copier le récap</b></li>
+          <li>Colle-le en DM sur Insta ou TikTok, on s'occupe du reste</li>
         </ol>
       </div>
     </div>
   </section>
 
-  <!-- REVIEWS -->
+  <!-- REVIEWS (exemples : remplace-les par de vrais avis) -->
   <section class="container">
-    <h2 class="center" style="margin-bottom:26px">Ils ont <span class="hl hl-mint">adoré</span></h2>
+    <div class="section-head">
+      <div><span class="eyebrow">Avis</span><h2>Ils ont <span class="hl">capturé</span></h2></div>
+    </div>
     <div class="reviews">
-      <div class="review"><div class="stars">★★★★★</div><p style="margin:10px 0;font-weight:700">« Ma peluche Pikachu est arrivée super bien emballée, avec un petit sticker cadeau en plus. Trop mignon ! »</p><span class="small muted">@lea.dresseuse · Peluche Pikachu</span></div>
-      <div class="review"><div class="stars">★★★★★</div><p style="margin:10px 0;font-weight:700">« Commande passée en DM en 2 minutes, réponse rapide et boosters reçus en 3 jours. Je recommande ! »</p><span class="small muted">@tom_tcg · Boosters</span></div>
-      <div class="review"><div class="stars">★★★★★</div><p style="margin:10px 0;font-weight:700">« Le coffret était parfait pour l'anniversaire de mon fils. Envoi ultra soigné, merci ! »</p><span class="small muted">@maman_de_sacha · Coffret</span></div>
+      <div class="review"><div class="stars">★★★★★</div><p>« Boosters reçus en 3 jours, chacun sous toploader. Envoi ultra soigné, je recommande ! »</p><span class="small muted">@tom_tcg</span></div>
+      <div class="review"><div class="stars">★★★★★</div><p>« Commande passée en DM en 2 minutes, réponse rapide et super sympa. »</p><span class="small muted">@lea.dresseuse</span></div>
+      <div class="review"><div class="stars">★★★★★</div><p>« Le coffret était parfait pour l'anniversaire de mon fils. Merci ! »</p><span class="small muted">@maman_de_sacha</span></div>
     </div>
   </section>
 
   <!-- PROMO -->
   <section class="section container">
-    <div class="promo">
-      <span class="spark" style="left:6%;top:18%">✦</span><span class="spark" style="right:8%;bottom:20%;animation-delay:.8s">⭐</span>
-      <p class="tag tag-yellow" style="color:var(--ink)">🎁 Offre de bienvenue</p>
-      <h2 style="margin:14px 0 10px;color:#fff">-15% sur ta première commande</h2>
-      <p style="font-weight:700;margin-bottom:18px">Avec le code <span class="code">BIENVENUE</span></p>
-      <a href="boutique.html" class="btn btn-yellow">J'en profite →</a>
-    </div>
+    <div class="promo-wrap"><div class="promo">
+      <span class="eyebrow" style="justify-content:center">Offre de bienvenue</span>
+      <h2 style="margin:16px 0 18px">-15% sur ta première commande</h2>
+      <p style="margin-bottom:26px" class="muted">Avec le code <span class="code">BIENVENUE</span></p>
+      <a href="boutique.html" class="btn btn-yellow">J'en profite ▶</a>
+    </div></div>
   </section>
 </main>
 
@@ -117,13 +111,52 @@
 
 <script src="js/data.js"></script>
 <script src="js/cart.js"></script>
+<script src="js/art.js"></script>
 <script src="js/layout.js"></script>
 <script>
-document.getElementById('perk-ship').textContent = `Dès ${fmt(SHOP_CONFIG.freeShippingFrom)} d'achat`;
-document.getElementById('cats').innerHTML = CATEGORIES.map(c =>
-  `<a href="boutique.html?cat=${encodeURIComponent(c.name)}" class="cat bg-${c.color}"><span class="cat-emoji">${c.emoji}</span>${c.name}</a>`).join('');
-const featured = PRODUCTS.filter(p => p.badges?.includes('Best-seller')).concat(PRODUCTS.filter(p => !p.badges?.includes('Best-seller'))).slice(0, 4);
+// Icônes des étapes
+document.querySelectorAll('#comment-commander .perk-ico').forEach((el, i) => el.innerHTML = icon(i ? 'chat' : 'card'));
+
+document.getElementById('stat-ship').textContent = fmt(SHOP_CONFIG.freeShippingFrom).replace(/,00/, '');
+
+document.getElementById('perks').innerHTML = [
+  ['truck', 'Livraison offerte', `Dès ${fmt(SHOP_CONFIG.freeShippingFrom)} d'achat`],
+  ['shield', 'Envoi protégé', 'Sleeve + toploader'],
+  ['chat', 'Commande en DM', 'Insta ou TikTok'],
+  ['card', 'PayPal', 'Rapide et protégé'],
+].map(([ic, t, s]) => `<div class="perk"><span class="perk-ico">${icon(ic)}</span><div><b>${t}</b><small>${s}</small></div></div>`).join('');
+
+const COLOR_VAR = { yellow: 'var(--yellow)', pink: 'var(--pink)', orange: '#ff8a3d', blue: 'var(--blue)', green: 'var(--green)' };
+document.getElementById('cats').innerHTML = CATEGORIES.map(c => {
+  const n = PRODUCTS.filter(p => p.category === c.name).length;
+  return `<a href="boutique.html?cat=${encodeURIComponent(c.name)}" class="cat" style="--tc:${COLOR_VAR[c.color] || 'var(--yellow)'}">
+    <span class="cat-ico">${icon(c.icon)}</span><div><b>${c.name}</b><br/><small>${n} article${n > 1 ? 's' : ''}</small></div></a>`;
+}).join('');
+
+const featured = [...PRODUCTS].sort((a, b) => (b.badges?.length || 0) - (a.badges?.length || 0)).slice(0, 4);
 document.getElementById('featured').innerHTML = featured.map(productCard).join('');
+
+// Cartes en éventail (hero)
+const fanPicks = ['booster-pokemon-ev', 'peluche-pikachu-30cm', 'coffret-dresseur-elite'].map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
+document.getElementById('fan').innerHTML += fanPicks.map((p, i) => {
+  const [c1, c2] = pal(p.color);
+  return `<a href="produit.html?id=${p.id}" class="fan-card tilt"><div class="tcg" style="--c1:${c1};--c2:${c2}"><div class="tcg-inner">
+    <div class="tcg-top"><span>${escapeHtml(p.name.split(' ').slice(0, 2).join(' '))}</span><span class="pixel">${fmt(p.price).replace(/\s/g, '')}</span></div>
+    <div class="tcg-art foil">${productVisual(p)}</div>
+    <div class="tcg-bottom">${escapeHtml(p.category)} · Stock<div class="bar"><i style="--w:${Math.min(100, p.stock * 2)}%"></i></div></div>
+  </div></div></a>`;
+}).join('');
+
+// Texte façon boîte de dialogue
+const lines = ['Un BOOSTER sauvage apparaît !', 'Que veux-tu faire ?'];
+const typed = document.getElementById('typed');
+let li = 0, ci = 0;
+(function type() {
+  if (li >= lines.length) return;
+  const full = lines.slice(0, li).join('<br/>') + (li ? '<br/>' : '') + lines[li].slice(0, ci);
+  typed.innerHTML = full;
+  if (ci < lines[li].length) { ci++; setTimeout(type, 38); } else { li++; ci = 0; setTimeout(type, 500); }
+})();
 </script>
 </body>
 </html>
