@@ -1,7 +1,7 @@
 // ── Visuels dessinés (SVG) : produits sans photo + icônes ────────────────────
 const PALETTE = {
-  yellow: ['#ffe066', '#ffb800'], blue: ['#6fa8ff', '#2455d6'], violet: ['#c3a8ff', '#6a3fe0'],
-  red: ['#ff8a8a', '#d81f3a'], pink: ['#ffa8d6', '#e0418f'], green: ['#8ff5c8', '#14b872'], orange: ['#ffc07a', '#f06a1d'],
+  yellow: ['#fff0a8', '#ffcf4d'], blue: ['#b9dcff', '#6f9cff'], violet: ['#d8c8ff', '#9a74ff'],
+  red: ['#ffb3c1', '#ff5f7e'], pink: ['#ffc2e2', '#ff6fb5'], green: ['#bdfbe3', '#3fdca5'], orange: ['#ffd2a8', '#ff9150'],
 };
 function pal(color) { return PALETTE[color] || PALETTE.yellow; }
 
@@ -68,6 +68,19 @@ const ICONS = {
   bag: '<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
   copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
 };
+// Mascotte : petit fantôme kawaii (création originale)
+function ghostArt() {
+  return `<svg class="ghost-svg" viewBox="0 0 120 130" aria-hidden="true">
+    <path d="M60 6C30 6 12 30 12 60v58l12-10 12 12 12-12 12 12 12-12 12 12 12-12 12 10V60C108 30 90 6 60 6Z" fill="#b89cff" stroke="#07050c" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M26 34c6-12 18-20 30-21" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="44" cy="60" rx="8" ry="11" fill="#07050c"/><ellipse cx="76" cy="60" rx="8" ry="11" fill="#07050c"/>
+    <circle cx="46" cy="56" r="3" fill="#fff"/><circle cx="78" cy="56" r="3" fill="#fff"/>
+    <ellipse cx="32" cy="76" rx="8" ry="5" fill="#ff8fc8"/><ellipse cx="88" cy="76" rx="8" ry="5" fill="#ff8fc8"/>
+    <path d="M52 78q8 8 16 0" fill="none" stroke="#07050c" stroke-width="4" stroke-linecap="round"/>
+    <path d="M60 80v6" stroke="#ff5fae" stroke-width="5" stroke-linecap="round"/>
+  </svg>`;
+}
+
 function icon(name) {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ICONS.star}</svg>`;
 }

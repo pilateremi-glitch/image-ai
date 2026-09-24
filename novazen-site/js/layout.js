@@ -7,7 +7,7 @@ const NAV_LINKS = [
 ];
 
 function logoHtml() {
-  const name = escapeHtml(SHOP_CONFIG.name.toUpperCase());
+  const name = escapeHtml(SHOP_CONFIG.name);
   const cut = Math.ceil(name.length / 2);
   return `<a href="index.html" class="logo"><span class="ball wiggle"></span><span class="logo-text">${name.slice(0, cut)}<span>${name.slice(cut)}</span></span></a>`;
 }
@@ -17,7 +17,7 @@ function renderHeader() {
   if (!el) return;
   const page = location.pathname.split('/').pop() || 'index.html';
   const msgs = [`Livraison offerte dès ${fmt(SHOP_CONFIG.freeShippingFrom)}`, 'Commande en DM Insta / TikTok', 'Nouveaux drops chaque semaine', 'Cartes envoyées sous toploader', 'Paiement PayPal'];
-  const ticker = [...msgs, ...msgs].map(m => `<span>${m}</span><span>★</span>`).join('');
+  const ticker = [...msgs, ...msgs].map((m, i) => `<span>${m}</span><span>${i % 2 ? '✿' : '✦'}</span>`).join('');
   el.innerHTML = `
     <div class="ticker" aria-hidden="true"><div class="ticker-track">${ticker}</div></div>
     <header class="nav">
@@ -45,7 +45,7 @@ function renderFooter() {
         <div class="footer-grid">
           <div>
             ${logoHtml()}
-            <p class="muted small" style="margin-top:14px;max-width:320px">${escapeHtml(SHOP_CONFIG.tagline)}. Boosters, coffrets, peluches et goodies, emballés comme des trésors.</p>
+            <p class="muted small" style="margin-top:14px;max-width:320px">${escapeHtml(SHOP_CONFIG.tagline)}. Cute mais pas trop sage : boosters, peluches et goodies envoyés avec amour (et un peu de chaos).</p>
             <div class="social-row">
               <a href="https://instagram.com/${ig}" target="_blank" rel="noopener" aria-label="Instagram">${icon('insta')}</a>
               <a href="https://www.tiktok.com/@${tt}" target="_blank" rel="noopener" aria-label="TikTok">${icon('tiktok')}</a>
@@ -122,28 +122,6 @@ function initTilt() {
   });
 }
 
-// La police pixel n'a pas d'accents : on les retire dans les éléments qui l'utilisent
-const PIXEL_SEL = '.btn, .eyebrow, .logo-text, .tag, .pcard-cat, .price, .dialog, .toast, .footer h4, .stat small, .order-ref, .ticker, .pixel, .cat small, .ref';
-function stripAccents(root) {
-  const els = root.matches?.(PIXEL_SEL) ? [root] : [];
-  root.querySelectorAll?.(PIXEL_SEL).forEach(e => els.push(e));
-  els.forEach(el => {
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-    for (let n; (n = walker.nextNode());) {
-      const t = n.nodeValue.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-      if (t !== n.nodeValue) n.nodeValue = t;
-    }
-  });
-}
-function initPixelText() {
-  stripAccents(document.body);
-  new MutationObserver(muts => muts.forEach(m => {
-    m.addedNodes.forEach(n => n.nodeType === 1 ? stripAccents(n) : n.parentElement && stripAccents(n.parentElement));
-    if (m.type === 'characterData' && m.target.parentElement) stripAccents(m.target.parentElement);
-  })).observe(document.body, { childList: true, subtree: true, characterData: true });
-}
-
 renderHeader();
 renderFooter();
 initTilt();
-document.addEventListener('DOMContentLoaded', initPixelText);

@@ -1,7 +1,7 @@
 // ── Boutique : à personnaliser ────────────────────────────────────────────────
 const SHOP_CONFIG = {
   name: 'PokéShop',            // nom affiché (logo, titres)
-  tagline: 'Merch & cartes Pokémon',
+  tagline: 'Merch Pokémon cute & dark',
   paypalMe: 'MON_PSEUDO',      // https://paypal.me/MON_PSEUDO
   instagram: 'MON_INSTAGRAM',  // pseudo Instagram sans @
   tiktok: 'MON_TIKTOK',        // pseudo TikTok sans @

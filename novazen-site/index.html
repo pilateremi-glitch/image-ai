@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>PokéShop – Merch & cartes Pokémon</title>
+  <title>PokéShop – Merch Pokémon cute & dark</title>
   <meta name="description" content="Boosters, coffrets, peluches, figurines et goodies Pokémon. Commande en DM ou paiement PayPal."/>
-  <meta name="theme-color" content="#080b16"/>
+  <meta name="theme-color" content="#110c1b"/>
   <link rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
@@ -16,24 +16,30 @@
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <span class="eyebrow">Nouveau drop disponible</span>
-        <h1>La boutique des <span class="holo-text">dresseurs</span> collectionneurs.</h1>
-        <p class="lead">Boosters scellés, coffrets, peluches et goodies. Sélectionnés, protégés et envoyés comme des cartes rares.</p>
-        <div class="dialog" style="margin-top:28px;max-width:520px">
+        <span class="eyebrow">new drop dispo ✦</span>
+        <h1>Cute le jour,<br/><span class="holo-text">shadow</span> la <span class="hl">nuit</span>.</h1>
+        <p class="lead">Boosters scellés, peluches, figurines et goodies Pokémon. Du merch trop mignon avec un petit côté dark, envoyé depuis notre repaire.</p>
+        <div class="dialog" style="margin-top:28px;max-width:500px">
           <span id="typed"></span><br/>
-          <a href="boutique.html" class="choice">ACHETER</a><a href="#comment-commander" class="choice">INFOS</a>
+          <a href="boutique.html" class="choice">acheter</a><a href="#comment-commander" class="choice">infos</a>
         </div>
         <div class="hero-ctas">
-          <a href="boutique.html" class="btn btn-yellow">Voir la boutique ▶</a>
+          <a href="boutique.html" class="btn btn-yellow">Voir la boutique →</a>
           <a href="#comment-commander" class="btn">Comment commander</a>
         </div>
         <div class="hero-stats">
           <div><b id="stat-ship"></b><span>Livraison offerte</span></div>
-          <div><b>24H</b><span>Réponse en DM</span></div>
+          <div><b>24h</b><span>Réponse en DM</span></div>
           <div><b>100%</b><span>Produits scellés</span></div>
         </div>
       </div>
-      <div class="fan" id="fan" aria-hidden="true"><div class="fan-glow"></div></div>
+      <div class="fan" id="fan" aria-hidden="true">
+        <div class="fan-glow"></div>
+        <div class="ghost" id="ghost" style="right:0;top:0"></div>
+        <span class="sticker" style="left:0;bottom:14%;background:var(--mint);--r:-8deg">rare af ✦</span>
+        <span class="sticker" style="right:4%;bottom:4%;background:var(--yellow);--r:6deg">scellé ✓</span>
+        <span class="scribble" style="left:4%;top:6%;--r:-12deg">boo!</span>
+      </div>
     </div>
   </section>
 
@@ -45,8 +51,8 @@
   <!-- NEW DROPS -->
   <section class="section container">
     <div class="section-head">
-      <div><span class="eyebrow">Nouveautés</span><h2>Les derniers <span class="hl">drops</span></h2></div>
-      <a href="boutique.html" class="btn btn-sm">Tout voir ▶</a>
+      <div><span class="eyebrow">fresh ✦</span><h2>Les derniers <span class="hl">drops</span></h2></div>
+      <a href="boutique.html" class="btn btn-sm">Tout voir →</a>
     </div>
     <div class="products" id="featured"></div>
   </section>
@@ -54,7 +60,7 @@
   <!-- CATEGORIES -->
   <section class="container">
     <div class="section-head">
-      <div><span class="eyebrow">Explorer</span><h2>Choisis ton <span class="hl">type</span></h2></div>
+      <div><span class="eyebrow">explore</span><h2>Choisis ton <span class="hl">clan</span></h2></div>
     </div>
     <div class="cats" id="cats"></div>
   </section>
@@ -62,11 +68,11 @@
   <!-- HOW TO ORDER -->
   <section class="section container" id="comment-commander">
     <div class="section-head">
-      <div><span class="eyebrow">Commander</span><h2>2 façons de <span class="hl">commander</span></h2></div>
+      <div><span class="eyebrow">how to</span><h2>2 façons de <span class="hl">commander</span></h2></div>
     </div>
     <div class="grid-2" style="gap:20px">
       <div class="panel">
-        <div class="row" style="margin-bottom:18px"><span class="perk-ico"></span><h3>Payer avec PayPal</h3></div>
+        <div class="row" style="margin-bottom:18px"><span class="perk-ico" style="background:#ffc439"></span><h3>Payer avec PayPal</h3></div>
         <ol class="steps">
           <li>Remplis ton panier et indique ton pseudo Insta / TikTok</li>
           <li>Clique sur <b>Payer avec PayPal</b> : le montant est déjà rempli</li>
@@ -74,7 +80,7 @@
         </ol>
       </div>
       <div class="panel">
-        <div class="row" style="margin-bottom:18px"><span class="perk-ico" style="background:rgba(255,111,181,.14);color:var(--pink)"></span><h3>Commander en DM</h3></div>
+        <div class="row" style="margin-bottom:18px"><span class="perk-ico" style="background:var(--lav)"></span><h3>Commander en DM</h3></div>
         <ol class="steps">
           <li>Remplis ton panier et indique ton pseudo</li>
           <li>Clique sur <b>Commander en DM</b> puis <b>Copier le récap</b></li>
@@ -87,7 +93,7 @@
   <!-- REVIEWS (exemples : remplace-les par de vrais avis) -->
   <section class="container">
     <div class="section-head">
-      <div><span class="eyebrow">Avis</span><h2>Ils ont <span class="hl">capturé</span></h2></div>
+      <div><span class="eyebrow">love notes</span><h2>Ils ont <span class="hl">capturé</span></h2></div>
     </div>
     <div class="reviews">
       <div class="review"><div class="stars">★★★★★</div><p>« Boosters reçus en 3 jours, chacun sous toploader. Envoi ultra soigné, je recommande ! »</p><span class="small muted">@tom_tcg</span></div>
@@ -99,10 +105,10 @@
   <!-- PROMO -->
   <section class="section container">
     <div class="promo-wrap"><div class="promo">
-      <span class="eyebrow" style="justify-content:center">Offre de bienvenue</span>
+      <span class="eyebrow">welcome gift</span>
       <h2 style="margin:16px 0 18px">-15% sur ta première commande</h2>
       <p style="margin-bottom:26px" class="muted">Avec le code <span class="code">BIENVENUE</span></p>
-      <a href="boutique.html" class="btn btn-yellow">J'en profite ▶</a>
+      <a href="boutique.html" class="btn btn-yellow">J'en profite →</a>
     </div></div>
   </section>
 </main>
@@ -117,6 +123,7 @@
 // Icônes des étapes
 document.querySelectorAll('#comment-commander .perk-ico').forEach((el, i) => el.innerHTML = icon(i ? 'chat' : 'card'));
 
+document.getElementById('ghost').innerHTML = ghostArt();
 document.getElementById('stat-ship').textContent = fmt(SHOP_CONFIG.freeShippingFrom).replace(/,00/, '');
 
 document.getElementById('perks').innerHTML = [
@@ -126,7 +133,7 @@ document.getElementById('perks').innerHTML = [
   ['card', 'PayPal', 'Rapide et protégé'],
 ].map(([ic, t, s]) => `<div class="perk"><span class="perk-ico">${icon(ic)}</span><div><b>${t}</b><small>${s}</small></div></div>`).join('');
 
-const COLOR_VAR = { yellow: 'var(--yellow)', pink: 'var(--pink)', orange: '#ff8a3d', blue: 'var(--blue)', green: 'var(--green)' };
+const COLOR_VAR = { yellow: 'var(--yellow)', pink: 'var(--pink)', orange: '#ffb27a', blue: 'var(--blue)', green: 'var(--mint)' };
 document.getElementById('cats').innerHTML = CATEGORIES.map(c => {
   const n = PRODUCTS.filter(p => p.category === c.name).length;
   return `<a href="boutique.html?cat=${encodeURIComponent(c.name)}" class="cat" style="--tc:${COLOR_VAR[c.color] || 'var(--yellow)'}">
@@ -138,17 +145,17 @@ document.getElementById('featured').innerHTML = featured.map(productCard).join('
 
 // Cartes en éventail (hero)
 const fanPicks = ['booster-pokemon-ev', 'peluche-pikachu-30cm', 'coffret-dresseur-elite'].map(id => PRODUCTS.find(p => p.id === id)).filter(Boolean);
-document.getElementById('fan').innerHTML += fanPicks.map((p, i) => {
+document.getElementById('fan').insertAdjacentHTML('beforeend', fanPicks.map((p, i) => {
   const [c1, c2] = pal(p.color);
   return `<a href="produit.html?id=${p.id}" class="fan-card tilt"><div class="tcg" style="--c1:${c1};--c2:${c2}"><div class="tcg-inner">
     <div class="tcg-top"><span>${escapeHtml(p.name.split(' ').slice(0, 2).join(' '))}</span><span class="pixel">${fmt(p.price).replace(/\s/g, '')}</span></div>
     <div class="tcg-art foil">${productVisual(p)}</div>
     <div class="tcg-bottom">${escapeHtml(p.category)} · Stock<div class="bar"><i style="--w:${Math.min(100, p.stock * 2)}%"></i></div></div>
   </div></div></a>`;
-}).join('');
+}).join(''));
 
 // Texte façon boîte de dialogue
-const lines = ['Un BOOSTER sauvage apparaît !', 'Que veux-tu faire ?'];
+const lines = ['Un booster sauvage apparaît dans l\'ombre…', 'Que veux-tu faire ?'];
 const typed = document.getElementById('typed');
 let li = 0, ci = 0;
 (function type() {
