@@ -16,7 +16,7 @@ function renderHeader() {
   const el = document.getElementById('site-header');
   if (!el) return;
   const page = location.pathname.split('/').pop() || 'index.html';
-  const msgs = [`Livraison offerte dès ${fmt(SHOP_CONFIG.freeShippingFrom)}`, 'Commande en DM Insta / TikTok', 'Nouveaux drops chaque semaine', 'Cartes envoyées sous toploader', 'Paiement PayPal'];
+  const msgs = [`Livraison offerte dès ${fmt(SHOP_CONFIG.freeShippingFrom)}`, 'Commande en DM Insta / TikTok', 'Nouveaux drops chaque semaine', 'Casquettes brodées & drapeaux XXL', 'Paiement PayPal'];
   const ticker = [...msgs, ...msgs].map((m, i) => `<span>${m}</span><span>${i % 2 ? '✿' : '✦'}</span>`).join('');
   el.innerHTML = `
     <div class="ticker" aria-hidden="true"><div class="ticker-track">${ticker}</div></div>
@@ -45,7 +45,7 @@ function renderFooter() {
         <div class="footer-grid">
           <div>
             ${logoHtml()}
-            <p class="muted small" style="margin-top:14px;max-width:320px">${escapeHtml(SHOP_CONFIG.tagline)}. Cute mais pas trop sage : boosters, peluches et goodies envoyés avec amour (et un peu de chaos).</p>
+            <p class="muted small" style="margin-top:14px;max-width:320px">${escapeHtml(SHOP_CONFIG.tagline)}. Cute mais pas trop sage : casquettes brodées et drapeaux envoyés avec amour (et un peu de chaos).</p>
             <div class="social-row">
               <a href="https://instagram.com/${ig}" target="_blank" rel="noopener" aria-label="Instagram">${icon('insta')}</a>
               <a href="https://www.tiktok.com/@${tt}" target="_blank" rel="noopener" aria-label="TikTok">${icon('tiktok')}</a>
@@ -72,7 +72,7 @@ function productVisual(p, index = 0) {
   return `<div class="pvis foil" style="${soft}">${productArt(p.art, p.color)}</div>`;
 }
 
-const BADGE_COLORS = { 'Best-seller': 'tag-yellow', 'Nouveau': 'tag-mint', 'Rare': 'tag-lav', 'Précommande': 'tag-sky' };
+const BADGE_COLORS = { 'Best-seller': 'tag-yellow', 'Nouveau': 'tag-mint', 'Rare': 'tag-lav', 'Précommande': 'tag-sky', 'Promo': 'tag-pink' };
 
 function productBadges(p) {
   const tags = (p.badges || []).map(b => `<span class="tag ${BADGE_COLORS[b] || ''}">${escapeHtml(b)}</span>`);

@@ -1,7 +1,7 @@
 // ── Visuels dessinés (SVG) : produits sans photo + icônes ────────────────────
 const PALETTE = {
   yellow: ['#fff0a8', '#ffcf4d'], blue: ['#b9dcff', '#6f9cff'], violet: ['#d8c8ff', '#9a74ff'],
-  red: ['#ffb3c1', '#ff5f7e'], pink: ['#ffc2e2', '#ff6fb5'], green: ['#bdfbe3', '#3fdca5'], orange: ['#ffd2a8', '#ff9150'],
+  red: ['#ffb3c1', '#ff5f7e'], pink: ['#ffc2e2', '#ff6fb5'], green: ['#bdfbe3', '#3fdca5'], orange: ['#ffd2a8', '#ff9150'], black: ['#4a3d66', '#1a1326'],
 };
 function pal(color) { return PALETTE[color] || PALETTE.yellow; }
 
@@ -15,42 +15,30 @@ function productArt(kind, color) {
   </defs>`;
   const emblem = (cx, cy, r) => `<g><circle cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/><path d="M${cx - r} ${cy}a${r} ${r} 0 0 1 ${2 * r} 0z" fill="#e8283f"/><rect x="${cx - r}" y="${cy - r * .09}" width="${2 * r}" height="${r * .18}" fill="#141833"/><circle cx="${cx}" cy="${cy}" r="${r * .32}" fill="#fff" stroke="#141833" stroke-width="${r * .14}"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#141833" stroke-width="${r * .12}"/></g>`;
   const zig = (y, dir) => { let d = `M40 ${y}`; for (let x = 40; x < 160; x += 8) d += `L${x + 4} ${y + dir * 6}L${x + 8} ${y}`; return d; };
+  const INK = '#07050c';
+  const cap = `<g stroke="${INK}" stroke-width="5" stroke-linejoin="round">
+      <path d="M22 128 Q92 104 178 124 Q176 150 104 154 Q42 154 22 128Z" fill="${c2}"/>
+      <path d="M42 126 C40 66 78 40 112 40 C150 40 172 74 170 122 Q108 108 42 126Z" fill="url(#${id})"/>
+      <path d="M112 42 C104 64 102 92 104 114 M112 42 C132 58 146 84 150 116" fill="none" stroke-width="3" opacity=".55"/>
+      <circle cx="112" cy="40" r="7" fill="${c2}"/>
+    </g>
+    ${emblem(90, 88, 20)}
+    <path d="M42 126 C40 66 78 40 112 40 C150 40 172 74 170 122 Q108 108 42 126Z" fill="url(#${id}f)"/>`;
+  const flag = `<g stroke="${INK}" stroke-width="5" stroke-linejoin="round">
+      <rect x="26" y="22" width="10" height="164" rx="4" fill="#e9e2f7"/>
+      <circle cx="31" cy="20" r="9" fill="${c1}"/>
+      <path d="M36 34 Q72 18 108 34 T180 34 L180 128 Q144 112 108 128 T36 128Z" fill="url(#${id})"/>
+    </g>
+    <circle cx="44" cy="42" r="4" fill="#e9e2f7" stroke="${INK}" stroke-width="2.5"/><circle cx="44" cy="120" r="4" fill="#e9e2f7" stroke="${INK}" stroke-width="2.5"/>
+    ${emblem(110, 80, 26)}
+    <path d="M60 48 Q72 42 84 46" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="5" stroke-linecap="round"/>
+    <path d="M36 34 Q72 18 108 34 T180 34 L180 128 Q144 112 108 128 T36 128Z" fill="url(#${id}f)"/>`;
   const shapes = {
-    booster: `<path d="${zig(22, -1)}L160 30L40 30Z" fill="${c2}"/><path d="${zig(178, 1)}L160 170L40 170Z" fill="${c2}"/>
-      <rect x="40" y="22" width="120" height="156" fill="url(#${id})"/>
-      <rect x="40" y="36" width="120" height="10" fill="#141833" opacity=".25"/><rect x="40" y="154" width="120" height="10" fill="#141833" opacity=".25"/>
-      ${emblem(100, 96, 30)}
-      <rect x="58" y="134" width="84" height="12" rx="3" fill="#141833" opacity=".8"/><text x="100" y="143.5" text-anchor="middle" font-family="monospace" font-weight="700" font-size="9" fill="#fff" letter-spacing="2">BOOSTER</text>
-      <rect x="40" y="22" width="120" height="156" fill="url(#${id}f)"/>`,
-    box: `<path d="M40 70 L100 44 L170 64 L110 92Z" fill="${c1}"/><path d="M40 70 L110 92 L110 178 L40 156Z" fill="url(#${id})"/><path d="M110 92 L170 64 L170 150 L110 178Z" fill="${c2}"/>
-      <path d="M110 92 L170 64 L170 150 L110 178Z" fill="#000" opacity=".18"/>${emblem(75, 122, 22)}
-      <path d="M52 86 L98 101" stroke="#fff" stroke-opacity=".5" stroke-width="4" stroke-linecap="round"/><path d="M40 70 L110 92 L110 178 L40 156Z" fill="url(#${id}f)"/>`,
-    plush: `<ellipse cx="100" cy="178" rx="52" ry="8" fill="#000" opacity=".25"/>
-      <path d="M58 70 L44 20 L84 56Z" fill="url(#${id})"/><path d="M142 70 L156 20 L116 56Z" fill="url(#${id})"/><path d="M47 30 L44 20 L54 27Z" fill="#141833"/><path d="M153 30 L156 20 L146 27Z" fill="#141833"/>
-      <ellipse cx="100" cy="112" rx="62" ry="62" fill="url(#${id})"/><ellipse cx="100" cy="150" rx="34" ry="22" fill="#fff" opacity=".35"/>
-      <ellipse cx="78" cy="104" rx="7" ry="9" fill="#141833"/><ellipse cx="122" cy="104" rx="7" ry="9" fill="#141833"/><circle cx="80" cy="100" r="2.5" fill="#fff"/><circle cx="124" cy="100" r="2.5" fill="#fff"/>
-      <circle cx="62" cy="124" r="10" fill="#ff4d6d" opacity=".8"/><circle cx="138" cy="124" r="10" fill="#ff4d6d" opacity=".8"/><path d="M92 122 Q100 130 108 122" fill="none" stroke="#141833" stroke-width="3" stroke-linecap="round"/>
-      <ellipse cx="100" cy="112" rx="62" ry="62" fill="url(#${id}f)"/>`,
-    figure: `<ellipse cx="100" cy="170" rx="58" ry="14" fill="#141833"/><ellipse cx="100" cy="164" rx="58" ry="14" fill="#2a3160"/>
-      <path d="M100 26 C128 60 150 76 142 116 C136 148 112 160 100 160 C88 160 64 148 58 116 C52 88 74 76 76 52 C88 70 92 80 96 86 C102 64 96 44 100 26Z" fill="url(#${id})"/>
-      <path d="M100 80 C114 100 124 110 120 130 C116 148 104 152 100 152 C92 152 80 146 78 130 C76 116 88 108 92 96 C96 104 98 108 100 110 C102 100 100 90 100 80Z" fill="#ffe066"/>
-      <path d="M100 26 C128 60 150 76 142 116 C136 148 112 160 100 160 C88 160 64 148 58 116 C52 88 74 76 76 52 C88 70 92 80 96 86 C102 64 96 44 100 26Z" fill="url(#${id}f)"/>`,
-    stickers: `<g transform="rotate(-14 70 80)"><rect x="30" y="40" width="80" height="80" rx="16" fill="#fff"/><rect x="36" y="46" width="68" height="68" rx="12" fill="url(#${id})"/><path d="M70 62 l7 14 15 2 -11 10 3 15 -14-7 -14 7 3-15 -11-10 15-2z" fill="#fff"/></g>
-      <g transform="rotate(10 130 110)"><rect x="92" y="72" width="80" height="80" rx="40" fill="#fff"/><circle cx="132" cy="112" r="34" fill="#ffe066"/><path d="M132 128 c-18-12-26-20-26-30 a12 12 0 0 1 26-4 a12 12 0 0 1 26 4 c0 10-8 18-26 30z" fill="#ff4d6d"/></g>
-      <g transform="rotate(-4 90 150)"><rect x="50" y="128" width="84" height="44" rx="12" fill="#fff"/><rect x="55" y="133" width="74" height="34" rx="9" fill="#6fa8ff"/><text x="92" y="156" text-anchor="middle" font-family="monospace" font-weight="700" font-size="14" fill="#fff">GG!</text></g>`,
-    keychain: `<circle cx="100" cy="46" r="24" fill="none" stroke="#c9cfee" stroke-width="7"/><rect x="95" y="68" width="10" height="26" rx="4" fill="#c9cfee"/>${emblem(100, 132, 44)}<circle cx="100" cy="132" r="44" fill="url(#${id}f)"/>`,
-    binder: `<rect x="44" y="30" width="118" height="148" rx="12" fill="#141833"/><rect x="38" y="24" width="118" height="148" rx="12" fill="url(#${id})"/>
-      <rect x="38" y="24" width="18" height="148" rx="8" fill="#000" opacity=".2"/>
-      ${[0, 1, 2].map(r => [0, 1, 2].map(c => `<rect x="${66 + c * 28}" y="${40 + r * 40}" width="22" height="32" rx="3" fill="#fff" opacity="${(r + c) % 2 ? .9 : .55}"/>`).join('')).join('')}
-      <rect x="150" y="84" width="14" height="30" rx="5" fill="#141833"/><rect x="38" y="24" width="118" height="148" rx="12" fill="url(#${id}f)"/>`,
-    sleeves: `${[0, 1, 2, 3].map(i => `<rect x="${56 + i * 10}" y="${34 + i * 8}" width="76" height="106" rx="8" fill="${i === 3 ? `url(#${id})` : '#dfe6ff'}" opacity="${i === 3 ? 1 : .25 + i * .2}" stroke="#fff" stroke-opacity=".6" stroke-width="2"/>`).join('')}
-      ${emblem(124, 110, 20)}<rect x="86" y="58" width="76" height="106" rx="8" fill="url(#${id}f)"/>`,
-    hoodie: `<path d="M70 40 Q100 20 130 40 L166 62 L182 128 L156 136 L148 98 L148 176 L52 176 L52 98 L44 136 L18 128 L34 62Z" fill="url(#${id})"/>
-      <path d="M78 40 Q100 76 122 40" fill="none" stroke="#141833" stroke-opacity=".35" stroke-width="6"/><path d="M92 58 L90 92 M108 58 L110 92" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-      <rect x="72" y="130" width="56" height="30" rx="8" fill="#000" opacity=".15"/>${emblem(122, 96, 11)}
-      <path d="M70 40 Q100 20 130 40 L166 62 L182 128 L156 136 L148 98 L148 176 L52 176 L52 98 L44 136 L18 128 L34 62Z" fill="url(#${id}f)"/>`,
+    cap,
+    flag,
+    pack: `<g transform="translate(18 -6) scale(.82)">${flag}</g><g transform="translate(-6 62) scale(.72)">${cap}</g>`,
   };
-  return `<svg class="art" viewBox="0 0 200 200" aria-hidden="true">${defs}${shapes[kind] || shapes.booster}</svg>`;
+  return `<svg class="art" viewBox="0 0 200 200" aria-hidden="true">${defs}${shapes[kind] || shapes.cap}</svg>`;
 }
 
 const ICONS = {
@@ -66,6 +54,9 @@ const ICONS = {
   insta: '<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>',
   tiktok: '<path d="M14 3v11a4 4 0 1 1-4-4"/><path d="M14 3c.5 2.5 2.5 4.5 5 5"/>',
   bag: '<path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+  cap: '<path d="M4 15c0-5 3.5-9 8-9s8 4 8 9z"/><path d="M4 15h17c0 2-3 3-8 3s-9-1-9-3z"/>',
+  flag: '<path d="M5 21V4"/><path d="M5 5c3-2 6 2 9 0s5-1 5-1v9s-2-1-5 1-6-2-9 0"/>',
+  gift: '<rect x="3" y="9" width="18" height="12" rx="1"/><path d="M3 13h18M12 9v12M12 9c-2-4-6-4-6-1s6 1 6 1c2-4 6-4 6-1s-6 1-6 1"/>',
   copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
 };
 // Mascotte : petit fantôme kawaii (création originale)
