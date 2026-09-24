@@ -127,7 +127,7 @@ function render() {
       </ul>
       <div class="row" style="margin-top:8px;gap:16px">
         <button onclick="copyText(Orders.recap(Orders.all().find(x => x.ref === '${ref}')))" class="btn-ghost">Copier le récap</button>
-        <button onclick="deleteOrder('${ref}')" class="btn-ghost">Supprimer</button>
+        <button onclick="deleteOrder('${ref}', this)" class="btn-ghost">Supprimer</button>
       </div>
     </div>`;
   }).join('');
@@ -138,16 +138,20 @@ function importRecap() {
   const order = Orders.parseRecap(el.value);
   if (!order) { showToast('Récap non reconnu (référence ou total manquant).', true); return; }
   const existing = Orders.all().find(o => o.ref === order.ref);
-  if (existing && !confirm(`La commande ${order.ref} existe déjà. La remplacer ?`)) return;
   if (existing) order.status = existing.status;
   Orders.upsert(order);
   el.value = '';
-  showToast(`✓ Commande ${order.ref} ajoutée`);
+  showToast(existing ? `✓ Commande ${order.ref} mise à jour` : `✓ Commande ${order.ref} ajoutée`);
   render();
 }
 
-function deleteOrder(ref) {
-  if (confirm(`Supprimer la commande ${ref} ?`)) { Orders.remove(ref); render(); }
+// Double clic de confirmation (les boîtes confirm() sont bloquées sur certains hébergeurs)
+function deleteOrder(ref, btn) {
+  if (btn.dataset.armed) { Orders.remove(ref); render(); return; }
+  btn.dataset.armed = '1';
+  btn.textContent = 'Confirmer la suppression ?';
+  btn.style.color = 'var(--red)';
+  setTimeout(() => { if (btn.isConnected) { delete btn.dataset.armed; btn.textContent = 'Supprimer'; btn.style.color = ''; } }, 3000);
 }
 
 if (isAuthed()) showDashboard();

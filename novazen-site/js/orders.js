@@ -9,13 +9,16 @@ const Orders = {
   },
 
   saveAll(orders) {
-    localStorage.setItem('nz-orders', JSON.stringify(orders));
+    try { localStorage.setItem('nz-orders', JSON.stringify(orders)); } catch {}
   },
 
   // Référence unique : 4 caractères aléatoires + compteur (ex : Z3F4-0001)
   newRef() {
-    let seq = parseInt(localStorage.getItem('nz-order-seq') || '0', 10) + 1;
-    localStorage.setItem('nz-order-seq', String(seq));
+    let seq = 1;
+    try {
+      seq = parseInt(localStorage.getItem('nz-order-seq') || '0', 10) + 1;
+      localStorage.setItem('nz-order-seq', String(seq));
+    } catch {}
     const rand = Array.from(crypto.getRandomValues(new Uint32Array(4)), n => REF_CHARS[n % REF_CHARS.length]).join('');
     return `${rand}-${String(seq).padStart(4, '0')}`;
   },

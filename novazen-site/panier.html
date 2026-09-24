@@ -68,7 +68,7 @@
       <p id="modal-ref" class="ref"></p>
     </div>
     <ol class="steps" id="modal-steps"></ol>
-    <a id="modal-paypal" target="_blank" rel="noopener" class="btn btn-paypal btn-block hidden">Rouvrir PayPal →</a>
+    <a id="modal-paypal" target="_blank" rel="noopener" class="btn btn-paypal btn-block hidden">Payer sur PayPal →</a>
     <textarea id="modal-recap" readonly rows="9" class="input recap"></textarea>
     <button onclick="copyText(document.getElementById('modal-recap').value)" class="btn btn-yellow btn-block">Copier le récap</button>
     <div class="socials">
@@ -203,7 +203,7 @@ function showOrderModal(order, paypalUrl) {
   document.getElementById('modal-title').innerHTML = isPaypal ? 'Presque <span class="hl">fini</span> !' : 'Commande <span class="hl">prête</span> !';
   document.getElementById('modal-ref').textContent = order.ref;
   const steps = isPaypal
-    ? `<li>Finalise le paiement de <b>${fmt(order.total)}</b> sur PayPal (ajoute ${ref} en note)</li>
+    ? `<li>Paie <b>${fmt(order.total)}</b> sur PayPal (bouton ci-dessous si l'onglet ne s'est pas ouvert) et ajoute ${ref} en note</li>
        <li>Copie ton récap ci-dessous</li>
        <li>Envoie-le-nous en DM pour valider ta commande</li>`
     : `<li>Copie ton récap ci-dessous</li>
