@@ -16,12 +16,14 @@ const Cart = {
   add(productId, qty = 1, variant = null) {
     const product = PRODUCTS.find(p => p.id === productId);
     if (!product) return;
+    if (!variant && product.variantPrices) variant = product.variants[0];
+    const price = product.variantPrices?.[variant] ?? product.price;
     const key = productId + (variant || '');
     const existing = this.items.find(i => i.key === key);
     if (existing) {
       existing.qty += qty;
     } else {
-      this.items.push({ key, id: productId, name: product.name, price: product.price, image: product.image, qty, variant });
+      this.items.push({ key, id: productId, name: product.name, price, image: product.image, qty, variant });
     }
     this.save();
     showToast('✓ Ajouté au panier !');

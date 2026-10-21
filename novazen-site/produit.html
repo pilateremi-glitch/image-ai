@@ -64,6 +64,11 @@
         <span id="p-badge" class="badge badge-red hidden"></span>
       </div>
 
+      <div id="p-status" class="hidden flex flex-wrap items-center gap-2 text-sm">
+        <span id="p-status-label" class="badge badge-gold"></span>
+        <span id="p-delivery" class="text-white/60"></span>
+      </div>
+
       <!-- Variants -->
       <div id="variant-section" class="hidden space-y-3">
         <p class="text-sm font-medium text-white/70">Choisir une option :</p>
@@ -185,7 +190,17 @@ if (!p) {
     document.getElementById('stock-count').textContent = p.stock;
   }
 
+  if (p.status || p.delivery) {
+    document.getElementById('p-status').classList.remove('hidden');
+    document.getElementById('p-status-label').textContent = p.status || '';
+    document.getElementById('p-status-label').classList.toggle('hidden', !p.status);
+    document.getElementById('p-delivery').textContent = p.delivery || '';
+  }
+
   let selectedVariant = p.variants?.[0] || null;
+  const showVariantPrice = v => {
+    if (p.variantPrices) document.getElementById('p-price').textContent = fmt(p.variantPrices[v]);
+  };
   if (p.variants) {
     document.getElementById('variant-section').classList.remove('hidden');
     const varBtns = document.getElementById('variant-btns');
@@ -197,6 +212,7 @@ if (!p) {
         : 'px-4 py-2 rounded-lg text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 transition-all';
       btn.onclick = () => {
         selectedVariant = v;
+        showVariantPrice(v);
         varBtns.querySelectorAll('button').forEach(b => b.className = 'px-4 py-2 rounded-lg text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 transition-all');
         btn.className = 'px-4 py-2 rounded-lg text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]';
       };

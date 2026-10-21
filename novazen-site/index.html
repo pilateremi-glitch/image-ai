@@ -163,7 +163,7 @@
 <section class="py-16 bg-[#141414] border-y border-[#1e1e1e]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <h2 class="font-display text-3xl font-bold text-center mb-10">Explorez nos <span class="gold-text">univers</span></h2>
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
       <a href="boutique.html?cat=Pok%C3%A9mon" class="group p-6 rounded-2xl bg-gradient-to-br from-yellow-700/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
         <div class="text-4xl mb-3">⚡</div>
         <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Cartes Pokémon</p>
@@ -171,6 +171,10 @@
       <a href="boutique.html?cat=One%20Piece" class="group p-6 rounded-2xl bg-gradient-to-br from-red-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
         <div class="text-4xl mb-3">🏴‍☠️</div>
         <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Cartes One Piece</p>
+      </a>
+      <a href="boutique.html?cat=Riftbound" class="group p-6 rounded-2xl bg-gradient-to-br from-sky-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
+        <div class="text-4xl mb-3">🌀</div>
+        <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Cartes Riftbound</p>
       </a>
       <a href="boutique.html?cat=Massage" class="group p-6 rounded-2xl bg-gradient-to-br from-purple-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
         <div class="text-4xl mb-3">💆</div>
@@ -302,6 +306,7 @@ function buildCard(p) {
     <div class="img-wrap">
       <img src="${p.image}" alt="${p.name}" loading="lazy"/>
       ${p.isBestSeller ? '<span class="badge badge-gold absolute top-3 left-3">Best seller</span>' : ''}
+      ${p.status ? `<span class="badge badge-gold absolute top-3 left-3">${p.status}</span>` : ''}
       ${disc > 0 ? `<span class="badge badge-red absolute top-${p.isBestSeller?'9':'3'} left-3">-${disc}%</span>` : ''}
       ${p.stock <= 20 ? '<span class="badge badge-orange absolute top-3 right-3">Stock limité</span>' : ''}
       <button class="quick-add" onclick="event.preventDefault();Cart.add('${p.id}')">

@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Boutique – NovaZen</title>
-  <meta name="description" content="Toute la collection NovaZen : bien-être, cartes Pokémon et One Piece scellées. Livraison rapide."/>
+  <meta name="description" content="Toute la collection NovaZen : bien-être, cartes Pokémon, One Piece et Riftbound scellées. Livraison rapide."/>
   <link rel="stylesheet" href="css/style.css"/>
   <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -75,6 +75,7 @@ function buildCard(p) {
     <div class="img-wrap">
       <img src="${p.image}" alt="${p.name}" loading="lazy"/>
       ${p.isBestSeller ? '<span class="badge badge-gold absolute top-3 left-3">Best seller</span>' : ''}
+      ${p.status ? `<span class="badge badge-gold absolute top-3 left-3">${p.status}</span>` : ''}
       ${disc > 0 ? `<span class="badge badge-red absolute top-3 right-3">-${disc}%</span>` : ''}
       <button class="quick-add" onclick="event.preventDefault();Cart.add('${p.id}')">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"/></svg>
@@ -86,7 +87,7 @@ function buildCard(p) {
       <h3 class="font-semibold text-sm leading-snug group-hover:text-[#c9a84c] transition-colors">${p.name}</h3>
       ${p.reviews ? `<div class="stars text-xs mt-1.5">★★★★★ <span class="text-white/40">(${p.reviews})</span></div>` : `<p class="text-xs text-white/40 mt-1.5">${p.serie || ''}</p>`}
       <div class="flex items-center gap-2 mt-2">
-        <span class="text-lg font-bold text-[#c9a84c]">${fmt(p.price)}</span>
+        <span class="text-lg font-bold text-[#c9a84c]">${p.variantPrices ? '<span class="text-xs text-white/40 font-normal">dès</span> ' : ''}${fmt(p.price)}</span>
         ${p.comparePrice ? `<span class="text-sm text-white/30 line-through">${fmt(p.comparePrice)}</span>` : ''}
       </div>
     </div>
@@ -95,7 +96,7 @@ function buildCard(p) {
 
 const BTN_ON = 'filter-btn active px-5 py-2 rounded-full text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]';
 const BTN_OFF = 'filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all';
-const TYPE_ORDER = ['ETB', 'Display', 'Booster Bundle', 'Booster', 'Double Pack', 'Starter Deck', 'Tin', 'Coffret'];
+const TYPE_ORDER = ['Display', 'ETB', 'UPC', 'Bundle', 'Mini Tin', 'Tripack', 'Duopack', 'Coffret'];
 
 let current = 'Tous';
 let currentType = 'Tous';
