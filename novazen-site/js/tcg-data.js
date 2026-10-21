@@ -559,3 +559,58 @@ const TCG_ITEMS = [
     "prixMarcheUSD": 16.81
   }
 ];
+
+// ── Intégration boutique ──────────────────────────────────────────────────────
+// Prix de vente = prix marché USD converti en € puis arrondi à x,90 (modifiable via TCG_PRICE_OVERRIDES)
+const USD_TO_EUR = 0.92;
+const TCG_PRICE_OVERRIDES = {}; // ex : { 'pokemon-712102': 99.90 }
+
+const TCG_LICENCES = { pokemon: 'Pokémon', onepiece: 'One Piece' };
+
+function tcgType(nom) {
+  if (/Elite Trainer Box/.test(nom)) return 'ETB';
+  if (/Booster Box|Edition Box/.test(nom)) return 'Display';
+  if (/Booster Bundle/.test(nom)) return 'Booster Bundle';
+  if (/Booster Pack/.test(nom)) return 'Booster';
+  if (/Double Pack/.test(nom)) return 'Double Pack';
+  if (/Starter Deck|Deck Set/.test(nom)) return 'Starter Deck';
+  if (/Tin/.test(nom)) return 'Tin';
+  return 'Coffret';
+}
+
+const TCG_DESCRIPTIONS = {
+  ETB: "Elite Trainer Box officielle : boosters, sleeves, dés, marqueurs et carte promo exclusive. Le coffret idéal pour démarrer une nouvelle extension.",
+  Display: "Display scellée d'usine contenant l'intégralité des boosters de l'extension. Le meilleur rapport quantité/prix pour ouvrir ou collectionner.",
+  'Booster Bundle': "Bundle de boosters de l'extension, scellé d'usine. Parfait pour ouvrir plusieurs boosters à prix réduit.",
+  Booster: "Booster scellé de l'extension, version anglaise. Tentez votre chance pour les cartes rares et alternatives.",
+  'Double Pack': "Double Pack Set : 2 boosters + 1 carte DON!! exclusive, scellé d'usine.",
+  'Starter Deck': "Deck préconstruit prêt à jouer, idéal pour débuter ou renforcer sa collection.",
+  Tin: "Tin métallique collector contenant boosters et cartes promo.",
+  Coffret: "Coffret collector officiel, scellé d'usine, contenant boosters et cartes promo exclusives.",
+};
+
+function tcgPrice(usd) {
+  return Math.max(1.90, Math.ceil(usd * USD_TO_EUR) - 0.10);
+}
+
+TCG_ITEMS.forEach((t, i) => {
+  const type = tcgType(t.nom);
+  const licence = TCG_LICENCES[t.licence];
+  PRODUCTS.push({
+    id: t.id,
+    name: t.nom,
+    price: TCG_PRICE_OVERRIDES[t.id] ?? tcgPrice(t.prixMarcheUSD),
+    category: licence,
+    type,
+    serie: t.serie,
+    image: t.image,
+    images: [t.image],
+    description: TCG_DESCRIPTIONS[type],
+    benefits: ['Produit officiel 100% authentique', 'Scellé d\'usine', 'Version anglaise', 'Série : ' + t.serie, 'Expédié protégé sous 24/48h'],
+    isFeatured: (t.licence === 'pokemon' && i < 4) || ['onepiece-712901', 'onepiece-711385'].includes(t.id),
+    isBestSeller: false,
+    stock: 50,
+  });
+});
+
+CATEGORIES.push(...Object.values(TCG_LICENCES));

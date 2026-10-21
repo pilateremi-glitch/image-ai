@@ -61,7 +61,7 @@
       <div class="flex items-center gap-4">
         <span id="p-price" class="text-3xl font-bold text-[#c9a84c]"></span>
         <span id="p-compare" class="text-xl text-white/30 line-through"></span>
-        <span id="p-badge" class="badge badge-red"></span>
+        <span id="p-badge" class="badge badge-red hidden"></span>
       </div>
 
       <!-- Variants -->
@@ -124,6 +124,7 @@
 </footer>
 
 <script src="js/data.js"></script>
+<script src="js/tcg-data.js"></script>
 <script src="js/cart.js"></script>
 <script>
 const id = getParam('id');
@@ -141,6 +142,7 @@ if (!p) {
   mainImg.alt = p.name;
 
   const thumbs = document.getElementById('thumbnails');
+  if (p.images.length < 2) thumbs.classList.add('hidden');
   p.images.forEach((img, i) => {
     const btn = document.createElement('button');
     btn.className = `rounded-xl overflow-hidden border-2 ${i===0?'border-[#c9a84c]':'border-[#1e1e1e]'} transition-all hover:border-[#c9a84c]/60`;
@@ -154,14 +156,19 @@ if (!p) {
     thumbs.appendChild(btn);
   });
 
-  document.getElementById('p-category').textContent = p.category;
+  document.getElementById('p-category').textContent = p.type ? `${p.category} · ${p.type}` : p.category;
   document.getElementById('p-name').textContent = p.name;
-  document.getElementById('p-reviews').textContent = `(${p.reviews} avis)`;
+  if (p.reviews) {
+    document.getElementById('p-reviews').textContent = `(${p.reviews} avis)`;
+  } else {
+    document.querySelector('#p-reviews').parentElement.innerHTML = `<span class="text-white/50 text-sm">${p.serie}</span>`;
+  }
   document.getElementById('p-price').textContent = fmt(p.price);
   if (p.comparePrice) {
     document.getElementById('p-compare').textContent = fmt(p.comparePrice);
     const d = discount(p.price, p.comparePrice);
     document.getElementById('p-badge').textContent = '-' + d + '%';
+    document.getElementById('p-badge').classList.remove('hidden');
   }
   document.getElementById('p-desc').textContent = p.description;
 

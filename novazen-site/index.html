@@ -163,7 +163,15 @@
 <section class="py-16 bg-[#141414] border-y border-[#1e1e1e]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <h2 class="font-display text-3xl font-bold text-center mb-10">Explorez nos <span class="gold-text">univers</span></h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <a href="boutique.html?cat=Pok%C3%A9mon" class="group p-6 rounded-2xl bg-gradient-to-br from-yellow-700/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
+        <div class="text-4xl mb-3">⚡</div>
+        <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Cartes Pokémon</p>
+      </a>
+      <a href="boutique.html?cat=One%20Piece" class="group p-6 rounded-2xl bg-gradient-to-br from-red-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
+        <div class="text-4xl mb-3">🏴‍☠️</div>
+        <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Cartes One Piece</p>
+      </a>
       <a href="boutique.html?cat=Massage" class="group p-6 rounded-2xl bg-gradient-to-br from-purple-900/30 to-[#141414] border border-[#1e1e1e] hover:border-[#c9a84c]/30 transition-all hover:shadow-[0_0_20px_rgba(201,168,76,.1)] text-center">
         <div class="text-4xl mb-3">💆</div>
         <p class="font-semibold text-sm group-hover:text-[#c9a84c] transition-colors">Massage &amp; Bien-être</p>
@@ -284,6 +292,7 @@
 </footer>
 
 <script src="js/data.js"></script>
+<script src="js/tcg-data.js"></script>
 <script src="js/cart.js"></script>
 <script>
 function buildCard(p) {
@@ -303,7 +312,7 @@ function buildCard(p) {
     <div class="p-4">
       <p class="text-xs text-[#c9a84c]/70 uppercase tracking-wider mb-1">${p.category}</p>
       <h3 class="font-semibold text-sm leading-snug group-hover:text-[#c9a84c] transition-colors line-clamp-2">${p.name}</h3>
-      <div class="stars text-xs mt-1.5">★★★★★ <span class="text-white/40 text-xs">(${p.reviews})</span></div>
+      ${p.reviews ? `<div class="stars text-xs mt-1.5">★★★★★ <span class="text-white/40 text-xs">(${p.reviews})</span></div>` : `<p class="text-xs text-white/40 mt-1.5">${p.serie || ''}</p>`}
       <div class="flex items-center gap-2 mt-2">
         <span class="text-lg font-bold text-[#c9a84c]">${fmt(p.price)}</span>
         ${p.comparePrice ? `<span class="text-sm text-white/30 line-through">${fmt(p.comparePrice)}</span>` : ''}

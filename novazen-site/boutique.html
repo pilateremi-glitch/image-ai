@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Boutique – NovaZen</title>
-  <meta name="description" content="Toute la collection NovaZen : masseurs, oreillers, fitness, bien-être. Livraison rapide."/>
+  <meta name="description" content="Toute la collection NovaZen : bien-être, cartes Pokémon et One Piece scellées. Livraison rapide."/>
   <link rel="stylesheet" href="css/style.css"/>
   <script>tailwind.config={theme:{extend:{colors:{gold:'#c9a84c','gold-light':'#e0c675','dark-card':'#141414','dark-hover':'#1a1a1a','dark-border':'#1e1e1e'}}}}</script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -37,19 +37,13 @@
 <div class="pt-24 pb-10 max-w-7xl mx-auto px-4 sm:px-6">
   <p class="section-label">Notre collection</p>
   <h1 class="font-display text-4xl md:text-5xl font-bold">La <span class="gold-text">Boutique</span></h1>
-  <p class="text-white/50 mt-3">8 produits soigneusement sélectionnés</p>
+  <p id="product-count" class="text-white/50 mt-3"></p>
 </div>
 
 <!-- FILTERS -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 mb-10">
-  <div class="flex gap-2 flex-wrap" id="filters">
-    <button onclick="filterProducts('Tous')" class="filter-btn active px-5 py-2 rounded-full text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]" data-cat="Tous">Tous</button>
-    <button onclick="filterProducts('Massage')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Massage">Massage</button>
-    <button onclick="filterProducts('Sommeil')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Sommeil">Sommeil</button>
-    <button onclick="filterProducts('Fitness')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Fitness">Fitness</button>
-    <button onclick="filterProducts('Santé')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Santé">Santé</button>
-    <button onclick="filterProducts('Bien-être')" class="filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all" data-cat="Bien-être">Bien-être</button>
-  </div>
+  <div class="flex gap-2 flex-wrap" id="filters"></div>
+  <div class="flex gap-2 flex-wrap mt-3" id="type-filters"></div>
 </div>
 
 <!-- GRID -->
@@ -71,6 +65,7 @@
 </footer>
 
 <script src="js/data.js"></script>
+<script src="js/tcg-data.js"></script>
 <script src="js/cart.js"></script>
 <script>
 function buildCard(p) {
@@ -89,7 +84,7 @@ function buildCard(p) {
     <div class="p-4">
       <p class="text-xs text-[#c9a84c]/70 uppercase tracking-wider mb-1">${p.category}</p>
       <h3 class="font-semibold text-sm leading-snug group-hover:text-[#c9a84c] transition-colors">${p.name}</h3>
-      <div class="stars text-xs mt-1.5">★★★★★ <span class="text-white/40">(${p.reviews})</span></div>
+      ${p.reviews ? `<div class="stars text-xs mt-1.5">★★★★★ <span class="text-white/40">(${p.reviews})</span></div>` : `<p class="text-xs text-white/40 mt-1.5">${p.serie || ''}</p>`}
       <div class="flex items-center gap-2 mt-2">
         <span class="text-lg font-bold text-[#c9a84c]">${fmt(p.price)}</span>
         ${p.comparePrice ? `<span class="text-sm text-white/30 line-through">${fmt(p.comparePrice)}</span>` : ''}
@@ -98,23 +93,44 @@ function buildCard(p) {
   </a>`;
 }
 
+const BTN_ON = 'filter-btn active px-5 py-2 rounded-full text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]';
+const BTN_OFF = 'filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all';
+const TYPE_ORDER = ['ETB', 'Display', 'Booster Bundle', 'Booster', 'Double Pack', 'Starter Deck', 'Tin', 'Coffret'];
+
 let current = 'Tous';
-function filterProducts(cat) {
-  current = cat;
-  document.querySelectorAll('.filter-btn').forEach(b => {
-    const active = b.dataset.cat === cat;
-    b.className = active
-      ? 'filter-btn active px-5 py-2 rounded-full text-sm font-medium border border-[#c9a84c] bg-[#c9a84c]/10 text-[#c9a84c]'
-      : 'filter-btn px-5 py-2 rounded-full text-sm font-medium border border-[#1e1e1e] text-white/60 hover:border-[#c9a84c]/40 hover:text-white transition-all';
+let currentType = 'Tous';
+
+function renderButtons(el, values, active, onClick) {
+  el.innerHTML = '';
+  values.forEach(v => {
+    const b = document.createElement('button');
+    b.textContent = v;
+    b.className = v === active ? BTN_ON : BTN_OFF;
+    b.onclick = () => onClick(v);
+    el.appendChild(b);
   });
-  const filtered = cat === 'Tous' ? PRODUCTS : PRODUCTS.filter(p => p.category === cat);
+}
+
+function filterProducts(cat, type = 'Tous') {
+  current = cat;
+  currentType = type;
+  renderButtons(document.getElementById('filters'), CATEGORIES, cat, c => filterProducts(c));
+
+  const inCat = cat === 'Tous' ? PRODUCTS : PRODUCTS.filter(p => p.category === cat);
+  const types = TYPE_ORDER.filter(t => inCat.some(p => p.type === t));
+  const typeEl = document.getElementById('type-filters');
+  typeEl.classList.toggle('hidden', types.length < 2);
+  renderButtons(typeEl, ['Tous', ...types], type, t => filterProducts(current, t));
+
+  const filtered = type === 'Tous' ? inCat : inCat.filter(p => p.type === type);
   document.getElementById('product-grid').innerHTML = filtered.map(buildCard).join('');
   document.getElementById('no-results').classList.toggle('hidden', filtered.length > 0);
+  document.getElementById('product-count').textContent = `${filtered.length} produit${filtered.length > 1 ? 's' : ''} soigneusement sélectionné${filtered.length > 1 ? 's' : ''}`;
 }
 
 // Init from URL param
 const urlCat = getParam('cat');
-filterProducts(urlCat || 'Tous');
+filterProducts(CATEGORIES.includes(urlCat) ? urlCat : 'Tous', getParam('type') || 'Tous');
 </script>
 </body>
 </html>

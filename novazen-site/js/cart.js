@@ -1,11 +1,10 @@
 // ── Cart ──────────────────────────────────────────────────────────────────────
 const Cart = {
-  items: [],
+  items: (() => {
+    try { return JSON.parse(localStorage.getItem('nz-cart') || '[]'); } catch { return []; }
+  })(),
 
   init() {
-    try {
-      this.items = JSON.parse(localStorage.getItem('nz-cart') || '[]');
-    } catch { this.items = []; }
     this.render();
   },
 
