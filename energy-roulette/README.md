@@ -20,11 +20,11 @@ Après la révélation, le Pokémon de l'énergie tirée arrive et écrit le pse
 
 ## Illustrations des cartes
 
-Les cartes holographiques utilisent vos illustrations, rangées dans `visuels/cartes/<énergie>.webp` et intégrées au fichier. Sacha (Dresseur) a été découpé depuis votre planche.
+La révélation et l'écran de fin affichent vos 12 cartes (Pokémon, dresseur, objet et attaque), rangées dans `visuels/cartes/<énergie>.webp` et intégrées au fichier. Le pseudo du viewer s'affiche sous la carte, dans le champ « JOUEUR : ». Sacha (`visuels/sacha.webp`) a été découpé depuis votre première planche.
 
-## Pokémon de 1re génération
+## Pokémon et attaques
 
-À chaque tour, un Pokémon de la 1re génération du type de l'énergie tirée est choisi au hasard, sans répétition dans la partie. Il entre en scène et lance son attaque (par exemple « DRACAUFEU UTILISE LANCE-FLAMMES ! ») juste avant la révélation de la carte. Les images viennent de `visuels/pokemon/<n° Pokédex>.png` si vous les fournissez, sinon de l'illustration officielle en ligne. Pour désactiver le chargement en ligne, mettez `pokemonEnLigne: false`.
+Chaque catégorie a le Pokémon et l'attaque de sa carte : Bulbizarre « Vampigraine », Carapuce « Pistolet à O », Salamèche « Lance-Flammes », Pikachu « Éclair », Mew « Psyko », Noctali « Tranche-Nuit », Dracolosse « Draco-Météore », Métagross « Tête de Fer », Lucario « Close Combat », Évoli « Éclat Magique », Mewtwo « Capture Ultime » (Objet), et Sacha, Pierre et Ondine « Lien d'Amitié » (Dresseur). Le Pokémon entre en scène et lance son attaque juste avant la révélation de la carte. Les images viennent de `visuels/pokemon/<n° Pokédex>.png` si vous les fournissez, sinon de l'illustration officielle en ligne. Pour désactiver le chargement en ligne, mettez `pokemonEnLigne: false`.
 
 ## Fluidité
 
