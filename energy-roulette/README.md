@@ -14,7 +14,13 @@ Un fichier absent est ignoré, et le décor par défaut reste en place. Pour ré
 
 ## Viewer + Pikachu
 
-Tapez le pseudo du viewer dans la case **Pseudo du viewer…** du panneau de droite, puis appuyez sur `Entrée` ou cliquez sur **ÉCRIRE**. Pikachu traverse la case en haut à gauche et écrit le pseudo en éclairs. Après le tirage, l'énergie gagnée s'affiche dans cette case, et le pseudo est ajouté à l'historique, à la carte de révélation et à l'écran de fin.
+Avant de lancer la roue, tapez le pseudo du viewer dans la case **Pseudo du viewer…** puis appuyez sur `Entrée`. Le champ passe au vert et la case en haut à gauche affiche « PSEUDO REÇU ». Le pseudo n'est pas encore écrit.
+
+Après la révélation, le Pokémon de l'énergie tirée arrive et écrit le pseudo dans le style de son énergie : flammes, eau, éclairs, feuilles, etc. Pour **Dresseur**, c'est Sacha qui le tague à la bombe de peinture. Pour **Objet**, une Potion se renverse et le liquide forme le pseudo. L'énergie s'affiche ensuite dans la case, et le pseudo est ajouté à l'historique, à la carte de révélation et à l'écran de fin.
+
+## Illustrations des cartes
+
+Les cartes holographiques utilisent vos illustrations, rangées dans `visuels/cartes/<énergie>.webp` et intégrées au fichier. Sacha (Dresseur) a été découpé depuis votre planche.
 
 ## Pokémon de 1re génération
 
