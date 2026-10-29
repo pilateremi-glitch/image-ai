@@ -20,7 +20,7 @@ Après la révélation, le Pokémon de l'énergie tirée arrive et écrit le pse
 
 ## Illustrations des cartes
 
-La révélation et l'écran de fin affichent vos 12 cartes (Pokémon, dresseur, objet et attaque), rangées dans `visuels/cartes/<énergie>.webp` et intégrées au fichier. Le pseudo du viewer s'affiche sous la carte, dans le champ « JOUEUR : ». Sacha (`visuels/sacha.webp`) a été découpé depuis votre première planche.
+La révélation et l'écran de fin affichent vos 12 cartes (Pokémon, dresseur, objet et attaque), rangées dans `visuels/cartes/<énergie>.webp` et intégrées au fichier. Le pseudo du viewer s'écrit dans la barre prévue en bas de la carte. Sacha (`visuels/sacha.webp`) a été découpé depuis votre première planche.
 
 ## Pokémon et attaques
 
