@@ -300,7 +300,16 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 .btn-new { height: 84px; padding: 0 60px; font-size: 32px; }
 
 .obs body, .obs #viewport, .obs #stage { background: transparent !important; }
-.obs .sky, .obs .floor, .obs .sun, .obs .lanterns { display: none; }
+.obs .sky, .obs .floor, .obs .sun, .obs .lanterns, .obs .custom-bg { display: none; }
+
+/* Visuels personnalisés (dossier visuels/) */
+.custom-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 0.6s; }
+.custom-bg.on { opacity: 1; }
+.custom-bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse 55% 60% at 50% 56%, rgba(4, 5, 14, 0.15), rgba(4, 5, 14, 0.55)); }
+.mascot { position: absolute; height: var(--h); left: var(--x); top: var(--y); opacity: var(--o, 0.9); filter: drop-shadow(0 0 24px rgba(45, 226, 255, 0.55)) drop-shadow(0 20px 30px rgba(0, 0, 0, 0.6)); animation: floatCard var(--d, 7s) ease-in-out infinite; --r: 0deg; transform-origin: 50% 100%; }
+.mascot.flip { scale: -1 1; }
+.fcard .face img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.title .logo-img { display: block; max-height: 96px; max-width: 760px; margin: 0 auto; filter: drop-shadow(0 0 18px rgba(255, 160, 40, 0.55)); }
 
 @media (prefers-reduced-motion: reduce) {
   .fcard, .lantern, .floor, .wheel-halo, .hub::after, .rays, .holo-card, .hc-art svg, .btn-spin::after { animation: none !important; }
@@ -310,16 +319,17 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 <body>
 <div id="viewport">
   <div id="stage">
-    <div class="layer"><div class="sun"></div></div>
+    <div class="layer"><div class="custom-bg" id="customBg"></div><div class="sun"></div></div>
     <div class="layer sky" id="sky"></div>
     <div class="layer"><div class="floor"></div></div>
     <canvas id="bg" class="full" width="1920" height="1080"></canvas>
     <div class="layer" id="cards"></div>
     <div class="layer lanterns" id="lanterns"></div>
+    <div class="layer" id="mascots"></div>
 
     <header class="title">
       <div class="t-eyebrow">POKÉMON TCG · ARÈNE LIVE</div>
-      <h1>ENERGY ROULETTE</h1>
+      <h1 id="titleText">ENERGY ROULETTE</h1>
       <div class="t-jp">エネルギー・ルーレット</div>
     </header>
 
@@ -395,6 +405,26 @@ const ENERGIES = [
   { id: 'colorless', name: 'Incolore',   color: '#e8e4d6', dark: '#837e6a', light: '#ffffff', text: '#2b2a24', glyph: '#3a382e', kanji: '無' },
   { id: 'special',   name: 'Spéciale',   color: '#ff47c8', dark: '#3d1780', light: '#ffe86b', text: '#ffffff', glyph: '#ffffff', kanji: '特', rainbow: true },
 ];
+/* =========================================================
+   VOS VISUELS — déposez vos images dans le dossier « visuels/ »
+   Un fichier absent est simplement ignoré (le décor par défaut reste).
+   ========================================================= */
+const VISUELS = {
+  fond: 'visuels/fond.jpg',                 // image d'arrière-plan 1920×1080
+  logo: 'visuels/logo.png',                 // remplace le titre « ENERGY ROULETTE » (PNG transparent)
+  // personnages / mascottes autour de la roue (PNG transparents) — x, y, hauteur en pixels sur la scène 1920×1080
+  mascottes: [
+    { src: 'visuels/mascotte1.png', x: 455, y: 640, h: 380 },
+    { src: 'visuels/mascotte2.png', x: 1215, y: 640, h: 380, miroir: true },
+    { src: 'visuels/mascotte3.png', x: 470, y: 190, h: 220 },
+    { src: 'visuels/mascotte4.png', x: 1260, y: 190, h: 220, miroir: true },
+  ],
+  // cartes flottantes : visuels de cartes / boosters (ratio carte 5:7)
+  cartes: ['visuels/carte1.png', 'visuels/carte2.png', 'visuels/carte3.png', 'visuels/carte4.png',
+           'visuels/carte5.png', 'visuels/carte6.png', 'visuels/carte7.png', 'visuels/carte8.png'],
+};
+function tryImage(src, ok) { if (!src) return; const im = new Image(); im.onload = () => ok(im); im.src = src; }
+
 const BY_ID = Object.fromEntries(ENERGIES.map(e => [e.id, e]));
 const fullName = e => 'Énergie ' + e.name;
 
@@ -572,6 +602,17 @@ addEventListener('resize', fitStage); fitStage();
     const e = BY_ID[deck[i]];
     return `<div class="fcard" style="--x:${x}px;--y:${y}px;--w:${w}px;--r:${r}deg;--o:${o};--b:${b}px;--d:${8 + i}s;--dl:${-i * 1.7}s;--c:${e.color};--c2:${e.light};--c3:${e.dark}"><div class="face">${badgeSVG(e)}</div></div>`;
   }).join('');
+
+  // visuels personnalisés
+  tryImage(VISUELS.fond, im => { const el = $('customBg'); el.style.backgroundImage = `url("${im.src}")`; el.classList.add('on'); });
+  tryImage(VISUELS.logo, im => { const h = $('titleText'); h.textContent = ''; im.className = 'logo-img'; im.alt = 'Energy Roulette'; h.appendChild(im); h.style.filter = 'none'; });
+  VISUELS.mascottes.forEach((m, i) => tryImage(m.src, im => {
+    im.className = 'mascot' + (m.miroir ? ' flip' : ''); im.alt = '';
+    im.style.cssText = `--x:${m.x}px;--y:${m.y}px;--h:${m.h}px;--d:${6 + i}s;animation-delay:${-i * 1.4}s`;
+    $('mascots').appendChild(im);
+  }));
+  const faces = document.querySelectorAll('#cards .face');
+  VISUELS.cartes.forEach((src, i) => faces[i] && tryImage(src, im => { im.alt = ''; faces[i].innerHTML = ''; faces[i].appendChild(im); }));
 })();
 
 /* Panneaux : historique, pastilles, grille des énergies */

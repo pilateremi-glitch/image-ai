@@ -6,6 +6,12 @@ Jeu de roue pour les lives TCG (Twitch / TikTok / YouTube). Il tient dans un seu
 
 Double-cliquez sur `index.html` : il s'ouvre dans Chrome, Edge ou Firefox. Le jeu fonctionne aussi hors ligne. Sans connexion, seules les polices de secours remplacent les polices Google.
 
+## Vos visuels
+
+Déposez vos images dans le dossier `visuels/` avec ces noms (la liste est aussi dans `visuels/LISEZMOI.txt`) :
+`fond.jpg`, `logo.png`, `mascotte1.png` à `mascotte4.png`, `carte1.png` à `carte8.png`.
+Un fichier absent est ignoré, et le décor par défaut reste en place. Pour régler les positions et les tailles, modifiez le bloc `VISUELS` en haut du script de `index.html`.
+
 ## Commandes
 
 | Bouton | Raccourci | Action |
