@@ -30,11 +30,19 @@ promos, cartes « Other Product », parallèles / alt-arts et réimpressions.
 
 ## En live (onglet 🎡 Live)
 
-1. **Type de jeu** : A Équipages · B Peuples · C Personnages · D Organisations & arcs · E Raretés ·
-   F Roue ultime · G Carte précise.
-2. **Booster** : tapez `OP-17` puis Entrée (plusieurs produits possibles). L'application analyse les cartes
-   réellement enregistrées pour ce produit et ne propose que les objectifs qui correspondent à au moins
-   une carte connue. Les autres sont grisés (« aucune carte connue »). Cochez / décochez librement.
+1. **Choisissez la série du soir** dans la grille en haut (Boosters OP, Extra EB, Premium PRB, Starter ST,
+   promos — ou recherche « OP-17 »). L'application règle **automatiquement** le jeu et ses règles :
+   - booster principal OP → Jeu A Équipages (ou un autre si la série n'a pas assez d'équipages) ;
+   - Extra Booster EB → Jeu D Organisations & arcs ;
+   - Premium Booster PRB → Jeu E Raretés, réimpressions autorisées (le produit n'en contient que) ;
+   - Starter Deck / promo → avertissement : contenu fixe ou non documenté.
+
+   Elle affiche aussi **les familles réellement présentes dans la série** avec leur nombre de cartes ;
+   les familles absentes sont exclues automatiquement (case « Afficher les familles absentes » pour les voir).
+   Si vous changez le jeu ou un réglage, ces règles sont **mémorisées pour cette série** (★) et reprises
+   la prochaine fois ; « Revenir aux règles automatiques » annule.
+2. **Ajuster (optionnel)** : type de jeu (A Équipages · B Peuples · C Personnages · D Organisations & arcs ·
+   E Raretés · F Roue ultime · G Carte précise), langue, objectifs à activer / désactiver.
 3. **Pseudo** + réglages du tour (boosters, validation manuelle ou automatique, parallèles, réimpressions,
    une ou plusieurs réussites) → **LANCER LA ROUE**. Le tour est verrouillé *avant* l'animation : critères
    et règles ne peuvent plus changer.

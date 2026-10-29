@@ -74,6 +74,10 @@ def main():
         title = html.unescape(p["title_parts"].get("title") or "")
         if re.fullmatch(r"(OP|ST|EB|PRB)-\d+", lab) and title:
             set_names[lab] = title
+        # Page combinée « OP14-EB04 » : le titre est celui du booster OP
+        m = re.fullmatch(r"(OP)(\d+)-EB\d+", lab)
+        if m and title and title != "BOOSTER PACK":
+            set_names.setdefault(f"OP-{m.group(2)}", title)
     out = {}
     for folder in folders:
         lang = LANGS[folder]

@@ -66,6 +66,8 @@ const Sync = (() => {
       Object.values(enPacks).forEach(p => {
         const lab = p.title_parts?.label || '';
         if (/^(OP|ST|EB|PRB)-\d+$/.test(lab) && p.title_parts?.title) setNames[lab] = decode(p.title_parts.title);
+        const m = lab.match(/^OP(\d+)-EB\d+$/);
+        if (m && p.title_parts?.title && p.title_parts.title !== 'BOOSTER PACK') setNames[`OP-${m[1]}`] ||= decode(p.title_parts.title);
       });
       const cards = new Map();
       const meta = { languages: {}, files: 0 };

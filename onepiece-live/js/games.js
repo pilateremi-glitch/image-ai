@@ -241,6 +241,56 @@ const Games = (() => {
     return s;
   }
 
-  return { CATEGORIES, DEFAULT_FAMILIES, GAME_TYPES, DEFAULT_RULES, buildTraitIndex, productCards, analyze,
+
+  // ---------- Règles automatiques par série ----------
+  // Type de produit déduit du code officiel
+  function seriesKind(code) {
+    if (/^OP-?\d+$/.test(code)) return 'booster';
+    if (/^EB-?\d+$/.test(code)) return 'extra';
+    if (/^PRB-?\d+$/.test(code)) return 'premium';
+    if (/^ST-?\d+$/.test(code)) return 'starter';
+    return 'other';
+  }
+  const KIND_LABELS = { booster: 'Booster principal', extra: 'Extra Booster', premium: 'Premium Booster',
+    starter: 'Starter Deck', other: 'Promo / autre produit' };
+  // Ordre de préférence des jeux selon le type de produit
+  const KIND_PREFS = {
+    booster: ['A', 'F', 'D', 'B', 'E', 'C'],
+    extra: ['D', 'A', 'F', 'E', 'C'],
+    premium: ['E', 'A', 'F', 'D'],
+    starter: ['E', 'C', 'G'],
+    other: ['E', 'C', 'G'],
+  };
+  const MIN_OBJ = 4, MAX_OBJ = 30; // une roue lisible et un vrai suspense
+
+  // Propose le jeu et les réglages adaptés à une série, à partir des cartes réellement connues.
+  function recommend({ allCards, product, language, families, games, traitsOf }) {
+    const kind = seriesKind(product);
+    const counts = {};
+    Object.keys(GAME_TYPES).forEach(id => {
+      const rules = { ...games[id] };
+      if (kind === 'premium') rules.reprints = 'allow';
+      const a = analyze({ allCards, products: [product], languages: language ? [language] : [], families, rules, traitsOf });
+      counts[id] = a.objectives.filter(o => o.count > 0).length;
+      if (id === 'A') counts.total = a.cards.length;
+    });
+    const prefs = KIND_PREFS[kind];
+    let gameId = prefs.find(id => counts[id] >= MIN_OBJ && counts[id] <= MAX_OBJ)
+      || prefs.find(id => counts[id] >= 2) || prefs[0];
+    const cfg = {};
+    const reasons = [`${product} est un ${KIND_LABELS[kind].toLowerCase()} : ${counts.total} carte(s) connue(s).`];
+    const warnings = [];
+    if (kind === 'premium') {
+      cfg.reprints = 'allow';
+      reasons.push('Un Premium Booster ne contient que des réimpressions : elles sont donc autorisées.');
+    }
+    if (kind === 'starter') warnings.push('Un Starter Deck a un contenu fixe : aucun objectif n\'y relève du hasard. À utiliser seulement pour un jeu spécial.');
+    if (kind === 'other') warnings.push('Produit promotionnel ou divers : le contenu exact d\'un paquet n\'est pas documenté, vérifiez avant de jouer.');
+    if (!counts.total) warnings.push('Aucune carte connue pour cette série : importez ou synchronisez ses données avant de jouer.');
+    reasons.push(`${GAME_TYPES[gameId].name} retenu : ${counts[gameId]} objectif(s) compatible(s) dans cette série.`);
+    return { gameId, cfg, kind, kindLabel: KIND_LABELS[kind], counts, reasons, warnings };
+  }
+
+  return { recommend, seriesKind, KIND_LABELS, CATEGORIES, DEFAULT_FAMILIES, GAME_TYPES, DEFAULT_RULES, buildTraitIndex, productCards, analyze,
     matchCard, draw, successText, isParallel, isManga };
 })();

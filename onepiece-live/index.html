@@ -30,9 +30,20 @@
 <main>
   <!-- ===================== LIVE ===================== -->
   <section id="tab-live" class="tab active">
+    <section class="panel series" id="seriesPanel">
+      <div class="row between">
+        <h2>1. Quelle série ouvrez-vous ce soir ?</h2>
+        <div class="row"><input id="seriesSearch" placeholder="Rechercher (OP-17, EB-05, nom…)"><button id="seriesToggle" class="ghost hidden">Changer de série</button></div>
+      </div>
+      <div id="seriesCurrent"></div>
+      <div id="seriesPicker">
+        <div class="row" id="seriesGroups"></div>
+        <div id="seriesGrid" class="series-grid"></div>
+      </div>
+    </section>
     <div class="live-grid">
       <aside class="panel prep">
-        <h2>1. Préparer la partie</h2>
+        <h2>2. Ajuster le jeu <small class="muted">(optionnel)</small></h2>
         <label>Type de jeu
           <select id="gameSelect"></select>
         </label>
@@ -50,6 +61,7 @@
           <button id="objAll" class="ghost small">Tout activer</button>
           <button id="objNone" class="ghost small">Tout désactiver</button>
           <label class="inline"><input type="checkbox" id="showWeights"> Probabilités personnalisées</label>
+          <label class="inline"><input type="checkbox" id="showAbsent"> Afficher les familles absentes de la série</label>
         </div>
         <input id="objFilter" placeholder="Filtrer les objectifs…">
         <div id="objectives" class="objectives"></div>
@@ -62,7 +74,7 @@
       </section>
 
       <aside class="panel turn">
-        <h2>2. Nouveau tour</h2>
+        <h2>3. Nouveau tour</h2>
         <label>Pseudo du participant
           <input id="pseudo" placeholder="Pseudo du viewer" autocomplete="off">
         </label>

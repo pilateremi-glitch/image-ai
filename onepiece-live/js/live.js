@@ -4,7 +4,10 @@ const Live = (() => {
     character: '#8a5a12', rarity: '#6b1f4f', card: '#2f5d7c' };
   const CAT_LABELS = { ...Games.CATEGORIES, trait: 'Autres traits', character: 'Personnages', rarity: 'Raretés', card: 'Cartes' };
   const MAX_SEGMENTS = 24;
-  const S = { gameId: 'A', products: [], lang: 'en', disabled: {}, turn: null, analysis: null, cfg: {}, objFilter: '' };
+  const S = { gameId: 'A', products: [], lang: 'en', disabled: {}, turn: null, analysis: null, cfg: {}, objFilter: '',
+    series: null, group: 'booster', seriesQuery: '' };
+  let profiles = {}; // règles mémorisées par série { code: { gameId, lang, cfg } }
+  let rec = null;    // recommandation automatique pour la série courante
   let wheel;
 
   const rulesFor = () => ({ ...App.games[S.gameId], ...S.cfg });
@@ -13,13 +16,113 @@ const Live = (() => {
   const langs = () => (S.lang === 'all' ? [] : [S.lang]);
 
   async function saveSession() {
-    await DB.set('session', { gameId: S.gameId, products: S.products, lang: S.lang, disabled: S.disabled, turn: S.turn, cfg: S.cfg });
+    await DB.set('session', { gameId: S.gameId, products: S.products, lang: S.lang, disabled: S.disabled, turn: S.turn, cfg: S.cfg, series: S.series });
   }
 
   function activeObjectives() {
     if (!S.analysis) return [];
     const off = disabledSet();
     return S.analysis.objectives.filter(o => o.count > 0 && !off.has(o.id));
+  }
+
+  // ---------- Choix de la série (règles automatiques) ----------
+  const GROUPS = { booster: 'Boosters OP', extra: 'Extra Boosters EB', premium: 'Premium PRB', starter: 'Starter Decks ST', other: 'Promos & autres' };
+  const FAMILY_CATS = ['crew', 'people', 'org', 'arc'];
+  const isSingleSeries = () => S.series && S.products.length === 1 && S.products[0] === S.series;
+  const pendingTurn = () => S.turn && S.turn.status === 'pending';
+
+  function langCounts(code) {
+    const m = {};
+    App.cards.forEach(c => { if ((c.products || []).includes(code)) m[c.language] = (m[c.language] || 0) + 1; });
+    return m;
+  }
+
+  function computeRec() {
+    rec = S.series ? Games.recommend({ allCards: App.cards, product: S.series, language: S.lang === 'all' ? '' : S.lang,
+      families: App.families, games: App.games, traitsOf: App.traitsOf }) : null;
+  }
+
+  async function selectSeries(code) {
+    if (pendingTurn()) return App.toast('Terminez ou annulez le tour en cours avant de changer de série.', 'error');
+    const prof = profiles[code];
+    const lc = langCounts(code);
+    S.series = code; S.products = [code];
+    if (prof?.lang && (lc[prof.lang] || prof.lang === 'all')) S.lang = prof.lang;
+    else if (!lc[S.lang]) S.lang = Object.entries(lc).sort((a, b) => b[1] - a[1])[0]?.[0] || 'en';
+    computeRec();
+    if (prof) { S.gameId = prof.gameId; S.cfg = { ...prof.cfg }; }
+    else { S.gameId = rec.gameId; S.cfg = { ...rec.cfg }; }
+    S.pickerOpen = false;
+    renderPrep(); recompute(); renderSeries(); saveSession();
+    App.toast(`${code} sélectionné : ${App.games[S.gameId].name} ${prof ? '(vos règles mémorisées)' : '(règles automatiques)'}.`, 'ok');
+  }
+
+  // Toute modification du jeu ou des réglages est mémorisée pour la série courante
+  async function rememberProfile() {
+    if (!isSingleSeries()) return;
+    profiles[S.series] = { gameId: S.gameId, lang: S.lang, cfg: { ...S.cfg } };
+    await DB.set('seriesProfiles', profiles);
+    renderSeries();
+  }
+
+  async function resetProfile() {
+    if (!S.series || pendingTurn()) return;
+    delete profiles[S.series]; await DB.set('seriesProfiles', profiles);
+    computeRec(); S.gameId = rec.gameId; S.cfg = { ...rec.cfg };
+    renderPrep(); recompute(); renderSeries(); saveSession();
+  }
+
+  function renderSeries() {
+    const cur = S.series && App.products().find(p => p.code === S.series);
+    const open = !cur || S.pickerOpen;
+    $('#seriesPicker').classList.toggle('hidden', !open);
+    $('#seriesSearch').classList.toggle('hidden', !open);
+    $('#seriesToggle').classList.toggle('hidden', !cur);
+    $('#seriesToggle').textContent = open ? 'Fermer' : 'Changer de série';
+    $('#seriesToggle').disabled = pendingTurn();
+    if (open) renderPicker();
+    if (!cur) { $('#seriesCurrent').innerHTML = ''; return; }
+    const saved = !!profiles[S.series];
+    const r = rulesFor();
+    // Familles réellement présentes dans la série (indépendamment du jeu choisi)
+    const fam = Games.analyze({ allCards: App.cards, products: [S.series], languages: langs(), families: App.families,
+      rules: { ...r, categories: FAMILY_CATS, otherTraits: false }, traitsOf: App.traitsOf }).objectives
+      .filter(o => o.count > 0).sort((a, b) => b.count - a.count);
+    const absent = App.families.filter(f => f.enabled !== false && !fam.some(o => o.id === `fam:${f.id}`));
+    $('#seriesCurrent').innerHTML = `<div class="series-now">
+      <div><div class="big">${esc(cur.code)}</div><small class="muted">${esc(cur.name || '')}</small><br>
+        <span class="badge">${esc(rec?.kindLabel || '')}</span></div>
+      <div>
+        <div><b>${esc(App.games[S.gameId].name)}</b> <span class="badge ${saved ? 'saved' : 'auto'}">${saved ? '★ Vos règles mémorisées pour cette série' : '⚙ Règles choisies automatiquement'}</span></div>
+        <ul>${(rec?.reasons || []).map(x => `<li>${esc(x)}</li>`).join('')}
+          <li>${r.boosters} booster(s) par participation · parallèles ${r.parallels === 'exclude' ? 'exclues' : 'comptées'} · réimpressions ${r.reprints === 'exclude' ? 'exclues' : 'autorisées'} · validation ${r.validation === 'auto' ? 'automatique' : 'manuelle'}</li>
+          ${(rec?.warnings || []).map(x => `<li class="warn-t">⚠ ${esc(x)}</li>`).join('')}</ul>
+        <div><b>Familles présentes dans ${esc(cur.code)}</b> (${fam.length}) :</div>
+        <div class="fam-chips">${fam.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>
+        ${absent.length ? `<details class="small"><summary class="muted">${absent.length} famille(s) absente(s) de cette série — exclues automatiquement</summary>${absent.map(f => esc(f.label)).join(' · ')}</details>` : ''}
+      </div>
+      <div class="row" style="flex-direction:column;align-items:stretch">
+        ${saved ? '<button id="seriesReset" class="ghost small">Revenir aux règles automatiques</button>' : ''}
+        <button id="seriesEdit" class="ghost small">Ajuster les règles ↓</button>
+      </div></div>`;
+    if ($('#seriesReset')) $('#seriesReset').onclick = resetProfile;
+    $('#seriesEdit').onclick = () => $('.prep').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function renderPicker() {
+    const all = App.products();
+    const q = S.seriesQuery.trim().toLowerCase();
+    const counts = {};
+    all.forEach(p => { const k = Games.seriesKind(p.code); counts[k] = (counts[k] || 0) + 1; });
+    $('#seriesGroups').innerHTML = Object.entries(GROUPS).filter(([k]) => counts[k]).map(([k, l]) =>
+      `<button class="ghost small group-btn ${k === S.group && !q ? 'active' : ''}" data-group="${k}">${l} (${counts[k]})</button>`).join('');
+    const list = all.filter(p => q ? (p.code + ' ' + (p.name || '')).toLowerCase().includes(q) : Games.seriesKind(p.code) === S.group);
+    $('#seriesGrid').innerHTML = list.map(p => {
+      const kind = Games.seriesKind(p.code);
+      return `<button class="series-tile ${p.code === S.series ? 'active' : ''} ${kind === 'starter' ? 'fixed' : ''}" data-series="${esc(p.code)}">
+        <span class="code">${esc(p.code)}</span><span class="name">${esc(p.name || Games.KIND_LABELS[kind])}</span>
+        <span class="meta">${p.count} cartes · ${[...p.langs].map(l => l.toUpperCase()).join(' / ')}${profiles[p.code] ? ' · ★ règles mémorisées' : ''}</span></button>`;
+    }).join('') || '<p class="muted">Aucune série trouvée. Importez ou synchronisez les nouvelles cartes dans Administration.</p>';
   }
 
   // ---------- Préparation ----------
@@ -53,7 +156,7 @@ const Live = (() => {
     const box = $('#objectives'), cov = $('#coverage');
     const r = rulesFor();
     if (!S.analysis) {
-      box.innerHTML = '<p class="muted">Sélectionnez un booster (ex. OP-17) : le jeu analysera les cartes réellement enregistrées pour ce produit.</p>';
+      box.innerHTML = '<p class="muted">Choisissez la série du soir en haut de la page : le jeu et les règles se règlent automatiquement.</p>';
       cov.innerHTML = ''; $('#objCount').textContent = ''; updateWheel(); renderSummary(); return;
     }
     const a = S.analysis, off = disabledSet();
@@ -70,7 +173,8 @@ const Live = (() => {
     const totalW = active.reduce((s, o) => s + Math.max(0, Number(weights[o.id] ?? 1)), 0) || 1;
     const q = S.objFilter.toLowerCase();
     const groups = {};
-    a.objectives.filter(o => !q || o.label.toLowerCase().includes(q)).forEach(o => { (groups[o.category] ||= []).push(o); });
+    const showAbsent = $('#showAbsent').checked;
+    a.objectives.filter(o => (showAbsent || o.count > 0) && (!q || o.label.toLowerCase().includes(q))).forEach(o => { (groups[o.category] ||= []).push(o); });
     box.innerHTML = Object.entries(groups).map(([cat, list]) => `<div class="obj-group"><h4>${esc(CAT_LABELS[cat] || cat)}</h4>${list.slice(0, 400).map(o => {
       const dis = o.count === 0;
       const on = !dis && !off.has(o.id);
@@ -176,7 +280,7 @@ const Live = (() => {
       segments, status: 'pending', pulls: [], successes: 0, lockedAt: new Date().toISOString(),
     };
     await saveSession();
-    renderPrep(); renderTurn(true);
+    renderPrep(); renderSeries(); renderTurn(true);
     wheel.setSegments(segments);
     App.broadcast({ type: 'spin', segments, target, turn: publicTurn() });
     if (how === 'wheel') await wheel.spin(target);
@@ -288,7 +392,7 @@ const Live = (() => {
     const i = App.turns.findIndex(x => x.id === t.id);
     if (i >= 0) App.turns[i] = rec; else App.turns.unshift(rec);
     await App.saveTurns(); await saveSession();
-    renderTurn(); renderHistory(); renderPrep();
+    renderTurn(); renderHistory(); renderPrep(); renderSeries();
     App.broadcast({ type: 'turn', turn: publicTurn() });
     if (t.status === 'won') confetti();
   }
@@ -347,22 +451,27 @@ const Live = (() => {
         } catch (e) { /* audio indisponible */ }
       }
     };
-    $('#gameSelect').onchange = e => { S.gameId = e.target.value; S.cfg = {}; renderPrep(); recompute(); saveSession(); };
-    $('#langSelect').onchange = e => { S.lang = e.target.value; recompute(); saveSession(); };
+    $('#gameSelect').onchange = e => { S.gameId = e.target.value; S.cfg = isSingleSeries() && rec ? { ...rec.cfg } : {}; renderPrep(); recompute(); saveSession(); rememberProfile(); };
+    $('#langSelect').onchange = e => { S.lang = e.target.value; computeRec(); recompute(); saveSession(); rememberProfile(); };
+    $('#seriesGroups').onclick = e => { const g = e.target.dataset.group; if (!g) return; S.group = g; S.seriesQuery = ''; $('#seriesSearch').value = ''; renderPicker(); };
+    $('#seriesGrid').onclick = e => { const t = e.target.closest('[data-series]'); if (t) selectSeries(t.dataset.series); };
+    $('#seriesSearch').oninput = e => { S.seriesQuery = e.target.value; renderPicker(); };
+    $('#seriesToggle').onclick = () => { S.pickerOpen = !S.pickerOpen; if (S.series) S.group = Games.seriesKind(S.series); renderSeries(); };
+    $('#showAbsent').onchange = renderObjectives;
     const addProduct = () => {
       const v = $('#productSearch').value.trim().toUpperCase(); if (!v) return;
       const known = App.products().find(p => p.code.toUpperCase() === v || p.code.replace('-', '') === v.replace('-', ''));
       if (!known) return App.toast(`Aucune carte connue pour « ${v} ». Importez ou synchronisez ce produit d'abord.`, 'error');
       if (!S.products.includes(known.code)) S.products.push(known.code);
-      $('#productSearch').value = ''; renderPrep(); recompute(); saveSession();
+      $('#productSearch').value = ''; renderPrep(); recompute(); renderSeries(); saveSession();
     };
     $('#productSearch').onkeydown = e => { if (e.key === 'Enter') addProduct(); };
     $('#productSearch').onchange = addProduct;
     $('#productChips').onclick = e => {
       const p = e.target.dataset.rm; if (!p) return;
-      S.products = S.products.filter(x => x !== p); renderPrep(); recompute(); saveSession();
+      S.products = S.products.filter(x => x !== p); if (!S.products.length) S.series = null; renderPrep(); recompute(); renderSeries(); saveSession();
     };
-    const cfg = (id, key, num) => { $(id).onchange = e => { S.cfg[key] = num ? Number(e.target.value) : e.target.value; recompute(); saveSession(); }; };
+    const cfg = (id, key, num) => { $(id).onchange = e => { S.cfg[key] = num ? Number(e.target.value) : e.target.value; recompute(); saveSession(); rememberProfile(); }; };
     cfg('#tBoosters', 'boosters', true); cfg('#tValidation', 'validation'); cfg('#tParallels', 'parallels');
     cfg('#tReprints', 'reprints'); cfg('#tSuccesses', 'successes');
     $('#objectives').addEventListener('change', e => {
@@ -404,8 +513,11 @@ const Live = (() => {
     const codes = new Set(App.products().map(p => p.code));
     S.products = S.products.filter(p => codes.has(p));
     if (!App.languages().includes(S.lang) && S.lang !== 'all') S.lang = App.languages()[0] || 'en';
-    renderPrep(); recompute(); renderTurn(); renderHistory();
+    if (S.series && !codes.has(S.series)) S.series = null;
+    profiles = (await DB.get('seriesProfiles')) || {};
+    computeRec();
+    renderPrep(); recompute(); renderSeries(); renderTurn(); renderHistory();
   });
 
-  return { recompute: () => { renderPrep(); recompute(); }, cardThumb };
+  return { recompute: () => { renderPrep(); computeRec(); recompute(); renderSeries(); }, cardThumb };
 })();
