@@ -87,6 +87,8 @@ button.primary { background: linear-gradient(180deg, var(--gold-2), var(--gold))
 button.success { background: var(--green); color: #fff; font-weight: 700; }
 button.danger { background: var(--red); color: #fff; font-weight: 700; }
 button.ghost { background: transparent; border-color: var(--line); }
+a.btn { display: inline-flex; align-items: center; border-radius: 8px; border: 1px solid var(--line); padding: 8px 14px; color: var(--parch); text-decoration: none; }
+a.btn:hover { border-color: var(--gold); }
 button.ghost:hover { border-color: var(--gold); }
 button.small { padding: 4px 10px; font-size: 12px; }
 button.big { width: 100%; padding: 14px; font-size: 18px; margin: 8px 0 12px; letter-spacing: 1px; }

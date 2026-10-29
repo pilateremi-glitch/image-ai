@@ -128,6 +128,5 @@ $('#subtabs').addEventListener('click', e => {
 });
 $('#modalClose').onclick = () => App.closeModal();
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal') App.closeModal(); });
-$('#openScreen').onclick = () => window.open('screen.html', 'grandline-screen', 'width=1280,height=720');
 
 document.addEventListener('DOMContentLoaded', () => setTimeout(boot, 0));
