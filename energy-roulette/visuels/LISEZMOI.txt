@@ -1,0 +1,11 @@
+Déposez vos images ici avec EXACTEMENT ces noms (un fichier absent est ignoré) :
+
+  fond.jpg          arrière-plan 1920x1080
+  logo.png          logo / titre (PNG transparent, ~760x96 max)
+  mascotte1.png     personnage bas gauche de la roue (PNG transparent)
+  mascotte2.png     personnage bas droite (affiché en miroir)
+  mascotte3.png     personnage haut gauche
+  mascotte4.png     personnage haut droite (miroir)
+  carte1.png ... carte8.png   cartes / boosters flottants (format carte 5:7)
+
+Positions et tailles réglables dans index.html, bloc « VOS VISUELS ».
