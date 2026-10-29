@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grand Line Live — Écran</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Pirata+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Fenêtre à capturer dans OBS : uniquement la roue, le tour et les règles */
+  body { overflow: hidden; }
+  .screen { display: grid; grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr); gap: 24px; padding: 24px; height: 100vh; align-items: center; }
+  .screen .side { display: flex; flex-direction: column; gap: 12px; }
+  .screen h1 { text-align: center; font-size: 40px; }
+  .screen .rules-box { font-size: 15px; }
+  @media (max-width: 760px) { .screen { grid-template-columns: 1fr; height: auto; } body { overflow: auto; } }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="stage"><div class="wheel-wrap"><canvas id="wheel"></canvas></div></div>
+  <div class="side">
+    <h1>☠ Grand Line Live</h1>
+    <div id="turnCard" class="turn-card"></div>
+    <div id="rules" class="rules-box"></div>
+  </div>
+</div>
+<script src="js/wheel.js"></script>
+<script>
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const STATUS = { pending: '⏳ En attente de validation', won: '🏆 GAGNÉ', lost: '❌ Perdu', cancelled: '🚫 Tour annulé' };
+  const wheel = new Wheel(document.getElementById('wheel'));
+  let spinning = false, lastTurn = null;
+  function renderTurn(t, hideObjective) {
+    const box = document.getElementById('turnCard');
+    if (!t) { box.innerHTML = '<div class="turn-box"><div class="obj-label">En attente du prochain participant…</div></div>'; return; }
+    box.innerHTML = `<div class="turn-box status-${t.status}">
+      <div class="turn-head"><div><small>Participant</small><div class="pseudo">${esc(t.pseudo)}</div></div><div class="status">${STATUS[t.status]}</div></div>
+      <div class="objective"><small>${esc(t.gameName)}${t.how === 'manual' ? ' · objectif choisi' : ` · tiré parmi ${t.eligible} objectifs${t.probability ? ` (${(t.probability * 100).toFixed(1)} %)` : ''}`}</small>
+      <div class="obj-label">${hideObjective ? '🎡 …' : esc(t.objective)}</div></div>
+      <div class="facts"><span>📦 ${esc(t.products.join(' + '))}</span><span>🎴 ${t.boosters} booster(s)</span></div></div>`;
+  }
+  const ch = new BroadcastChannel('grandline-live');
+  ch.onmessage = async ({ data }) => {
+    if (data.type === 'segments' && !spinning) wheel.setSegments(data.segments || []);
+    if (data.type === 'summary') document.getElementById('rules').innerHTML = data.html;
+    if (data.type === 'turn') { lastTurn = data.turn; if (!spinning) renderTurn(data.turn); }
+    if (data.type === 'spin') {
+      spinning = true; wheel.setSegments(data.segments); renderTurn(data.turn, true);
+      await wheel.spin(data.target, data.turn.how === 'manual' ? { turns: 2, duration: 2000 } : undefined);
+      spinning = false; renderTurn(lastTurn && lastTurn.pseudo === data.turn.pseudo ? lastTurn : data.turn);
+      lastTurn = null;
+    }
+  };
+  renderTurn(null);
+  ch.postMessage({ type: 'hello' });
+</script>
+</body>
+</html>
