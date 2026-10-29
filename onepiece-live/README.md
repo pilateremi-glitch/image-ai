@@ -56,6 +56,15 @@ Le tirage est équitable (générateur cryptographique) entre tous les objectifs
 Des probabilités personnalisées sont possibles (« Probabilités personnalisées ») : elles sont alors
 affichées en %.
 
+## Thème et personnage
+
+Le fond et les couleurs viennent de `assets/theme.webp`. Le personnage qui lance la roue
+(`assets/spinner.webp`) a été détouré automatiquement à partir de cette illustration : il prend son élan,
+pousse la roue, annonce l'objectif dans une bulle puis réagit au résultat (victoire, défaite, annulation),
+aussi dans la fenêtre OBS. Pour changer de thème, remplacez `assets/theme.webp` puis régénérez le
+personnage avec `tools/make_spinner.py` (instructions en tête du fichier). Sans `spinner.webp`,
+l'application affiche un médaillon découpé dans l'illustration.
+
 ## Règles du jeu (onglet 📜)
 
 Pour chaque jeu : nom, description, critères de réussite, catégories autorisées, boosters par participation,

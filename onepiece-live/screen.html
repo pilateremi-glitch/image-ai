@@ -12,6 +12,7 @@
   .screen { display: grid; grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr); gap: 24px; padding: 24px; height: 100vh; align-items: center; }
   .screen .side { display: flex; flex-direction: column; gap: 12px; }
   .screen h1 { text-align: center; font-size: 40px; }
+  .screen .stage { padding-left: 9%; }
   .screen .rules-box { font-size: 15px; }
   @media (max-width: 760px) { .screen { grid-template-columns: 1fr; height: auto; } body { overflow: auto; } }
 </style>
@@ -26,10 +27,13 @@
   </div>
 </div>
 <script src="js/wheel.js"></script>
+<script src="js/mascot.js"></script>
 <script>
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const STATUS = { pending: '⏳ En attente de validation', won: '🏆 GAGNÉ', lost: '❌ Perdu', cancelled: '🚫 Tour annulé' };
   const wheel = new Wheel(document.getElementById('wheel'));
+  Mascot.mount(document.querySelector('.wheel-wrap'));
+  let lastStatus = null;
   let spinning = false, lastTurn = null;
   function renderTurn(t, hideObjective) {
     const box = document.getElementById('turnCard');
@@ -44,10 +48,19 @@
   ch.onmessage = async ({ data }) => {
     if (data.type === 'segments' && !spinning) wheel.setSegments(data.segments || []);
     if (data.type === 'summary') document.getElementById('rules').innerHTML = data.html;
-    if (data.type === 'turn') { lastTurn = data.turn; if (!spinning) renderTurn(data.turn); }
+    if (data.type === 'turn') {
+      lastTurn = data.turn; if (!spinning) renderTurn(data.turn);
+      const st = data.turn?.status;
+      if (st && st !== lastStatus && lastStatus === 'pending') {
+        if (st === 'won') Mascot.won(data.turn.pseudo); else if (st === 'lost') Mascot.lost(); else if (st === 'cancelled') Mascot.cancelled();
+      }
+      if (st) lastStatus = st;
+    }
     if (data.type === 'spin') {
-      spinning = true; wheel.setSegments(data.segments); renderTurn(data.turn, true);
+      spinning = true; wheel.setSegments(data.segments); renderTurn(data.turn, true); lastStatus = 'pending';
+      await Mascot.launch(data.turn.pseudo);
       await wheel.spin(data.target, data.turn.how === 'manual' ? { turns: 2, duration: 2000 } : undefined);
+      Mascot.result(data.turn.objective);
       spinning = false; renderTurn(lastTurn && lastTurn.pseudo === data.turn.pseudo ? lastTurn : data.turn);
       lastTurn = null;
     }

@@ -34,19 +34,27 @@ class Wheel {
     const n = segs.length, step = (Math.PI * 2) / n;
     ctx.save();
     ctx.translate(r, r);
-    // Cerclage doré
-    ctx.beginPath(); ctx.arc(0, 0, r - 2, 0, Math.PI * 2); ctx.fillStyle = '#c9a227'; ctx.fill();
-    ctx.beginPath(); ctx.arc(0, 0, r - 10, 0, Math.PI * 2); ctx.fillStyle = '#3b2412'; ctx.fill();
+    // Cerclage « chapeau de paille » : couronne dorée tressée + bande rouge
+    ctx.beginPath(); ctx.arc(0, 0, r - 2, 0, Math.PI * 2); ctx.fillStyle = '#e8b84a'; ctx.fill();
+    ctx.save(); ctx.rotate(this.angle * 0.5);
+    for (let k = 0; k < 72; k++) {
+      ctx.rotate(Math.PI * 2 / 72);
+      ctx.fillStyle = k % 2 ? 'rgba(122,78,20,.45)' : 'rgba(255,236,170,.35)';
+      ctx.fillRect(r - 9, -3, 7, 6);
+    }
+    ctx.restore();
+    ctx.beginPath(); ctx.arc(0, 0, r - 10, 0, Math.PI * 2); ctx.fillStyle = '#c8102e'; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r - 13, 0, Math.PI * 2); ctx.fillStyle = '#1a0d06'; ctx.fill();
     ctx.rotate(this.angle);
     segs.forEach((s, i) => {
       const a0 = -Math.PI / 2 + i * step - step / 2;
       ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, r - 14, a0, a0 + step); ctx.closePath();
-      ctx.fillStyle = s.color || (i % 2 ? '#14213d' : '#7a1c1c'); ctx.fill();
-      ctx.strokeStyle = 'rgba(201,162,39,.7)'; ctx.lineWidth = 1.5; ctx.stroke();
+      ctx.fillStyle = s.color || (i % 2 ? '#123a6b' : '#c8102e'); ctx.fill();
+      ctx.strokeStyle = 'rgba(232,184,74,.8)'; ctx.lineWidth = 1.5; ctx.stroke();
       ctx.save();
       ctx.rotate(a0 + step / 2);
       ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#f6e7c1';
+      ctx.fillStyle = '#fff6dc'; ctx.shadowColor = 'rgba(0,0,0,.6)'; ctx.shadowBlur = 3;
       const fs = Math.max(10, Math.min(18, (r * step) / 2.2, 300 / Math.max(8, n)));
       ctx.font = `600 ${fs}px "Cinzel", Georgia, serif`;
       let label = s.label;
@@ -57,18 +65,20 @@ class Wheel {
       ctx.restore();
     });
     ctx.restore();
-    // Moyeu : barre de gouvernail
-    ctx.save(); ctx.translate(r, r);
-    for (let k = 0; k < 8; k++) {
-      ctx.save(); ctx.rotate(this.angle + k * Math.PI / 4);
-      ctx.fillStyle = '#c9a227'; ctx.fillRect(-3, -r * 0.2, 6, r * 0.2); ctx.restore();
-    }
-    ctx.beginPath(); ctx.arc(0, 0, r * 0.11, 0, Math.PI * 2); ctx.fillStyle = '#3b2412'; ctx.fill();
-    ctx.lineWidth = 4; ctx.strokeStyle = '#c9a227'; ctx.stroke();
+    // Moyeu : Poké Ball qui tourne avec la roue
+    ctx.save(); ctx.translate(r, r); ctx.rotate(this.angle);
+    const hr = r * 0.14;
+    ctx.beginPath(); ctx.arc(0, 0, hr, Math.PI, 0); ctx.fillStyle = '#e3262e'; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, hr, 0, Math.PI); ctx.fillStyle = '#f4f4f4'; ctx.fill();
+    ctx.fillStyle = '#111'; ctx.fillRect(-hr, -hr * 0.09, hr * 2, hr * 0.18);
+    ctx.beginPath(); ctx.arc(0, 0, hr, 0, Math.PI * 2); ctx.lineWidth = Math.max(3, hr * 0.1); ctx.strokeStyle = '#111'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0, 0, hr * 0.32, 0, Math.PI * 2); ctx.fillStyle = '#111'; ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, hr * 0.2, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.beginPath(); ctx.arc(-hr * 0.4, -hr * 0.45, hr * 0.15, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fill();
     ctx.restore();
     // Pointeur en haut
-    ctx.beginPath(); ctx.moveTo(r - 16, 2); ctx.lineTo(r + 16, 2); ctx.lineTo(r, 38); ctx.closePath();
-    ctx.fillStyle = '#e63946'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#f6e7c1'; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(r - 18, 2); ctx.lineTo(r + 18, 2); ctx.lineTo(r, 42); ctx.closePath();
+    ctx.fillStyle = '#c8102e'; ctx.fill(); ctx.lineWidth = 3; ctx.strokeStyle = '#ffe9a8'; ctx.stroke();
   }
 
   // Fait tourner la roue pour que le segment targetIndex s'arrête sous le pointeur.

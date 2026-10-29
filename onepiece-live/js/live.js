@@ -1,7 +1,8 @@
 // Onglet LIVE : préparation de la partie, roue, tour verrouillé, validation, historique des tours.
 const Live = (() => {
-  const CAT_COLORS = { crew: '#7a1c1c', people: '#1d5c4a', org: '#14213d', arc: '#5b3a8a', trait: '#3d4f6b',
-    character: '#8a5a12', rarity: '#6b1f4f', card: '#2f5d7c' };
+  // Couleurs du thème : veste rouge, ceinture verte, ciel, paille
+  const CAT_COLORS = { crew: '#c8102e', people: '#2f7d4a', org: '#1f5fa8', arc: '#7b3fa0', trait: '#3d5a80',
+    character: '#b8741a', rarity: '#b0174f', card: '#1f6f8b' };
   const CAT_LABELS = { ...Games.CATEGORIES, trait: 'Autres traits', character: 'Personnages', rarity: 'Raretés', card: 'Cartes' };
   const MAX_SEGMENTS = 24;
   const S = { gameId: 'A', products: [], lang: 'en', disabled: {}, turn: null, analysis: null, cfg: {}, objFilter: '',
@@ -201,7 +202,7 @@ const Live = (() => {
       segs = others.slice(0, MAX_SEGMENTS - (winner ? 1 : 0));
       if (winner) segs.splice(crypto.getRandomValues(new Uint32Array(1))[0] % (segs.length + 1), 0, winner);
     }
-    return segs.map((o, i) => ({ id: o.id, label: o.label, color: i % 2 ? '#14213d' : (CAT_COLORS[o.category] || '#7a1c1c') }));
+    return segs.map((o, i) => ({ id: o.id, label: o.label, color: i % 2 ? '#0f2a52' : (CAT_COLORS[o.category] || '#c8102e') }));
   }
 
   function shade(hex, amt) {
@@ -283,8 +284,10 @@ const Live = (() => {
     renderPrep(); renderSeries(); renderTurn(true);
     wheel.setSegments(segments);
     App.broadcast({ type: 'spin', segments, target, turn: publicTurn() });
+    await Mascot.launch(pseudo);
     if (how === 'wheel') await wheel.spin(target);
     else await wheel.spin(target, { turns: 2, duration: 2000 });
+    Mascot.result(pick.label);
     renderTurn();
     App.broadcast({ type: 'turn', turn: publicTurn() });
     renderSummary();
@@ -394,7 +397,9 @@ const Live = (() => {
     await App.saveTurns(); await saveSession();
     renderTurn(); renderHistory(); renderPrep(); renderSeries();
     App.broadcast({ type: 'turn', turn: publicTurn() });
-    if (t.status === 'won') confetti();
+    if (t.status === 'won') { confetti(); Mascot.won(t.pseudo); }
+    else if (t.status === 'lost') Mascot.lost();
+    else Mascot.cancelled();
   }
 
   function renderHistory() {
@@ -440,6 +445,7 @@ const Live = (() => {
   // ---------- Événements ----------
   function bind() {
     wheel = new Wheel($('#wheel'));
+    Mascot.mount($('#tab-live .wheel-wrap'));
     let ctx;
     wheel.onTick = () => {
       if (!$('#soundOn') || $('#soundOn').checked) {
