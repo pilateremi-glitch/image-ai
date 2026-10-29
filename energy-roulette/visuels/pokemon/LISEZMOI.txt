@@ -1,0 +1,2 @@
+Optionnel : déposez ici vos propres images de Pokémon nommées par numéro du Pokédex (ex. 6.png pour Dracaufeu, 25.png pour Pikachu).
+Sans image locale, le jeu charge l'illustration officielle depuis Internet (réglage pokemonEnLigne dans index.html).

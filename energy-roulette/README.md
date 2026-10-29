@@ -9,8 +9,20 @@ Double-cliquez sur `index.html` : il s'ouvre dans Chrome, Edge ou Firefox. Le je
 ## Vos visuels
 
 Déposez vos images dans le dossier `visuels/` avec ces noms (la liste est aussi dans `visuels/LISEZMOI.txt`) :
-`fond.jpg`, `logo.png`, `mascotte1.png` à `mascotte4.png`, `carte1.png` à `carte8.png`.
+`fond.jpg`, `logo.png`, `pikachu.png`, `mascotte1.png` à `mascotte4.png`, `carte1.png` à `carte8.png`.
 Un fichier absent est ignoré, et le décor par défaut reste en place. Pour régler les positions et les tailles, modifiez le bloc `VISUELS` en haut du script de `index.html`.
+
+## Viewer + Pikachu
+
+Tapez le pseudo du viewer dans la case **Pseudo du viewer…** du panneau de droite, puis appuyez sur `Entrée` ou cliquez sur **ÉCRIRE**. Pikachu traverse la case en haut à gauche et écrit le pseudo en éclairs. Après le tirage, l'énergie gagnée s'affiche dans cette case, et le pseudo est ajouté à l'historique, à la carte de révélation et à l'écran de fin.
+
+## Pokémon de 1re génération
+
+À chaque tour, un Pokémon de la 1re génération du type de l'énergie tirée est choisi au hasard, sans répétition dans la partie. Il entre en scène et lance son attaque (par exemple « DRACAUFEU UTILISE LANCE-FLAMMES ! ») juste avant la révélation de la carte. Les images viennent de `visuels/pokemon/<n° Pokédex>.png` si vous les fournissez, sinon de l'illustration officielle en ligne. Pour désactiver le chargement en ligne, mettez `pokemonEnLigne: false`.
+
+## Fluidité
+
+Seul le disque de la roue tourne, et c'est la carte graphique qui gère cette rotation. Le jeu mesure aussi la fluidité au démarrage : si l'ordinateur est trop lent, il coupe de lui-même les effets de fond les plus lourds. Pour forcer un mode, ajoutez `?lite` (mode léger) ou `?hq` (qualité maximale) à la fin de l'adresse.
 
 ## Commandes
 

@@ -54,15 +54,31 @@ button { font: inherit; color: inherit; }
 .floor {
   position: absolute; left: -10%; right: -10%; bottom: -60px; height: 430px;
   transform: perspective(520px) rotateX(62deg); transform-origin: 50% 100%;
-  background:
-    linear-gradient(180deg, rgba(4, 5, 14, 1) 0%, rgba(4, 5, 14, 0) 40%),
-    repeating-linear-gradient(90deg, rgba(45, 226, 255, 0.5) 0 2px, transparent 2px 90px),
-    repeating-linear-gradient(0deg, rgba(139, 61, 255, 0.55) 0 2px, transparent 2px 90px);
-  animation: floorRun 3.2s linear infinite;
+  overflow: hidden;
   -webkit-mask-image: linear-gradient(180deg, transparent, #000 45%);
           mask-image: linear-gradient(180deg, transparent, #000 45%);
 }
-@keyframes floorRun { to { background-position: 0 0, 0 0, 0 90px; } }
+.floor i { position: absolute; left: 0; right: 0; top: -90px; bottom: 0; will-change: transform; animation: floorRun 1.8s linear infinite;
+  background: repeating-linear-gradient(90deg, rgba(45, 226, 255, 0.55) 0 2px, transparent 2px 90px), repeating-linear-gradient(0deg, rgba(139, 61, 255, 0.6) 0 2px, transparent 2px 90px); }
+.floor::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(4, 5, 14, 1) 0%, rgba(4, 5, 14, 0) 40%); }
+@keyframes floorRun { from { transform: translateY(0); } to { transform: translateY(90px); } }
+
+/* Aurores, projecteurs d'arène, trame hexagonale */
+.aurora i { position: absolute; width: 900px; height: 620px; border-radius: 50%; will-change: transform; animation: drift var(--d, 18s) ease-in-out infinite alternate; }
+.aurora .a1 { left: -220px; top: -160px; background: radial-gradient(closest-side, rgba(45, 226, 255, 0.3), transparent); --d: 17s; }
+.aurora .a2 { right: -260px; top: -120px; background: radial-gradient(closest-side, rgba(255, 46, 77, 0.26), transparent); --d: 21s; }
+.aurora .a3 { left: 460px; top: 230px; width: 1000px; height: 720px; background: radial-gradient(closest-side, rgba(139, 61, 255, 0.34), transparent); --d: 14s; }
+@keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(150px, 70px) scale(1.22); } }
+.beams i { position: absolute; top: -90px; width: 260px; margin-left: -130px; height: 1260px; transform-origin: 50% 0; mix-blend-mode: screen; will-change: transform;
+  background: linear-gradient(180deg, var(--c), transparent 82%); clip-path: polygon(45% 0, 55% 0, 100% 100%, 0 100%);
+  animation: sweep var(--d) ease-in-out infinite alternate; }
+.wheel-wrap.spinning ~ .beams i { animation-duration: 2s; }
+@keyframes sweep { from { transform: rotate(-24deg); } to { transform: rotate(24deg); } }
+.hexgrid { opacity: 0.16;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='98'%3E%3Cpath d='M28 0L56 16V49L28 65L0 49V16Z M28 65V98' fill='none' stroke='%232de2ff' stroke-width='1.2'/%3E%3C/svg%3E");
+  -webkit-mask-image: radial-gradient(ellipse 55% 55% at 50% 56%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse 55% 55% at 50% 56%, #000 20%, transparent 75%); }
+#suspense { position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at 50% 56%, transparent 26%, rgba(2, 2, 12, 0.85) 62%); }
 
 .lantern { position: absolute; top: 0; width: 64px; transform-origin: 50% 0; animation: swing 5s ease-in-out infinite; }
 .lantern::before { content: ""; display: block; width: 2px; height: var(--h, 40px); margin: 0 auto; background: linear-gradient(var(--gold-lo), var(--gold)); }
@@ -81,7 +97,7 @@ button { font: inherit; color: inherit; }
 .fcard {
   position: absolute; width: var(--w); height: calc(var(--w) * 1.4); border-radius: 10px;
   left: var(--x); top: var(--y); opacity: var(--o, 0.6); filter: blur(var(--b, 0px));
-  animation: floatCard var(--d, 9s) ease-in-out infinite; animation-delay: var(--dl, 0s);
+  animation: floatCard var(--d, 9s) ease-in-out infinite; animation-delay: var(--dl, 0s); will-change: transform;
   transform: rotate(var(--r, 0deg));
 }
 .fcard .face {
@@ -119,14 +135,19 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 .wheel-halo {
   position: absolute; inset: -46px; border-radius: 50%;
   background: conic-gradient(from 0deg, #2de2ff, #8b3dff, #ff2e4d, #ffc93c, #2fb44a, #2de2ff);
-  filter: blur(34px); opacity: 0.55; animation: halo 8s linear infinite;
+  filter: blur(34px); opacity: 0.55; animation: halo 8s linear infinite; will-change: transform;
 }
 .wheel-wrap.spinning .wheel-halo { animation-duration: 1.4s; opacity: 0.85; }
 @keyframes halo { to { transform: rotate(360deg); } }
 .wheel-base { position: absolute; left: 50%; bottom: -70px; width: 980px; height: 150px; margin-left: -490px; border-radius: 50%;
   background: radial-gradient(ellipse, rgba(45, 226, 255, 0.45), rgba(139, 61, 255, 0.2) 45%, transparent 70%); }
-#wheel { position: absolute; inset: 0; width: 770px; height: 770px; filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.6)); }
-.pointer { position: absolute; left: 50%; top: -42px; width: 96px; height: 125px; margin-left: -48px; transform-origin: 50% 32%; z-index: 3; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 14px rgba(255, 201, 60, 0.55)); }
+.wl { position: absolute; left: 0; top: 0; width: 770px; height: 770px; }
+.rotor { position: absolute; inset: 0; will-change: transform; }
+#segBlur { opacity: 0; }
+.wheel-shadow { position: absolute; inset: 6px; border-radius: 50%; box-shadow: 0 26px 60px rgba(0, 0, 0, 0.75), 0 0 80px rgba(45, 226, 255, 0.25); }
+.wheel-wrap.impact { animation: impact 0.5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes impact { 0% { transform: scale(1.035); } 20% { transform: translate(-7px, 4px) scale(1.02); } 40% { transform: translate(6px, -3px); } 60% { transform: translate(-3px, 2px); } 100% { transform: none; } }
+.pointer { will-change: transform; position: absolute; left: 50%; top: -42px; width: 96px; height: 125px; margin-left: -48px; transform-origin: 50% 32%; z-index: 3; filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 14px rgba(255, 201, 60, 0.55)); }
 .hub {
   position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; margin: -75px 0 0 -75px; border-radius: 50%; border: 0; cursor: pointer; z-index: 2;
   background: radial-gradient(circle at 38% 30%, #3b3f86 0%, #141638 55%, #06061a 100%);
@@ -139,6 +160,9 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 .hub .hub-jp { font-family: var(--f-jp); font-size: 40px; color: var(--gold); text-shadow: 0 0 14px rgba(255, 201, 60, 0.9); line-height: 1; }
 .hub .hub-txt { font-family: var(--f-label); font-weight: 900; font-size: 17px; letter-spacing: 0.18em; color: var(--volt); margin-top: 4px; }
 .hub-inner { display: grid; justify-items: center; }
+.hub::before { content: ""; position: absolute; inset: 16px; border-radius: 50%; background: conic-gradient(from 0deg, #2de2ff, #8b3dff, #ff2e4d, #ffc93c, #2de2ff); filter: blur(7px); opacity: 0.5; will-change: transform; animation: halo 4s linear infinite; }
+.wheel-wrap.spinning .hub::before { animation-duration: 0.6s; opacity: 0.9; }
+.hub-inner { position: relative; z-index: 1; }
 .hub::after { content: ""; position: absolute; inset: 12px; border-radius: 50%; border: 2px dashed rgba(45, 226, 255, 0.55); animation: halo 10s linear infinite; }
 .wheel-wrap.spinning .hub::after { animation-duration: 0.8s; }
 .wheel-wrap.resetting { animation: resetPop 0.6s ease-out; }
@@ -159,7 +183,7 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
   background: linear-gradient(180deg, rgba(14, 16, 48, 0.88), rgba(7, 8, 24, 0.9));
   border: 1px solid var(--line); border-radius: 22px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 20px 60px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  display: flex; flex-direction: column; gap: 14px;
+  display: flex; flex-direction: column; gap: 11px;
 }
 .panel::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
   background: linear-gradient(160deg, rgba(45, 226, 255, 0.7), transparent 35%, transparent 65%, rgba(255, 46, 77, 0.6));
@@ -178,7 +202,8 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 .hrow .hnum { font-family: var(--f-label); font-weight: 800; font-size: 16px; white-space: nowrap; letter-spacing: 0.12em; color: var(--muted); font-variant-numeric: tabular-nums; }
 .hrow .hb { width: 42px; height: 42px; }
 .hrow .hb svg { width: 100%; height: 100%; display: block; }
-.hrow .hname { font-family: var(--f-label); font-weight: 800; font-size: 25px; letter-spacing: 0.03em; color: rgba(154, 163, 209, 0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hrow .hname { font-family: var(--f-label); font-weight: 800; font-size: 24px; line-height: 1; letter-spacing: 0.03em; color: rgba(154, 163, 209, 0.35); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; flex-direction: column; gap: 2px; }
+.hrow .hname small { font-size: 15px; letter-spacing: 0.08em; color: #ffe14d; text-shadow: 0 0 8px rgba(255, 210, 26, 0.8); overflow: hidden; text-overflow: ellipsis; }
 .hrow.filled { border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--c) 42%, transparent), rgba(255, 255, 255, 0.02) 85%); }
 .hrow.filled .hnum { color: var(--paper); }
 .hrow.filled .hname { color: #fff; text-shadow: 0 0 12px color-mix(in srgb, var(--c) 80%, transparent), 0 2px 0 rgba(0, 0, 0, 0.5); }
@@ -186,7 +211,7 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 @keyframes rowIn { from { transform: translateX(-40px) scale(0.9); opacity: 0; filter: brightness(2.5); } to { transform: none; opacity: 1; filter: none; } }
 
 .counter { text-align: center; padding: 4px 0 12px; border-bottom: 1px solid var(--line); }
-.count-num { font-family: var(--f-display); font-size: 92px; line-height: 1; font-variant-numeric: tabular-nums; display: flex; justify-content: center; align-items: baseline; gap: 8px; }
+.count-num { font-family: var(--f-display); font-size: 76px; line-height: 1; font-variant-numeric: tabular-nums; display: flex; justify-content: center; align-items: baseline; gap: 8px; }
 .count-num #countNum { color: var(--gold); text-shadow: 0 0 26px rgba(255, 201, 60, 0.7), 0 4px 0 #6a3d00; display: inline-block; }
 .count-num #countNum.bump { animation: bump 0.6s cubic-bezier(.2, 1.6, .4, 1); }
 @keyframes bump { 0% { transform: scale(1.8); filter: brightness(2); } 100% { transform: scale(1); } }
@@ -200,7 +225,7 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 .grid-head { font-family: var(--f-label); font-weight: 900; font-size: 17px; letter-spacing: 0.3em; color: var(--muted); display: flex; justify-content: space-between; }
 .egrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 8px; }
 .ecell { position: relative; display: grid; justify-items: center; gap: 2px; transition: opacity 0.4s, filter 0.4s; }
-.ecell svg { width: 60px; height: 60px; display: block; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--c) 70%, transparent)); }
+.ecell svg { width: 50px; height: 50px; display: block; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--c) 70%, transparent)); }
 .ecell span { font-family: var(--f-label); font-weight: 800; font-size: 14px; letter-spacing: 0.04em; color: var(--paper); white-space: nowrap; }
 .ecell.out { opacity: 0.28; filter: grayscale(1); }
 .ecell .ord { position: absolute; top: -4px; right: 6px; font-family: var(--f-display); font-size: 14px; color: var(--gold); display: none; opacity: 1; }
@@ -241,7 +266,7 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 .rays { position: absolute; left: 50%; top: 540px; width: 1700px; height: 1700px; margin: -850px 0 0 -850px; border-radius: 50%;
   background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--c) 55%, transparent) 0deg 7deg, transparent 7deg 18deg);
   -webkit-mask-image: radial-gradient(circle, #000 10%, transparent 62%); mask-image: radial-gradient(circle, #000 10%, transparent 62%);
-  animation: halo 16s linear infinite; }
+  animation: halo 16s linear infinite; will-change: transform; }
 .shock { position: absolute; left: 50%; top: 520px; width: 200px; height: 200px; margin: -100px 0 0 -100px; border-radius: 50%; border: 10px solid var(--c2); box-shadow: 0 0 40px var(--c); animation: shock 1s ease-out forwards; opacity: 0; }
 .shock.s2 { animation-delay: 0.18s; }
 @keyframes shock { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(9); opacity: 0; } }
@@ -253,7 +278,7 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
   animation: slam 0.55s cubic-bezier(.2, 1.5, .4, 1) both; transform: skewX(-8deg);
 }
 @keyframes slam { 0% { transform: skewX(-8deg) scale(3); opacity: 0; filter: blur(10px); } 100% { transform: skewX(-8deg) scale(1); opacity: 1; filter: none; } }
-.card-wrap { animation: cardIn 1.1s cubic-bezier(.2, 1, .3, 1) both; animation-delay: 0.1s; perspective: 1400px; }
+.card-wrap { animation: cardIn 0.8s cubic-bezier(.2, 1, .3, 1) both; animation-delay: 0.05s; perspective: 1400px; }
 @keyframes cardIn { 0% { transform: rotateY(-720deg) scale(0.15); opacity: 0; } 60% { opacity: 1; } 80% { transform: rotateY(12deg) scale(1.06); } 100% { transform: rotateY(0) scale(1); opacity: 1; } }
 .holo-card {
   position: relative; width: 360px; height: 500px; border-radius: 24px; padding: 12px; animation: tilt 4s ease-in-out infinite 1.2s;
@@ -275,7 +300,7 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 .rv-name {
   font-family: var(--f-display); font-size: 96px; line-height: 1; letter-spacing: 0.02em; white-space: nowrap; color: #fff;
   text-shadow: 0 0 30px var(--c), 0 0 60px var(--c), 0 6px 0 var(--c3), 0 10px 20px rgba(0, 0, 0, 0.6);
-  animation: nameIn 0.7s cubic-bezier(.2, 1.4, .4, 1) both 0.55s;
+  animation: nameIn 0.7s cubic-bezier(.2, 1.4, .4, 1) both 0.35s;
 }
 .rv-name.rainbow { background: linear-gradient(90deg, #ff4d4d, #ffb84d, #fff04d, #5dff7a, #4dc3ff, #b84dff, #ff4dd2); -webkit-background-clip: text; background-clip: text; color: transparent; text-shadow: none; filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.6)) drop-shadow(0 6px 0 #4a1a8a); }
 @keyframes nameIn { from { transform: translateY(40px) scale(0.6); opacity: 0; letter-spacing: 0.4em; } to { transform: none; opacity: 1; } }
@@ -290,17 +315,87 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
   filter: drop-shadow(0 5px 0 #5a2a00) drop-shadow(0 0 24px rgba(255, 160, 40, 0.6)); animation: slamFlat 0.7s cubic-bezier(.2, 1.5, .4, 1) both; }
 @keyframes slamFlat { from { transform: scale(2.4); opacity: 0; filter: blur(12px); } }
 .eg-grid { display: grid; grid-template-columns: repeat(6, 210px); gap: 18px; }
-.eg-card { position: relative; height: 230px; border-radius: 16px; padding: 7px; background: linear-gradient(135deg, #fff6c8, #d9a632 40%, #b8861b); box-shadow: 0 0 26px color-mix(in srgb, var(--c) 70%, transparent); animation: egIn 0.6s cubic-bezier(.2, 1.4, .4, 1) both; }
+.eg-card { position: relative; height: 250px; border-radius: 16px; padding: 7px; background: linear-gradient(135deg, #fff6c8, #d9a632 40%, #b8861b); box-shadow: 0 0 26px color-mix(in srgb, var(--c) 70%, transparent); animation: egIn 0.6s cubic-bezier(.2, 1.4, .4, 1) both; }
 @keyframes egIn { from { transform: translateY(40px) rotateY(90deg); opacity: 0; } }
 .eg-card .in { position: relative; height: 100%; border-radius: 10px; overflow: hidden; background: linear-gradient(160deg, var(--c2), var(--c) 50%, var(--c3)); display: grid; grid-template-rows: auto 1fr auto; justify-items: center; }
 .eg-card .n { justify-self: start; font-family: var(--f-display); font-size: 22px; color: #fff; padding: 6px 10px; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5); }
 .eg-card svg { width: 110px; height: 110px; align-self: center; filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.6)); }
 .eg-card .nm { width: 100%; text-align: center; background: rgba(0, 0, 0, 0.45); font-family: var(--f-label); font-weight: 900; font-size: 21px; letter-spacing: 0.06em; color: #fff; padding: 6px 4px; white-space: nowrap; }
 .eg-card .holo-sheen { inset: 7px; border-radius: 10px; }
+.eg-card .nm small { display: block; font-size: 15px; color: #ffe14d; letter-spacing: 0.08em; overflow: hidden; text-overflow: ellipsis; }
+.rv-viewer { font-family: var(--f-display); font-size: 40px; color: #fff3a0; letter-spacing: 0.04em; white-space: nowrap; text-shadow: 0 0 12px #ffd21a, 0 0 28px #ffb000, 0 3px 0 #6a4300; animation: nameIn 0.5s cubic-bezier(.2, 1.4, .4, 1) both 0.15s; }
+
+/* ---------- Case viewer (Pikachu écrit le pseudo) ---------- */
+.vbox { position: absolute; left: 48px; top: 22px; width: 470px; height: 175px; z-index: 6; border-radius: 18px;
+  background: linear-gradient(180deg, rgba(20, 18, 52, 0.92), rgba(7, 8, 24, 0.94)); border: 1px solid rgba(255, 210, 26, 0.5);
+  box-shadow: 0 0 34px rgba(255, 210, 26, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08); }
+.vb-label { position: absolute; left: 140px; top: 12px; font-family: var(--f-label); font-weight: 900; font-size: 15px; letter-spacing: 0.32em; color: var(--volt); text-shadow: 0 0 10px rgba(45, 226, 255, 0.7); }
+.vb-name { position: absolute; left: 140px; top: 32px; width: 316px; height: 64px; overflow: visible; }
+.vb-name text { font-family: var(--f-display); }
+.vb-name.idle text { fill: rgba(154, 163, 209, 0.45); stroke: none; filter: none; }
+.vb-name.done { animation: zapFlicker 2.8s steps(1) infinite; }
+@keyframes zapFlicker { 0%, 100% { opacity: 1; } 91% { opacity: 1; } 92% { opacity: 0.35; } 93% { opacity: 1; } 95% { opacity: 0.55; } 96% { opacity: 1; } }
+.vb-slot { position: absolute; left: 16px; top: 22px; width: 110px; height: 110px; border-radius: 16px; display: grid; place-items: center;
+  border: 2px dashed rgba(255, 210, 26, 0.45); background: radial-gradient(circle, rgba(255, 210, 26, 0.12), transparent 70%);
+  font-family: var(--f-display); font-size: 56px; color: rgba(255, 225, 77, 0.8); text-shadow: 0 0 16px rgba(255, 210, 26, 0.8); }
+.vb-slot.wait { animation: slotPulse 0.9s ease-in-out infinite; }
+@keyframes slotPulse { 50% { transform: scale(1.06); box-shadow: 0 0 26px rgba(255, 210, 26, 0.55); } }
+.vb-slot.got { border: 2px solid var(--c); background: radial-gradient(circle, color-mix(in srgb, var(--c) 45%, transparent), transparent 72%); box-shadow: 0 0 30px var(--c); animation: slotPop 0.6s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes slotPop { from { transform: scale(0.3) rotate(-30deg); filter: brightness(3); } }
+.vb-slot svg { width: 94px; height: 94px; }
+.vb-energy { position: absolute; left: 6px; top: 140px; width: 130px; text-align: center; font-family: var(--f-label); font-weight: 900; font-size: 17px; letter-spacing: 0.06em; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vb-energy.got { color: #fff; text-shadow: 0 0 10px var(--c); }
+.pika { position: absolute; left: 0; top: 0; width: 72px; height: 72px; z-index: 7; pointer-events: none; will-change: transform; }
+.pika .dir { width: 100%; height: 100%; transition: transform 0.15s; }
+.pika .dir.left { transform: scaleX(-1); }
+.pika .bob { width: 100%; height: 100%; animation: idleBob 1.4s ease-in-out infinite; transform-origin: 50% 100%; filter: drop-shadow(0 0 10px rgba(255, 210, 26, 0.7)) drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5)); }
+.pika .bob svg, .pika .bob img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.pika.run .bob { animation: runBob 0.2s ease-in-out infinite; }
+.pika.hop .bob { animation: hop 0.6s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes idleBob { 50% { transform: translateY(-3px) scaleY(1.03); } }
+@keyframes runBob { 0%, 100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-9px) rotate(4deg); } }
+@keyframes hop { 40% { transform: translateY(-34px) rotate(-10deg); } 100% { transform: none; } }
+.pika .tail { transform-origin: 78px 70px; animation: wag 0.5s ease-in-out infinite alternate; }
+@keyframes wag { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+.viewer-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.viewer-form input { height: 52px; min-width: 0; border-radius: 12px; border: 1px solid rgba(255, 210, 26, 0.55); background: rgba(0, 0, 0, 0.4); color: var(--paper);
+  font-family: var(--f-label); font-weight: 800; font-size: 21px; letter-spacing: 0.04em; padding: 0 14px; }
+.viewer-form input::placeholder { color: var(--muted); }
+.viewer-form input:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+.btn-write { height: 52px; padding: 0 16px; font-family: var(--f-label); font-weight: 900; font-size: 19px; letter-spacing: 0.08em; color: #2a1a00;
+  background: linear-gradient(180deg, #fff6b0, #ffd21a 50%, #e0a800); box-shadow: 0 4px 0 #7a5200, 0 0 16px rgba(255, 210, 26, 0.45); }
+.reveal.with-poke .rv-stack { transform: translateX(150px); }
+.reveal.with-poke .rv-banner { animation-delay: 1.05s; }
+.reveal.with-poke .card-wrap { animation-delay: 1.05s; }
+.reveal.with-poke .rv-name { animation-delay: 1.3s; }
+.reveal.with-poke .rv-viewer { animation-delay: 1.2s; }
+.reveal.with-poke .rv-meta { animation-delay: 1.6s; }
+.reveal.with-poke .rays { animation-delay: 0s; }
+.rv-poke { position: absolute; left: 120px; top: 230px; width: 440px; height: 440px; display: grid; place-items: center; z-index: 1; animation: pokeIn 0.45s cubic-bezier(.2, 1.4, .4, 1) both; }
+.rv-poke::before { content: ""; position: absolute; left: 30px; right: 30px; bottom: -6px; height: 70px; border-radius: 50%; background: radial-gradient(ellipse, var(--c), transparent 70%); opacity: 0.8; }
+.rv-poke img, .rv-poke-fb { position: relative; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 26px var(--c)) drop-shadow(0 18px 22px rgba(0, 0, 0, 0.6)); animation: pokeAtk 0.55s ease-in-out 0.45s both, pokeIdle 1.8s ease-in-out 1.2s infinite; }
+.rv-poke-fb { display: grid; place-items: center; align-content: center; gap: 12px; }
+.rv-poke-fb svg { width: 260px; height: 260px; }
+.rv-poke-fb span { font-family: var(--f-display); font-size: 34px; color: #fff; text-shadow: 0 0 14px var(--c), 0 3px 0 rgba(0, 0, 0, 0.5); }
+.rv-poke .dex { position: absolute; top: -6px; left: 10px; z-index: 2; font-family: var(--f-display); font-size: 26px; color: #fff; opacity: 0.85; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.5); }
+@keyframes pokeIn { from { transform: translateX(-560px) scale(0.5); opacity: 0; } }
+@keyframes pokeAtk { 35% { transform: translateX(60px) scale(1.12) rotate(5deg); } }
+@keyframes pokeIdle { 50% { transform: translateY(-10px); } }
+.rv-dialog { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); width: 1180px; padding: 14px 30px 16px; border-radius: 14px; z-index: 2;
+  background: #fbfbf2; border: 6px solid #23264e; box-shadow: inset 0 0 0 4px #e3c35a, 0 12px 30px rgba(0, 0, 0, 0.6);
+  font-family: var(--f-label); font-weight: 900; font-size: 40px; letter-spacing: 0.03em; color: #1b1d3a; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.2s both 0.15s; }
+.rv-dialog span { white-space: nowrap; clip-path: inset(0 100% 0 0); animation: type 0.5s steps(28) forwards 0.25s; }
+.rv-dialog b { color: color-mix(in srgb, var(--c3) 80%, #000); }
+.rv-dialog i { font-style: normal; font-size: 26px; color: #23264e; animation: blink 0.8s steps(1) infinite; }
+@keyframes type { to { clip-path: inset(0 0 0 0); } }
+@keyframes blink { 50% { opacity: 0; } }
+.eg-card .pk { position: absolute; right: -6px; top: -10px; width: 74px; height: 74px; object-fit: contain; z-index: 2; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6)); }
 .btn-new { height: 84px; padding: 0 60px; font-size: 32px; }
 
 .obs body, .obs #viewport, .obs #stage { background: transparent !important; }
-.obs .sky, .obs .floor, .obs .sun, .obs .lanterns, .obs .custom-bg { display: none; }
+.lite .beams, .lite .aurora, .lite .hexgrid, .lite .wheel-halo, .lite .floor { display: none; }
+.lite .fcard { filter: none; }
+.obs .sky, .obs .aurora, .obs .hexgrid, .obs .floor, .obs .sun, .obs .lanterns, .obs .custom-bg { display: none; }
 
 /* Visuels personnalisés (dossier visuels/) */
 .custom-bg { position: absolute; inset: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 0.6s; }
@@ -312,7 +407,7 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 .title .logo-img { display: block; max-height: 96px; max-width: 760px; margin: 0 auto; filter: drop-shadow(0 0 18px rgba(255, 160, 40, 0.55)); }
 
 @media (prefers-reduced-motion: reduce) {
-  .fcard, .lantern, .floor, .wheel-halo, .hub::after, .rays, .holo-card, .hc-art svg, .btn-spin::after { animation: none !important; }
+  .fcard, .lantern, .floor i, .aurora i, .beams i, .hub::before, .wheel-halo, .hub::after, .rays, .holo-card, .hc-art svg, .btn-spin::after { animation: none !important; }
 }
 </style>
 </head>
@@ -320,8 +415,11 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
 <div id="viewport">
   <div id="stage">
     <div class="layer"><div class="custom-bg" id="customBg"></div><div class="sun"></div></div>
+    <div class="layer aurora"><i class="a1"></i><i class="a2"></i><i class="a3"></i></div>
     <div class="layer sky" id="sky"></div>
-    <div class="layer"><div class="floor"></div></div>
+    <div class="layer beams"><i style="left:20%;--d:9s;--c:rgba(45,226,255,.26)"></i><i style="left:39%;--d:11s;--c:rgba(139,61,255,.3);animation-delay:-4s"></i><i style="left:61%;--d:10s;--c:rgba(255,201,60,.2);animation-delay:-7s"></i><i style="left:80%;--d:12s;--c:rgba(255,46,77,.24);animation-delay:-2s"></i></div>
+    <div class="layer hexgrid"></div>
+    <div class="layer"><div class="floor"><i></i></div></div>
     <canvas id="bg" class="full" width="1920" height="1080"></canvas>
     <div class="layer" id="cards"></div>
     <div class="layer lanterns" id="lanterns"></div>
@@ -333,15 +431,38 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
       <div class="t-jp">エネルギー・ルーレット</div>
     </header>
 
+    <div class="vbox" id="vbox" aria-live="polite">
+      <div class="vb-slot" id="vbSlot">?</div>
+      <div class="vb-energy" id="vbEnergy">EN ATTENTE</div>
+      <div class="vb-label">⚡ VIEWER EN JEU</div>
+      <svg class="vb-name idle" id="vbName" viewBox="0 0 316 64">
+        <defs>
+          <linearGradient id="vbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbe0"/><stop offset=".5" stop-color="#ffe14d"/><stop offset="1" stop-color="#ffaa00"/></linearGradient>
+          <filter id="vbglow" x="-10%" y="-60%" width="120%" height="220%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <clipPath id="vbclip"><rect id="vbClip" x="-10" y="-20" width="400" height="110"/></clipPath>
+        </defs>
+        <g clip-path="url(#vbclip)"><text id="vbText" x="2" y="47" font-size="22" fill="url(#vbg)" stroke="#fff8d0" stroke-width="1" filter="url(#vbglow)">EN ATTENTE D'UN PSEUDO…</text></g>
+      </svg>
+    </div>
+    <div class="pika" id="pika"><div class="dir" id="pikaDir"><div class="bob" id="pikaBob"></div></div></div>
+
     <aside class="panel panel-left" aria-label="Historique des tirages">
       <div class="panel-head"><h2>HISTORIQUE</h2><span class="jp">記録</span></div>
       <ol class="history" id="history"></ol>
     </aside>
 
+    <div id="suspense"></div>
     <div class="wheel-wrap" id="wheelWrap">
       <div class="wheel-base"></div>
       <div class="wheel-halo"></div>
-      <canvas id="wheel" width="1540" height="1540" aria-label="Roue des énergies"></canvas>
+      <div class="wheel-shadow"></div>
+      <canvas id="ring" class="wl" width="1540" height="1540" aria-label="Roue des énergies"></canvas>
+      <div class="rotor" id="rotor">
+        <canvas id="segs" class="wl" width="1540" height="1540"></canvas>
+        <canvas id="segBlur" class="wl" width="770" height="770"></canvas>
+        <canvas id="segHl" class="wl" width="1540" height="1540"></canvas>
+      </div>
+      <canvas id="gloss" class="wl" width="1540" height="1540"></canvas>
       <svg class="pointer" id="pointer" viewBox="0 0 100 130" aria-hidden="true">
         <defs>
           <linearGradient id="pgold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff6c8"/><stop offset=".45" stop-color="#ffc93c"/><stop offset="1" stop-color="#8a5e12"/></linearGradient>
@@ -365,6 +486,10 @@ canvas.full { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px
       </div>
       <div class="grid-head"><span>EN JEU</span><span id="gridLeft">12</span></div>
       <div class="egrid" id="egrid"></div>
+      <form class="viewer-form" id="viewerForm" autocomplete="off">
+        <input id="viewerInput" maxlength="18" placeholder="Pseudo du viewer…" aria-label="Pseudo du viewer">
+        <button class="btn btn-write" type="submit">⚡ ÉCRIRE</button>
+      </form>
       <div class="controls">
         <button class="btn btn-spin" id="btnSpin">LANCER LA ROUE</button>
         <button class="btn btn-reset" id="btnReset">TOUT RÉINITIALISER</button>
@@ -401,15 +526,17 @@ const ENERGIES = [
   { id: 'darkness',  name: 'Obscurité',  color: '#3a3456', dark: '#0c0a18', light: '#8a82bd', text: '#ffffff', glyph: '#e9e4ff', kanji: '悪' },
   { id: 'metal',     name: 'Métal',      color: '#a7b3c0', dark: '#45515e', light: '#f2f6fa', text: '#18202a', glyph: '#26303b', kanji: '鋼' },
   { id: 'dragon',    name: 'Dragon',     color: '#c49a2c', dark: '#4e3805', light: '#f7dc85', text: '#ffffff', glyph: '#ffffff', kanji: '竜' },
-  { id: 'fairy',     name: 'Fée',        color: '#f37bc0', dark: '#86205c', light: '#ffd0ea', text: '#4a0d32', glyph: '#ffffff', kanji: '妖' },
+  { id: 'item',      name: 'Objet',      color: '#e6398f', dark: '#6a0c3c', light: '#ffb3d9', text: '#ffffff', glyph: '#ffffff', kanji: '具', full: 'Objet' },
   { id: 'colorless', name: 'Incolore',   color: '#e8e4d6', dark: '#837e6a', light: '#ffffff', text: '#2b2a24', glyph: '#3a382e', kanji: '無' },
-  { id: 'special',   name: 'Spéciale',   color: '#ff47c8', dark: '#3d1780', light: '#ffe86b', text: '#ffffff', glyph: '#ffffff', kanji: '特', rainbow: true },
+  { id: 'trainer',   name: 'Dresseur',   color: '#ff47c8', dark: '#3d1780', light: '#ffe86b', text: '#ffffff', glyph: '#ffffff', kanji: '師', rainbow: true, full: 'Dresseur' },
 ];
 /* =========================================================
    VOS VISUELS — déposez vos images dans le dossier « visuels/ »
    Un fichier absent est simplement ignoré (le décor par défaut reste).
    ========================================================= */
 const VISUELS = {
+  pokemonEnLigne: true,                    // images officielles des Pokémon chargées depuis Internet si absentes de visuels/pokemon/
+  pikachu: 'visuels/pikachu.png',          // remplace le petit Pikachu dessiné (PNG transparent, carré)
   fond: 'visuels/fond.jpg',                 // image d'arrière-plan 1920×1080
   logo: 'visuels/logo.png',                 // remplace le titre « ENERGY ROULETTE » (PNG transparent)
   // personnages / mascottes autour de la roue (PNG transparents) — x, y, hauteur en pixels sur la scène 1920×1080
@@ -425,8 +552,41 @@ const VISUELS = {
 };
 function tryImage(src, ok) { if (!src) return; const im = new Image(); im.onload = () => ok(im); im.src = src; }
 
+/* =========================================================
+   POKÉMON DE 1re GÉNÉRATION — un par tour, du type de l'énergie tirée, avec son attaque
+   [n° Pokédex, nom, attaque]
+   ========================================================= */
+const POKEDEX = {
+  grass:     [[1, 'Bulbizarre', 'Fouet Lianes'], [2, 'Herbizarre', "Tranch'Herbe"], [3, 'Florizarre', 'Lance-Soleil'], [43, 'Mystherbe', 'Méga-Sangsue'], [46, 'Paras', 'Spore'], [69, 'Chétiflor', 'Fouet Lianes'], [71, 'Empiflor', "Tranch'Herbe"], [103, 'Noadkoko', 'Lance-Soleil'], [114, 'Saquedeneu', 'Fouet Lianes']],
+  fire:      [[4, 'Salamèche', 'Flammèche'], [5, 'Reptincel', 'Crocs Feu'], [6, 'Dracaufeu', 'Lance-Flammes'], [37, 'Goupix', 'Flammèche'], [38, 'Feunard', 'Déflagration'], [58, 'Caninos', 'Crocs Feu'], [59, 'Arcanin', 'Vitesse Extrême'], [77, 'Ponyta', 'Roue de Feu'], [78, 'Galopa', 'Nitrocharge'], [126, 'Magmar', 'Poing Feu'], [146, 'Sulfura', 'Danse Flammes']],
+  water:     [[7, 'Carapuce', 'Pistolet à O'], [8, 'Carabaffe', 'Bulles d\'O'], [9, 'Tortank', 'Hydrocanon'], [54, 'Psykokwak', 'Pistolet à O'], [60, 'Ptitard', "Bulles d'O"], [98, 'Krabby', 'Pince-Masse'], [118, 'Poissirène', 'Cascade'], [120, 'Stari', 'Tour Rapide'], [121, 'Staross', 'Surf'], [130, 'Léviator', 'Hydrocanon'], [131, 'Lokhlass', 'Laser Glace']],
+  lightning: [[25, 'Pikachu', 'Tonnerre'], [26, 'Raichu', 'Fatal-Foudre'], [81, 'Magnéti', 'Éclair'], [100, 'Voltorbe', 'Étincelle'], [101, 'Électrode', 'Boule Élek'], [125, 'Élektek', 'Poing Éclair'], [135, 'Voltali', 'Cage-Éclair'], [145, 'Électhor', 'Fatal-Foudre']],
+  psychic:   [[63, 'Abra', 'Téléport'], [64, 'Kadabra', 'Psyko'], [65, 'Alakazam', 'Psyko'], [79, 'Ramoloss', 'Choc Mental'], [96, 'Soporifik', 'Hypnose'], [97, 'Hypnomade', 'Choc Mental'], [122, 'M. Mime', 'Psyko'], [124, 'Lippoutou', 'Onde Folie'], [150, 'Mewtwo', 'Frappe Psy'], [151, 'Mew', 'Psyko']],
+  fighting:  [[56, 'Férosinge', 'Poing Karaté'], [57, 'Colossinge', 'Mania'], [66, 'Machoc', 'Poing Karaté'], [67, 'Machopeur', 'Sacrifice'], [68, 'Mackogneur', 'Poing Dynamique'], [74, 'Racaillou', 'Jet-Pierres'], [76, 'Grolem', 'Séisme'], [106, 'Kicklee', 'Pied Voltige'], [107, 'Tygnon', 'Mitra-Poing']],
+  darkness:  [[23, 'Abo', 'Ligotage'], [24, 'Arbok', 'Mâchouille'], [41, 'Nosferapti', 'Vampirisme'], [42, 'Nosferalto', 'Morsure'], [89, 'Grotadmorv', 'Détritus'], [92, 'Fantominus', 'Léchouille'], [93, 'Spectrum', "Ball'Ombre"], [94, 'Ectoplasma', "Ball'Ombre"], [109, 'Smogo', 'Purédpois']],
+  metal:     [[81, 'Magnéti', 'Bombaimant'], [82, 'Magnéton', 'Luminocanon'], [95, 'Onix', 'Queue de Fer'], [111, 'Rhinocorne', 'Tête de Fer'], [112, 'Rhinoféros', 'Queue de Fer'], [141, 'Kabutops', 'Griffe Acier']],
+  dragon:    [[147, 'Minidraco', 'Draco-Rage'], [148, 'Draco', 'Ouragan'], [149, 'Dracolosse', 'Colère'], [130, 'Léviator', 'Draco-Rage'], [6, 'Dracaufeu', 'Dracogriffe'], [142, 'Ptéra', 'Draco-Rage']],
+  item:      [[132, 'Métamorph', 'Morphing'], [137, 'Porygon', 'Triplattaque'], [35, 'Mélofée', 'Métronome'], [39, 'Rondoudou', 'Berceuse'], [113, 'Leveinard', 'Œuf Bombe'], [36, 'Mélodelfe', 'Métronome']],
+  colorless: [[16, 'Roucool', 'Tornade'], [19, 'Rattata', 'Vive-Attaque'], [52, 'Miaouss', 'Jackpot'], [115, 'Kangourex', 'Poing Comète'], [128, 'Tauros', 'Bélier'], [133, 'Évoli', 'Vive-Attaque'], [143, 'Ronflex', 'Plaquage'], [18, 'Roucarnage', 'Cru-Aile']],
+  trainer:   [[144, 'Artikodin', 'Blizzard'], [145, 'Électhor', 'Fatal-Foudre'], [146, 'Sulfura', 'Déflagration'], [150, 'Mewtwo', 'Frappe Psy'], [151, 'Mew', 'Pouvoir Antique'], [149, 'Dracolosse', 'Ultralaser'], [143, 'Ronflex', 'Giga Impact']],
+};
+const pokeSrcs = n => [`visuels/pokemon/${n}.png`].concat(VISUELS.pokemonEnLigne ? [`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${n}.png`] : []);
+let usedPoke = new Set(), pokes = [], nextPoke = null;
+function choosePoke(e) {
+  const pool = POKEDEX[e.id] || POKEDEX.colorless;
+  let free = pool.filter(p => !usedPoke.has(p[0]));
+  if (!free.length) free = pool;
+  const [num, name, atk] = free[randInt(free.length)];
+  const pk = { num, name, atk, src: null };
+  const srcs = pokeSrcs(num);
+  const tryNext = i => { if (i >= srcs.length) return; const im = new Image(); im.onload = () => { pk.src = srcs[i]; }; im.onerror = () => tryNext(i + 1); im.src = srcs[i]; };
+  tryNext(0);
+  return pk;
+}
+
 const BY_ID = Object.fromEntries(ENERGIES.map(e => [e.id, e]));
-const fullName = e => 'Énergie ' + e.name;
+const fullName = e => e.full || 'Énergie ' + e.name;
+const esc = t => String(t).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 
 /* =========================================================
    ICÔNES — symboles originaux (SVG) réutilisés en DOM et sur le canvas
@@ -450,9 +610,9 @@ const GLYPHS = {
   darkness: (g, c) => `<path fill="${g}" d="M64 7 A44 44 0 1 0 93 70 A37 37 0 0 1 64 7Z"/><path fill="${c}" d="M42 52 L58 46 L50 60Z"/>`,
   metal: (g) => `<path fill="${g}" fill-rule="evenodd" d="M50 5 L89 27 V73 L50 95 L11 73 V27Z M29 50 A21 21 0 1 0 71 50 A21 21 0 1 0 29 50Z"/><circle cx="50" cy="50" r="9" fill="${g}"/>`,
   dragon: (g) => `<g fill="${g}">${[0, 19, 38].map(d => `<path d="M${10 + d} 93 C${14 + d} 62 ${27 + d} 33 ${49 + d} 6 C${43 + d} 35 ${39 + d} 62 ${30 + d} 93Z"/>`).join('')}</g>`,
-  fairy: (g) => `<path fill="${g}" d="${SPARKLE}"/><path fill="${g}" transform="translate(66 6) scale(.28)" d="${SPARKLE}"/><path fill="${g}" transform="translate(8 66) scale(.22)" d="${SPARKLE}"/>`,
+  item: (g, c) => `<path fill="${g}" d="M37 6 H63 V15 H58 V33 C74 39 85 53 85 68 C85 84 70 95 50 95 C30 95 15 84 15 68 C15 53 26 39 42 33 V15 H37Z"/><path fill="${c}" d="M21 66 C33 59 43 72 55 66 C65 61 73 63 79 66 C79 81 66 89 50 89 C34 89 21 81 21 66Z"/><circle cx="40" cy="52" r="5" fill="${c}"/><circle cx="58" cy="45" r="3" fill="${c}"/>`,
   colorless: (g) => `<path fill="${g}" d="${star5(50, 53, 47, 19)}"/>`,
-  special: (g) => `<circle cx="50" cy="50" r="33" fill="none" stroke="${g}" stroke-width="11"/><path fill="${g}" d="${star5(50, 51, 20, 8.5)}"/><g fill="${g}"><circle cx="50" cy="5" r="5"/><circle cx="95" cy="50" r="5"/><circle cx="50" cy="95" r="5"/><circle cx="5" cy="50" r="5"/></g>`,
+  trainer: (g, c) => `<path fill="${g}" d="M14 60 C14 31 30 14 50 14 C70 14 86 31 86 60Z"/><path fill="${g}" d="M4 60 H96 C96 70 82 76 50 76 C18 76 4 70 4 60Z"/><path d="M50 15 V58" stroke="${c}" stroke-width="5"/><circle cx="50" cy="42" r="12" fill="${c}"/><circle cx="50" cy="42" r="5.5" fill="${g}"/><path fill="${g}" d="${star5(50, 88, 9, 4)}"/>`,
 };
 let uid = 0;
 function badgeSVG(e, size) {
@@ -523,7 +683,10 @@ const Sound = {
     g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
     s.connect(f); f.connect(g); g.connect(this.master); s.start(t, Math.random()); s.stop(t + a + d + 0.05);
   },
-  tick(k) { if (!this.ok()) return; const t = this.ctx.currentTime; this.osc('square', 2100 + k * 500, t, 0.001, 0.035, 0.05 + 0.06 * k); this.noise(t, 0.001, 0.03, 0.12 + 0.1 * k, 3500, 0, 3); },
+  tick(k) { if (!this.ok()) return; const t = this.ctx.currentTime; this.osc('square', 2100 + k * 500, t, 0.001, 0.035, 0.08 + 0.08 * k); this.noise(t, 0.001, 0.03, 0.18 + 0.14 * k, 3500, 0, 3); },
+  zap() { if (!this.ok()) return; const t = this.ctx.currentTime; this.noise(t, 0.002, 0.06, 0.16, 2500 + Math.random() * 3000, 0, 4); this.osc('square', 600 + Math.random() * 900, t, 0.002, 0.05, 0.035); },
+  cry(n) { if (!this.ok()) return; const t = this.ctx.currentTime, f = 300 + (n * 37) % 500; this.osc('sawtooth', f, t, 0.02, 0.18, 0.12, f * 1.6); this.osc('square', f * 1.5, t + 0.16, 0.02, 0.22, 0.08, f * 0.9); this.osc('triangle', f * 2, t + 0.1, 0.01, 0.3, 0.08, f * 2.4); },
+  pika() { if (!this.ok()) return; const t = this.ctx.currentTime; [0, 0.13].forEach((d, i) => this.osc('triangle', i ? 1180 : 940, t + d, 0.01, 0.12, 0.16, i ? 1500 : 1250)); },
   whoosh() { if (!this.ok()) return; const t = this.ctx.currentTime; this.noise(t, 0.25, 0.9, 0.35, 300, 2600, 1.2); this.osc('sawtooth', 70, t, 0.2, 0.9, 0.08, 260); this.osc('sine', 220, t, 0.05, 0.5, 0.12, 880); },
   slow() { if (!this.ok()) return; const t = this.ctx.currentTime; this.osc('triangle', 520, t, 0.05, 1.6, 0.1, 130); this.noise(t, 0.1, 1.4, 0.12, 1800, 250, 0.8); },
   stop() { if (!this.ok()) return; const t = this.ctx.currentTime; this.osc('sine', 160, t, 0.005, 0.35, 0.5, 50); this.noise(t, 0.002, 0.25, 0.3, 900, 200, 0.7, 'lowpass'); this.osc('square', 880, t + 0.05, 0.005, 0.12, 0.06); },
@@ -553,6 +716,20 @@ const btnSpin = $('btnSpin'), btnReset = $('btnReset'), btnSound = $('btnSound')
 const revealEl = $('reveal'), endEl = $('endgame'), flashEl = $('flash');
 
 if (location.hash === '#obs' || /[?&]obs\b/.test(location.search)) document.documentElement.classList.add('obs');
+// Qualité adaptative : ?lite force le mode léger, ?hq force la qualité maximale, sinon mesure automatique
+let lite = location.hash === '#lite' || /[?&]lite\b/.test(location.search);
+const forceHQ = location.hash === '#hq' || /[?&]hq\b/.test(location.search);
+if (lite) document.documentElement.classList.add('lite');
+const perf = { n: 0, t0: 0 };
+function perfProbe(now) {
+  if (lite || forceHQ || perf.n < 0) return;
+  if (perf.n === 0) perf.t0 = now;
+  if (++perf.n === 120) {
+    const fps = 119000 / (now - perf.t0);
+    if (fps < 42) { lite = true; document.documentElement.classList.add('lite'); orbs.length = 30; orbit.length = 24; }
+    perf.n = -1;
+  }
+}
 
 function fitStage() {
   const s = Math.min(innerWidth / 1920, innerHeight / 1080);
@@ -590,14 +767,14 @@ addEventListener('resize', fitStage); fitStage();
     <rect x="0" y="818" width="1920" height="4" fill="#2de2ff" opacity=".55"/>
   </svg>`;
 
-  const lan = [[24, 70, '力'], [150, 30, '雷'], [1700, 30, '炎'], [1830, 70, '竜']];
+  const lan = [[1700, 30, '炎'], [1830, 70, '竜']];
   $('lanterns').innerHTML = lan.map(([x, h, k], i) => `<div class="lantern" style="left:${x}px;--h:${h}px;animation-delay:${-i * 1.3}s"><div class="lb"><span>${k}</span></div></div>`).join('');
 
   const spots = [
     [480, 250, 120, -14, 0.55, 0], [1330, 300, 130, 12, 0.55, 0], [470, 760, 136, 10, 0.6, 0], [1340, 790, 120, -12, 0.55, 0],
     [380, 40, 90, -20, 0.4, 1.5], [1460, 50, 96, 18, 0.4, 1.5], [10, 520, 110, 8, 0.35, 2], [1800, 480, 110, -8, 0.35, 2],
   ];
-  const deck = ['fire', 'water', 'lightning', 'psychic', 'grass', 'dragon', 'fairy', 'darkness'];
+  const deck = ['fire', 'water', 'lightning', 'psychic', 'grass', 'dragon', 'item', 'darkness'];
   $('cards').innerHTML = spots.map(([x, y, w, r, o, b], i) => {
     const e = BY_ID[deck[i]];
     return `<div class="fcard" style="--x:${x}px;--y:${y}px;--w:${w}px;--r:${r}deg;--o:${o};--b:${b}px;--d:${8 + i}s;--dl:${-i * 1.7}s;--c:${e.color};--c2:${e.light};--c3:${e.dark}"><div class="face">${badgeSVG(e)}</div></div>`;
@@ -631,6 +808,8 @@ const ICON_EXIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
    ========================================================= */
 let remaining = ENERGIES.slice();      // vérité : énergies encore sur la roue
 let history = [];                      // ids dans l'ordre de sortie
+let viewers = [];                      // pseudo du viewer associé à chaque tour
+let currentViewer = '';
 let phase = 'idle';                    // idle | spinning | reveal | removing | done
 let rot = 0;                           // rotation de la roue (radians, sens horaire)
 let spinAnim = null, removeAnim = null;
@@ -648,9 +827,19 @@ const mod = (a, n) => ((a % n) + n) % n;
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const WS = 1540, C = WS / 2;
 const RING_OUT = 760, RING_IN = 690, SEG_R = 672, BULB_R = 725, PEG_R = 658, HUB_R = 150, NBULBS = 40;
-const wctx = $('wheel').getContext('2d');
-const segCanvas = document.createElement('canvas'); segCanvas.width = segCanvas.height = WS;
-const sctx = segCanvas.getContext('2d');
+// La roue est découpée en calques : seul le disque des cases tourne, via une rotation CSS (GPU)
+const segCanvas = $('segs'), sctx = segCanvas.getContext('2d');
+const rotorEl = $('rotor'), blurEl = $('segBlur'), blurCtx = blurEl.getContext('2d');
+const hlEl = $('segHl'), hlCtx = hlEl.getContext('2d'), bulbCtx = $('ring').getContext('2d');
+hlEl.style.visibility = 'hidden'; blurEl.style.visibility = 'hidden';
+const foilTile = (() => {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 96; const c = cv.getContext('2d');
+  c.strokeStyle = 'rgba(255,255,255,.07)'; c.lineWidth = 3;
+  for (let i = -96; i < 192; i += 12) { c.beginPath(); c.moveTo(i, 0); c.lineTo(i + 96, 96); c.stroke(); }
+  for (let i = 0; i < 46; i++) { c.fillStyle = `rgba(255,255,255,${(Math.random() * 0.4).toFixed(2)})`; c.fillRect(Math.random() * 96, Math.random() * 96, 2, 2); }
+  return cv;
+})();
+let foilPat = null;
 let segDirty = true, layoutCache = [];
 
 function computeLayout() {
@@ -688,7 +877,7 @@ function makeRing() {
   }
   return cv;
 }
-const ringCanvas = makeRing();
+const ringImg = makeRing();
 
 function makeGloss() {
   const cv = document.createElement('canvas'); cv.width = cv.height = WS;
@@ -701,7 +890,7 @@ function makeGloss() {
   c.beginPath(); c.arc(0, 0, SEG_R, 0, TAU); c.fillStyle = h; c.fill();
   return cv;
 }
-const glossCanvas = makeGloss();
+$('gloss').getContext('2d').drawImage(makeGloss(), 0, 0);
 
 const fillCache = {};
 function segFill(c, e, a0, a1) {
@@ -741,6 +930,10 @@ function renderSegments() {
       sh.addColorStop(0, 'rgba(30,10,70,.85)'); sh.addColorStop(0.5, 'rgba(30,10,70,.1)'); sh.addColorStop(1, 'rgba(255,255,255,.15)');
       c.fillStyle = sh; c.fill();
     }
+    c.save(); c.clip();
+    c.fillStyle = foilPat || (foilPat = c.createPattern(foilTile, 'repeat')); c.fillRect(-SEG_R, -SEG_R, SEG_R * 2, SEG_R * 2);
+    c.lineJoin = 'round'; c.lineWidth = 12; c.strokeStyle = 'rgba(255,255,255,.2)'; c.stroke();
+    c.restore();
   }
   // anneaux décoratifs
   c.lineWidth = 2; c.strokeStyle = 'rgba(255,255,255,.18)';
@@ -767,7 +960,11 @@ function renderSegments() {
     const chord = 2 * badgeR * Math.sin(Math.min(span, Math.PI) / 2);
     const bs = Math.min(L.length <= 2 ? 170 : 132, chord * 0.8);
     const img = badgeImg[s.e.id];
-    if (bs > 10 && img.complete && img.naturalWidth) { c.save(); c.translate(badgeR, 0); c.rotate(Math.PI / 2); c.drawImage(img, -bs / 2, -bs / 2, bs, bs); c.restore(); }
+    if (bs > 10 && img.complete && img.naturalWidth) {
+      c.save(); c.translate(badgeR, 0); c.rotate(Math.PI / 2);
+      const ga = c.globalAlpha; c.globalCompositeOperation = 'lighter'; c.globalAlpha = ga * 0.45; c.drawImage(sprite(s.e.rainbow ? '#ffe86b' : s.e.light), -bs, -bs, bs * 2, bs * 2);
+      c.globalCompositeOperation = 'source-over'; c.globalAlpha = ga; c.drawImage(img, -bs / 2, -bs / 2, bs, bs); c.restore();
+    }
     const label = s.e.name.toUpperCase(), nameEnd = badgeR - Math.max(bs, 90) / 2 - 22, avail = nameEnd - nameStart;
     let fs = 70; c.font = `900 ${fs}px "Saira Condensed", "Arial Narrow", sans-serif`;
     const w = c.measureText(label).width; if (w > avail) fs *= avail / w;
@@ -776,7 +973,9 @@ function renderSegments() {
       c.font = `900 ${fs}px "Saira Condensed", "Arial Narrow", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
       const x = nameStart + avail / 2, dark = s.e.text !== '#ffffff';
       c.lineJoin = 'round'; c.lineWidth = fs * 0.14; c.strokeStyle = dark ? 'rgba(255,255,255,.45)' : 'rgba(0,0,0,.55)'; c.strokeText(label, x, 2);
-      c.fillStyle = s.e.text; c.fillText(label, x, 2);
+      if (dark) c.fillStyle = s.e.text;
+      else { const tg = c.createLinearGradient(0, -fs / 2, 0, fs / 2); tg.addColorStop(0, '#ffffff'); tg.addColorStop(0.55, '#ffffff'); tg.addColorStop(1, s.e.rainbow ? '#ffe86b' : s.e.light); c.fillStyle = tg; }
+      c.fillText(label, x, 2);
     }
     c.restore();
   }
@@ -793,41 +992,57 @@ function sprite(color) {
   return (spriteCache[color] = cv);
 }
 
+const suspenseEl = $('suspense'); let suspenseOp = 0;
 let pointerKick = 0, pointerVel = 0, lastSegId = null, winFlashT = 0;
-function drawWheel(t) {
-  if (segDirty) renderSegments();
-  const c = wctx;
-  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, WS, WS);
-  c.drawImage(ringCanvas, 0, 0);
-  c.translate(C, C);
-  // ampoules
+let bulbKey = '', hlOn = false, blurShown = false;
+function drawBulbs(t) {
   const winE = phase === 'reveal' && removingSeg ? removingSeg.e : null;
+  let mode, step;
+  if (winE) { mode = 'w' + winE.id; step = Math.floor(t * 8) % 2; }
+  else if (phase === 'spinning') { mode = 's'; step = Math.floor(t * 24) % 4; }
+  else if (phase === 'done') { mode = 'd'; step = Math.floor(t * 6) % RAINBOW.length; }
+  else { mode = 'i'; step = Math.floor(t * 4) % 8; }
+  const key = mode + step; if (key === bulbKey) return; bulbKey = key;
+  const c = bulbCtx; c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, WS, WS); c.drawImage(ringImg, 0, 0); c.translate(C, C);
   c.globalCompositeOperation = 'lighter';
   for (let i = 0; i < NBULBS; i++) {
     let on, col = '#ffe7a0';
-    if (winE) { on = Math.floor(t * 8) % 2 === i % 2; col = winE.rainbow ? RAINBOW[i % RAINBOW.length] : winE.light; }
-    else if (phase === 'spinning') on = (i + Math.floor(t * 22)) % 4 < 2;
-    else if (phase === 'done') { on = true; col = RAINBOW[i % RAINBOW.length]; }
-    else on = Math.floor(t * 1.6 + i * 0.5) % 2 === 0;
+    if (winE) { on = step === i % 2; col = winE.rainbow ? RAINBOW[i % RAINBOW.length] : winE.light; }
+    else if (mode === 's') on = (i + step) % 4 < 2;
+    else if (mode === 'd') { on = true; col = RAINBOW[(i + step) % RAINBOW.length]; }
+    else on = (i + step) % 8 < 4;
     const a = i / NBULBS * TAU, x = Math.cos(a) * BULB_R, y = Math.sin(a) * BULB_R;
-    if (on) { c.drawImage(sprite(col), x - 34, y - 34, 68, 68); c.fillStyle = '#ffffff'; }
+    if (on) { c.drawImage(sprite(col), x - 36, y - 36, 72, 72); c.fillStyle = '#ffffff'; }
     else c.fillStyle = 'rgba(255,220,140,.18)';
     c.beginPath(); c.arc(x, y, 9, 0, TAU); c.fill();
   }
   c.globalCompositeOperation = 'source-over';
-  // segments
-  c.save(); c.rotate(rot); c.drawImage(segCanvas, -C, -C);
-  if (winE) {
-    const s = layoutCache.find(x => x.removing);
-    if (s) {
-      const a0 = s.a0 - Math.PI / 2, a1 = s.a1 - Math.PI / 2, pulse = 0.5 + 0.5 * Math.sin(t * 10);
-      c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, SEG_R, a0, a1); c.closePath();
-      c.globalCompositeOperation = 'lighter'; c.fillStyle = `rgba(255,255,255,${0.12 + 0.22 * pulse + winFlashT * 0.6})`; c.fill();
-      c.globalCompositeOperation = 'source-over'; c.lineJoin = 'round'; c.lineWidth = 14; c.strokeStyle = `rgba(255,255,255,${0.6 + 0.4 * pulse})`; c.stroke();
-    }
+}
+function drawHighlight(t) {
+  const s = phase === 'reveal' && removingSeg ? layoutCache.find(x => x.removing) : null;
+  const c = hlCtx;
+  if (!s) { if (hlOn) { c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, WS, WS); hlEl.style.visibility = 'hidden'; hlOn = false; } return; }
+  if (!hlOn) hlEl.style.visibility = 'visible';
+  hlOn = true;
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, WS, WS); c.translate(C, C);
+  const a0 = s.a0 - Math.PI / 2, a1 = s.a1 - Math.PI / 2, pulse = 0.5 + 0.5 * Math.sin(t * 10);
+  c.beginPath(); c.moveTo(0, 0); c.arc(0, 0, SEG_R, a0, a1); c.closePath();
+  c.globalCompositeOperation = 'lighter'; c.fillStyle = `rgba(255,255,255,${0.1 + 0.2 * pulse + winFlashT * 0.6})`; c.fill();
+  c.lineJoin = 'round'; c.lineWidth = 34; c.strokeStyle = `rgba(255,255,255,${0.12 + 0.12 * pulse})`; c.stroke();
+  c.globalCompositeOperation = 'source-over'; c.lineWidth = 12; c.strokeStyle = `rgba(255,255,255,${0.65 + 0.35 * pulse})`; c.stroke();
+}
+// Flou de mouvement réel : copies du disque réparties sur l'angle parcouru, en demi-résolution
+function drawBlur() {
+  const sp = Math.abs(wheelSpeed), op = clamp((sp - 2.5) / 9, 0, 1);
+  if (op < 0.02 || lite) { if (blurShown) { blurEl.style.opacity = '0'; blurEl.style.visibility = 'hidden'; blurShown = false; } return; }
+  if (!blurShown) blurEl.style.visibility = 'visible';
+  const spread = Math.min(0.55, sp * 0.022), N = 9, c = blurCtx;
+  c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, 770, 770);
+  for (let i = 0; i < N; i++) {
+    const a = -spread / 2 + spread * i / (N - 1), co = Math.cos(a) * 0.5, si = Math.sin(a) * 0.5;
+    c.setTransform(co, si, -si, co, 385, 385); c.globalAlpha = 1 / (i + 1); c.drawImage(segCanvas, -C, -C);
   }
-  c.restore();
-  c.drawImage(glossCanvas, -C, -C);
+  c.globalAlpha = 1; blurEl.style.opacity = op.toFixed(3); blurShown = true;
 }
 
 /* =========================================================
@@ -903,9 +1118,9 @@ const FX = {
   darkness:  { shapes: ['smoke', 'glow', 'smoke'], colors: ['#8a82bd', '#5b3aa8', '#c6b8ff'], g: -40, sp: [100, 460], swirl: -1.8 },
   metal:     { shapes: ['star', 'glow'], colors: ['#ffffff', '#cfd8e2', '#8c9aa8'], g: 1000, sp: [500, 1250] },
   dragon:    { shapes: ['glow', 'star'], colors: ['#f7dc85', '#c49a2c', '#ff6a3d'], g: -90, sp: [200, 720], swirl: 1.9 },
-  fairy:     { shapes: ['star', 'star', 'glow'], colors: ['#ffd0ea', '#f37bc0', '#ffffff'], g: -60, sp: [120, 500] },
+  item:      { shapes: ['drop', 'star', 'glow'], colors: ['#ffb3d9', '#e6398f', '#ffffff'], g: 300, sp: [250, 800] },
   colorless: { shapes: ['star', 'glow'], colors: ['#ffffff', '#e8e4d6', '#fff4c2'], g: 60, sp: [150, 620] },
-  special:   { shapes: ['star', 'glow', 'glow'], colors: RAINBOW, g: 40, sp: [200, 820], swirl: 1.3, bolts: 10 },
+  trainer:   { shapes: ['star', 'glow', 'glow'], colors: RAINBOW, g: 40, sp: [250, 900], swirl: 1.3, bolts: 14 },
 };
 let parts = [], fxBolts = [];
 function burst(e, cx, cy, n, scale = 1) {
@@ -920,7 +1135,7 @@ function burst(e, cx, cy, n, scale = 1) {
     const a = rnd(0, TAU), r = rnd(380, 900) * scale;
     fxBolts.push({ pts: bolt(cx, cy, cx + Math.cos(a) * r, cy + Math.sin(a) * r, 140 * scale), col: pick(P.colors), w: rnd(2, 4.5), age: 0, life: rnd(0.25, 0.5) });
   }
-  for (let i = 0; i < (P.rings || 1); i++) parts.push({ x: cx, y: cy, vx: 0, vy: 0, g: 0, swirl: 0, shape: 'shock', col: P.colors[1], size: 40, grow: 900 + i * 260, age: -i * 0.09, life: 0.9, rot: 0, vr: 0 });
+  for (let i = 0; i < (P.rings || 1); i++) parts.push({ x: cx, y: cy, vx: 0, vy: 0, g: 0, swirl: 0, shape: "shock", col: P.colors[1], size: 40 * scale, grow: (900 + i * 260) * scale, age: -i * 0.09, life: 0.9, rot: 0, vr: 0 });
 }
 function drawSparkle(c, x, y, s, rot) {
   c.save(); c.translate(x, y); c.rotate(rot); c.beginPath();
@@ -939,11 +1154,12 @@ function drawFx(dt) {
     c.globalAlpha = Math.min(1, k * 1.4);
     switch (p.shape) {
       case 'glow': c.globalCompositeOperation = 'lighter'; c.drawImage(sprite(p.col), p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); break;
-      case 'star': c.globalCompositeOperation = 'lighter'; c.drawImage(sprite(p.col), p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); c.fillStyle = '#fff'; drawSparkle(c, p.x, p.y, p.size * 0.9, p.rot); break;
+      case 'star': c.globalCompositeOperation = 'lighter'; c.drawImage(sprite(p.col), p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); c.fillStyle = '#fff'; drawSparkle(c, p.x, p.y, p.size * 0.6, p.rot); break;
       case 'drop': c.globalCompositeOperation = 'lighter'; c.drawImage(sprite(p.col), p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); c.fillStyle = p.col; c.beginPath(); c.arc(p.x, p.y, p.size * 0.3, 0, TAU); c.fill(); break;
       case 'leaf': c.globalCompositeOperation = 'source-over'; c.save(); c.translate(p.x, p.y); c.rotate(p.rot); c.fillStyle = p.col; c.beginPath(); c.ellipse(0, 0, p.size * 0.8, p.size * 0.32, 0, 0, TAU); c.fill(); c.restore(); break;
       case 'smoke': c.globalCompositeOperation = 'screen'; c.globalAlpha = k * 0.35; c.drawImage(sprite(p.col), p.x - p.size, p.y - p.size, p.size * 2, p.size * 2); break;
       case 'ring': c.globalCompositeOperation = 'lighter'; c.strokeStyle = p.col; c.lineWidth = 3; c.beginPath(); c.arc(p.x, p.y, p.size * (1 + (1 - k) * 2), 0, TAU); c.stroke(); break;
+      case 'shard': c.globalCompositeOperation = 'source-over'; c.save(); c.translate(p.x, p.y); c.rotate(p.rot); c.fillStyle = p.col; c.beginPath(); c.moveTo(0, -p.size); c.lineTo(p.size * 0.8, p.size * 0.6); c.lineTo(-p.size * 0.7, p.size * 0.5); c.closePath(); c.fill(); c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 1.5; c.stroke(); c.restore(); break;
       case 'shock': c.globalCompositeOperation = 'lighter'; c.strokeStyle = p.col; c.lineWidth = 18 * k; c.beginPath(); c.arc(p.x, p.y, p.size + p.grow * (1 - k), 0, TAU); c.stroke(); break;
     }
   }
@@ -970,12 +1186,13 @@ function spin() {
   if (phase !== 'idle' || remaining.length === 0 || spinAnim) return;
   layoutCache = computeLayout();
   const idx = randInt(remaining.length);                    // le tirage : uniforme parmi les énergies restantes
+  nextPoke = choosePoke(remaining[idx]);                     // le Pokémon du tour (préchargé pendant la rotation)
   const seg = layoutCache[idx];
   const target = seg.a0 + (seg.a1 - seg.a0) * (0.1 + 0.8 * rand01());   // point d'arrêt à l'intérieur de la case
   rot = mod(rot, TAU);
   const delta = mod(-target - rot, TAU);                     // angle exact pour amener la cible sous la flèche
-  const turns = 6 + randInt(3);
-  spinAnim = { from: rot, to: rot + delta + turns * TAU, start: performance.now(), dur: 6600 + randInt(1800), idx, slowed: false };
+  const turns = 7 + randInt(3);
+  spinAnim = { from: rot, to: rot + delta + turns * TAU, start: performance.now(), dur: 5000 + randInt(1400), idx, slowed: false };
   phase = 'spinning';
   wheelWrap.classList.add('spinning');
   Sound.whoosh();
@@ -989,7 +1206,8 @@ function finishSpin() {
   const under = segAtPointer();
   if (!under || under.e.id !== winner.id) console.error('Désaccord animation/tirage', under && under.e.id, winner.id);
   remaining.splice(idx, 1);                                  // élimination réelle des données
-  history.push(winner.id);
+  history.push(winner.id); viewers.push(currentViewer);
+  const pk = nextPoke || choosePoke(winner); nextPoke = null; usedPoke.add(pk.num); pokes.push(pk);
   removingSeg = { e: winner, index: idx, w: 1 };
   segDirty = true;
   phase = 'reveal'; revealShown = false;
@@ -997,43 +1215,86 @@ function finishSpin() {
   Sound.stop();
   winFlashT = 1;
   updateUI(true);
-  later(() => showReveal(winner), 650);
+  wheelWrap.classList.remove('impact', 'resetting'); void wheelWrap.offsetWidth; wheelWrap.classList.add('impact');
+  for (let i = 0; i < 26; i++) { const a = rnd(-Math.PI, 0), v = rnd(200, 520); parts.push({ x: 960, y: 268, vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: 900, swirl: 0, shape: 'star', col: pick(['#ffe38a', '#ffffff', '#ffc93c']), size: rnd(5, 11), age: 0, life: rnd(0.5, 0.9), rot: rnd(0, TAU), vr: rnd(-8, 8) }); }
+  later(() => showReveal(winner), 380);
 }
 
 function cssVars(e) { return `--c:${e.color};--c2:${e.light};--c3:${e.dark}`; }
 
+let revealToken = 0;
+const HIT = 1050;   // ms : l'attaque du Pokémon touche la carte
 function showReveal(e) {
   revealShown = true;
-  const n = history.length, left = remaining.length;
-  flashEl.style.setProperty('--c', e.color); flashEl.classList.remove('go'); void flashEl.offsetWidth; flashEl.classList.add('go');
+  const token = ++revealToken;
+  const n = history.length, left = remaining.length, viewer = viewers[n - 1] || '', pk = pokes[n - 1];
   revealEl.setAttribute('style', cssVars(e));
+  const pokeArt = pk && pk.src ? `<img src="${pk.src}" alt="${esc(pk.name)}">` : `<div class="rv-poke-fb">${badgeSVG(e)}<span>${pk ? esc(pk.name.toUpperCase()) : ''}</span></div>`;
   revealEl.innerHTML = `
-    <div class="rays"></div><div class="shock"></div><div class="shock s2"></div>
+    <div class="rays"></div>
+    ${pk ? `<div class="rv-poke"><span class="dex">N° ${String(pk.num).padStart(3, '0')}</span>${pokeArt}</div>
+    <div class="rv-dialog"><span>${esc(pk.name.toUpperCase())} UTILISE <b>${esc(pk.atk.toUpperCase())}</b> !</span><i>▼</i></div>` : ''}
     <div class="rv-stack">
-      <div class="rv-banner">ÉNERGIE SÉLECTIONNÉE !</div>
+      <div class="rv-banner">${e.full ? 'CATÉGORIE' : 'ÉNERGIE'} SÉLECTIONNÉE !</div>${viewer ? `<div class="rv-viewer">⚡ POUR ${esc(viewer.toUpperCase())} ⚡</div>` : ''}
       <div class="card-wrap"><div class="holo-card"><div class="hc-inner">
         <div class="hc-top"><span class="tour">TOUR ${String(n).padStart(2, '0')} / 12</span><span class="kj">${e.kanji}</span></div>
         <div class="hc-art">${badgeSVG(e)}</div>
-        <div class="hc-foot">ÉNERGIE · ${e.name.toUpperCase()}</div>
+        <div class="hc-foot">${e.full ? 'CARTE' : 'ÉNERGIE'} · ${e.name.toUpperCase()}</div>
       </div><div class="holo-sheen"></div></div></div>
       <div class="rv-name${e.rainbow ? ' rainbow' : ''}">${fullName(e).toUpperCase()}</div>
       <div class="rv-meta">${left ? `<b>${left}</b> ÉNERGIE${left > 1 ? 'S' : ''} RESTANTE${left > 1 ? 'S' : ''} · CLIQUEZ OU ESPACE POUR CONTINUER` : '<b>DERNIÈRE ÉNERGIE !</b> · CLIQUEZ OU ESPACE'}</div>
     </div>`;
+  revealEl.classList.toggle('with-poke', !!pk);
   revealEl.hidden = false; revealEl.classList.remove('out');
-  Sound.reveal();
-  burst(e, 960, 520, 140, 1.1);
-  for (let i = 1; i <= 4; i++) later(() => burst(e, 960 + rnd(-300, 300), 520 + rnd(-200, 200), 34, 0.7), i * 380);
-  later(closeReveal, 5200);
+  const impact = () => {
+    flashEl.style.setProperty('--c', e.color); flashEl.classList.remove('go'); void flashEl.offsetWidth; flashEl.classList.add('go');
+    Sound.reveal();
+    const cx = pokes[n - 1] ? 1110 : 960; burst(e, cx, 470, 110, 1.1);
+    for (let i = 1; i <= 3; i++) later(() => burst(e, cx + rnd(-260, 260), 480 + rnd(-200, 200), 34, 0.7), i * 360);
+  };
+  if (pk) {
+    Sound.cry(pk.num);
+    later(() => attack(e, pk), 480);
+    later(impact, HIT);
+  } else impact();
+  later(() => { if (token === revealToken) closeReveal(); }, pk ? 5000 : 4300);
 }
 
+// L'attaque : un flux de projectiles du Pokémon vers la carte, à la signature de l'énergie
+function attack(e, pk) {
+  const P = FX[e.id], sx = 470, sy = 450, tx = 1010, ty = 470, dur = 560, t0 = performance.now();
+  Sound.whoosh();
+  const step = () => {
+    const el = performance.now() - t0; if (el > dur || phase !== 'reveal') return;
+    for (let i = 0; i < 9; i++) {
+      const a = Math.atan2(ty - sy, tx - sx) + rnd(-0.16, 0.16), v = rnd(900, 1500), shape = pick(P.shapes);
+      parts.push({ x: sx + rnd(-20, 20), y: sy + rnd(-30, 30), vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: 0, swirl: 0, shape: shape === 'smoke' || shape === 'ring' ? 'glow' : shape,
+        col: pick(P.colors), size: rnd(10, 26), age: 0, life: rnd(0.35, 0.5), rot: rnd(0, TAU), vr: rnd(-10, 10) });
+    }
+    if (e.id === 'lightning' || e.id === 'trainer' || Math.random() < 0.35) fxBolts.push({ pts: bolt(sx, sy, tx + rnd(-40, 40), ty + rnd(-80, 80), 120), col: pick(P.colors), w: rnd(2, 4), age: 0, life: 0.18 });
+    requestAnimationFrame(step);
+  };
+  step();
+}
+
+function shatter(s) {
+  const e = s.e, cols = e.rainbow ? RAINBOW : [e.color, e.light, e.color, '#ffffff'];
+  for (let i = 0; i < 150; i++) {
+    const ang = s.a0 + (s.a1 - s.a0) * Math.random() - Math.PI / 2 + rot, r = rnd(85, 335), v = rnd(180, 650);
+    const x = WC.x + Math.cos(ang) * r, y = WC.y + Math.sin(ang) * r;
+    parts.push({ x, y, vx: Math.cos(ang) * v + rnd(-90, 90), vy: Math.sin(ang) * v + rnd(-90, 90), g: 650, swirl: 0, shape: Math.random() < 0.65 ? 'shard' : 'glow', col: pick(cols), size: rnd(7, 20), age: 0, life: rnd(0.7, 1.4), rot: rnd(0, TAU), vr: rnd(-12, 12) });
+  }
+}
 function closeReveal() {
   if (phase !== 'reveal' || !revealShown) return;
   revealShown = false;
   revealEl.classList.add('out');
   later(() => { revealEl.hidden = true; revealEl.innerHTML = ''; }, 400);
   phase = 'removing';
-  removeAnim = { start: performance.now(), dur: 900 };
+  const ws = layoutCache.find(x => x.removing); if (ws) shatter(ws);
+  removeAnim = { start: performance.now(), dur: 650 };
   Sound.remove();
+  fillViewerSlot(history.length - 1);
   updateUI();
 }
 
@@ -1050,7 +1311,7 @@ function showEnd() {
     <div class="eg-kicker">全エネルギー解放</div>
     <h2 class="eg-title">LES 12 ÉNERGIES ONT ÉTÉ RÉVÉLÉES !</h2>
     <div class="eg-grid">${history.map((id, i) => { const e = BY_ID[id]; return `
-      <div class="eg-card" style="${cssVars(e)};animation-delay:${0.35 + i * 0.09}s"><div class="in"><span class="n">#${i + 1}</span>${badgeSVG(e)}<span class="nm">${e.name.toUpperCase()}</span></div><div class="holo-sheen"></div></div>`; }).join('')}
+      <div class="eg-card" style="${cssVars(e)};animation-delay:${0.35 + i * 0.09}s"><div class="in"><span class="n">#${i + 1}</span>${pokes[i] && pokes[i].src ? `<img class="pk" src="${pokes[i].src}" alt="${esc(pokes[i].name)}">` : ''}${badgeSVG(e)}<span class="nm">${e.name.toUpperCase()}${viewers[i] ? `<small>${esc(viewers[i])}</small>` : ''}</span></div><div class="holo-sheen"></div></div>`; }).join('')}
     </div>
     <button class="btn btn-spin btn-new" id="btnNew">NOUVELLE PARTIE</button>`;
   endEl.hidden = false;
@@ -1062,10 +1323,10 @@ function showEnd() {
 function resetGame() {
   Sound.init();
   gen++; timers.forEach(clearTimeout); timers = [];
-  remaining = ENERGIES.slice(); history = [];
+  remaining = ENERGIES.slice(); history = []; viewers = []; pokes = []; usedPoke = new Set(); nextPoke = null; currentViewer = ''; resetViewerBox();
   spinAnim = null; removeAnim = null; removingSeg = null; revealShown = false;
   phase = 'idle'; rot = 0; winFlashT = 0; pointerKick = 0; pointerVel = 0; lastSegId = null;
-  parts = []; fxBolts = [];
+  parts = []; fxBolts = []; bulbKey = '';
   revealEl.hidden = true; revealEl.innerHTML = ''; endEl.hidden = true; endEl.innerHTML = '';
   wheelWrap.classList.remove('spinning', 'resetting'); void wheelWrap.offsetWidth; wheelWrap.classList.add('resetting');
   segDirty = true;
@@ -1073,6 +1334,105 @@ function resetGame() {
   for (let i = 0; i < 16; i++) spawnRingBolt('#2de2ff');
   updateUI();
 }
+
+/* =========================================================
+   CASE VIEWER — Pikachu arrive et écrit le pseudo en éclairs
+   ========================================================= */
+const PIKA_SVG = `<svg viewBox="0 0 120 120" aria-hidden="true">
+  <g class="tail"><path d="M80 78 L100 64 L92 56 L113 40 L104 34 L117 14 L95 28 L102 37 L84 47 L90 56 L72 68Z" fill="#ffd21a" stroke="#3a2600" stroke-width="2.5" stroke-linejoin="round"/><path d="M80 78 L72 68 L78 64 L85 73Z" fill="#8a5a1a"/></g>
+  <path d="M38 34 Q26 16 18 0 Q36 9 50 27Z" fill="#ffd21a" stroke="#3a2600" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 0 Q22 9 26 13 Q31 10 33 7 Q26 3 18 0Z" fill="#1a1208"/>
+  <path d="M78 34 Q90 16 98 0 Q80 9 66 27Z" fill="#ffd21a" stroke="#3a2600" stroke-width="2.5" stroke-linejoin="round"/><path d="M98 0 Q94 9 90 13 Q85 10 83 7 Q90 3 98 0Z" fill="#1a1208"/>
+  <ellipse cx="58" cy="86" rx="26" ry="24" fill="#ffd21a" stroke="#3a2600" stroke-width="2.5"/>
+  <ellipse cx="46" cy="108" rx="9" ry="5" fill="#ffd21a" stroke="#3a2600" stroke-width="2"/><ellipse cx="70" cy="108" rx="9" ry="5" fill="#ffd21a" stroke="#3a2600" stroke-width="2"/>
+  <ellipse cx="58" cy="52" rx="31" ry="26" fill="#ffd21a" stroke="#3a2600" stroke-width="2.5"/>
+  <ellipse cx="40" cy="84" rx="6" ry="9" fill="#ffd21a" stroke="#3a2600" stroke-width="2" transform="rotate(25 40 84)"/><ellipse cx="76" cy="84" rx="6" ry="9" fill="#ffd21a" stroke="#3a2600" stroke-width="2" transform="rotate(-25 76 84)"/>
+  <circle cx="46" cy="49" r="5.5" fill="#1a1208"/><circle cx="70" cy="49" r="5.5" fill="#1a1208"/><circle cx="47.6" cy="47" r="2" fill="#fff"/><circle cx="71.6" cy="47" r="2" fill="#fff"/>
+  <circle cx="37" cy="61" r="6.5" fill="#ff3b3b"/><circle cx="79" cy="61" r="6.5" fill="#ff3b3b"/>
+  <ellipse cx="58" cy="56" rx="1.8" ry="1.3" fill="#1a1208"/><path d="M51 61 Q54.5 66 58 61 Q61.5 66 65 61" fill="none" stroke="#1a1208" stroke-width="2" stroke-linecap="round"/>
+</svg>`;
+const VB = { x: 48, y: 22, nameX: 188, nameY: 54 + 22, sitX: 438, pikaY: 22 + 175 - 74 };
+const pikaEl = $('pika'), pikaDir = $('pikaDir'), vbText = $('vbText'), vbClip = $('vbClip'), vbName = $('vbName'), vbSlot = $('vbSlot'), vbEnergy = $('vbEnergy');
+$('pikaBob').innerHTML = PIKA_SVG;
+tryImage(VISUELS.pikachu, im => { im.alt = ''; $('pikaBob').innerHTML = ''; $('pikaBob').appendChild(im); });
+let pikaX = VB.sitX, writeAnim = null, lastZap = 0;
+const setPika = x => { pikaX = x; pikaEl.style.transform = `translate(${x.toFixed(1)}px, ${VB.pikaY}px)`; };
+setPika(VB.sitX);
+
+function writeViewer(raw) {
+  const name = String(raw || '').replace(/\s+/g, ' ').trim().slice(0, 18);
+  if (!name) return;
+  Sound.init();
+  currentViewer = name;
+  vbName.classList.remove('idle', 'done');
+  vbText.textContent = name.toUpperCase();
+  let fs = 44; vbText.setAttribute('font-size', fs);
+  const w0 = vbText.getComputedTextLength() || name.length * 30;
+  if (w0 > 300) { fs = Math.max(18, fs * 300 / w0); vbText.setAttribute('font-size', fs.toFixed(1)); }
+  vbText.setAttribute('y', (32 + fs * 0.36).toFixed(1));
+  const w = Math.min(310, vbText.getComputedTextLength() || w0 * fs / 44);
+  vbClip.setAttribute('width', '0');
+  vbSlot.className = 'vb-slot wait'; vbSlot.removeAttribute('style'); vbSlot.textContent = '?';
+  vbEnergy.className = 'vb-energy'; vbEnergy.textContent = 'TIRAGE EN ATTENTE…';
+  const fromX = pikaX;
+  writeAnim = { start: performance.now(), fromX, runIn: Math.min(650, 250 + Math.abs(fromX - (VB.nameX - 60)) * 0.9), writeDur: clamp(name.length * 85, 650, 1500), w, done: false };
+  pikaEl.classList.remove('hop'); pikaEl.classList.add('run');
+  Sound.pika();
+}
+function updatePika(now) {
+  const a = writeAnim; if (!a) return;
+  const el = now - a.start, startX = VB.nameX - 64;
+  if (el < a.runIn) {
+    const q = el / a.runIn, e = 1 - Math.pow(1 - q, 2);
+    pikaDir.classList.toggle('left', startX < a.fromX);
+    setPika(a.fromX + (startX - a.fromX) * e);
+    return;
+  }
+  const q = clamp((el - a.runIn) / a.writeDur, 0, 1);
+  if (q < 1 || !a.done) {
+    pikaDir.classList.remove('left');
+    const head = VB.nameX + a.w * q;
+    setPika(head - 64);
+    vbClip.setAttribute('width', (a.w * q + 6).toFixed(1));
+    if (now - lastZap > 55) {
+      lastZap = now;
+      const tx = pikaX + 20, ty = VB.pikaY + 22;
+      fxBolts.push({ pts: bolt(tx, ty, head + rnd(-6, 6), VB.nameY + rnd(-16, 12), 26, 5), col: pick(['#ffe14d', '#fff7a0', '#2de2ff']), w: rnd(1.6, 2.8), age: 0, life: 0.14 });
+      for (let i = 0; i < 4; i++) parts.push({ x: head, y: VB.nameY + rnd(-14, 14), vx: rnd(-160, 160), vy: rnd(-200, 40), g: 500, swirl: 0, shape: 'star', col: pick(['#ffe14d', '#ffffff']), size: rnd(3, 7), age: 0, life: rnd(0.3, 0.6), rot: rnd(0, TAU), vr: rnd(-8, 8) });
+      Sound.zap();
+    }
+    if (q >= 1) a.done = true;
+    return;
+  }
+  // fin : petit sprint jusqu'au bout de la case, puis saut
+  const el2 = el - a.runIn - a.writeDur, d = 380;
+  const endFrom = VB.nameX + a.w - 64, x = endFrom + (VB.sitX - endFrom) * clamp(el2 / d, 0, 1);
+  setPika(Math.min(x, VB.sitX));
+  if (el2 >= d) {
+    writeAnim = null; vbClip.setAttribute('width', '400');
+    vbName.classList.add('done');
+    pikaEl.classList.remove('run'); void pikaEl.offsetWidth; pikaEl.classList.add('hop');
+    for (let i = 0; i < 6; i++) fxBolts.push({ pts: bolt(VB.sitX + 36, VB.pikaY + 30, VB.nameX + rnd(0, a.w), VB.nameY + rnd(-20, 20), 40, 5), col: '#ffe14d', w: rnd(1.5, 3), age: 0, life: 0.25 });
+    Sound.zap();
+  }
+}
+function fillViewerSlot(i) {
+  const e = BY_ID[history[i]]; if (!e) return;
+  vbSlot.className = 'vb-slot got'; vbSlot.setAttribute('style', cssVars(e)); vbSlot.innerHTML = badgeSVG(e);
+  vbEnergy.className = 'vb-energy got'; vbEnergy.style.setProperty('--c', e.color); vbEnergy.textContent = e.name.toUpperCase();
+  pikaEl.classList.remove('hop'); void pikaEl.offsetWidth; pikaEl.classList.add('hop');
+  burst(e, 76, 99, 40, 0.35);
+}
+function resetViewerBox() {
+  writeAnim = null; setPika(VB.sitX); pikaDir.classList.remove('left'); pikaEl.classList.remove('run');
+  vbName.classList.remove('done'); vbName.classList.add('idle');
+  vbText.textContent = 'EN ATTENTE D\'UN PSEUDO…'; vbText.setAttribute('font-size', '22'); vbText.setAttribute('y', '47'); vbClip.setAttribute('width', '400');
+  vbSlot.className = 'vb-slot'; vbSlot.removeAttribute('style'); vbSlot.textContent = '?';
+  vbEnergy.className = 'vb-energy'; vbEnergy.textContent = 'EN ATTENTE';
+}
+$('viewerForm').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const inp = $('viewerInput'); writeViewer(inp.value); inp.value = ''; inp.blur();
+});
 
 /* =========================================================
    INTERFACE
@@ -1085,13 +1445,13 @@ function updateUI(bump) {
   $('gridLeft').textContent = remaining.length;
   [...pipsEl.children].forEach((p, i) => { const e = BY_ID[history[i]]; p.className = e ? 'on' : ''; p.style.setProperty('--c', e ? e.color : 'transparent'); });
   [...historyEl.children].forEach((li, i) => {
-    const e = BY_ID[history[i]], was = li.dataset.id || '';
-    if ((e ? e.id : '') === was) { li.classList.toggle('latest', !!e && i === n - 1 && li.classList.contains('latest')); return; }
-    li.dataset.id = e ? e.id : '';
+    const e = BY_ID[history[i]], was = li.dataset.id || '', key = e ? e.id + '|' + (viewers[i] || '') : '';
+    if (key === was) { li.classList.toggle('latest', !!e && i === n - 1 && li.classList.contains('latest')); return; }
+    li.dataset.id = key;
     li.className = 'hrow' + (e ? ' filled' : '') + (e && i === n - 1 ? ' latest' : '');
     li.style.setProperty('--c', e ? e.color : 'transparent');
     li.querySelector('.hb').innerHTML = e ? badgeSVG(e) : '';
-    li.querySelector('.hname').textContent = e ? fullName(e) : '—';
+    li.querySelector('.hname').innerHTML = e ? esc(fullName(e)) + (viewers[i] ? `<small>⚡ ${esc(viewers[i])}</small>` : '') : '—';
   });
   egridEl.querySelectorAll('.ecell').forEach(cell => {
     const k = history.indexOf(cell.dataset.id);
@@ -1123,6 +1483,7 @@ const click = (el, fn) => el.addEventListener('click', ev => { ev.currentTarget.
 click(btnSpin, spin); click(hub, spin); click(btnReset, resetGame); click(btnSound, toggleSound); click(btnFull, toggleFull);
 revealEl.addEventListener('click', () => closeReveal());
 addEventListener('keydown', ev => {
+  if (ev.target && ev.target.tagName === 'INPUT') { if (ev.key === 'Escape') ev.target.blur(); return; }
   if (ev.repeat || ev.ctrlKey || ev.metaKey || ev.altKey) return;
   const k = ev.key.toLowerCase();
   if (ev.code === 'Space' || k === 'enter') { ev.preventDefault(); if (phase === 'done') return; spin(); }
@@ -1130,7 +1491,7 @@ addEventListener('keydown', ev => {
   else if (k === 'm') toggleSound();
   else if (k === 'f') toggleFull();
 });
-addEventListener('keyup', ev => { if (ev.code === 'Space') ev.preventDefault(); });
+addEventListener('keyup', ev => { if (ev.code === 'Space' && !(ev.target && ev.target.tagName === 'INPUT')) ev.preventDefault(); });
 
 /* =========================================================
    BOUCLE D'ANIMATION
@@ -1174,11 +1535,15 @@ function frame(now) {
   pointerEl.style.transform = `rotate(${pointerKick.toFixed(2)}deg)`;
 
   drawBg(t, dt);
-  drawWheel(t);
+  drawBulbs(t); drawHighlight(t); drawBlur();
+  rotorEl.style.transform = `rotate(${rot.toFixed(5)}rad)`;
+  const susp = spinAnim ? clamp(((now - spinAnim.start) / spinAnim.dur - 0.55) / 0.45, 0, 1) * 0.85 : Math.max(0, suspenseOp - dt * 2.5);
+  if (Math.abs(susp - suspenseOp) > 0.004 || (susp === 0 && suspenseOp !== 0)) { suspenseOp = susp; suspenseEl.style.opacity = susp.toFixed(3); }
   if (phase === 'done' && !endEl.hidden) {
     fireworkT -= dt;
     if (fireworkT <= 0) { burst(pick(ENERGIES), rnd(260, 1660), rnd(140, 760), 70, 0.55); fireworkT = rnd(0.35, 0.8); }
   }
+  updatePika(now); perfProbe(now);
   drawFx(dt);
   requestAnimationFrame(frame);
 }
@@ -1189,7 +1554,7 @@ function frame(now) {
 function boot(data) {
   const saved = data && Array.isArray(data.history) ? data.history.filter(id => BY_ID[id]) : [];
   if (saved.length && new Set(saved).size === saved.length) {
-    history = saved; remaining = ENERGIES.filter(e => !saved.includes(e.id));
+    history = saved; viewers = Array.isArray(data.viewers) ? data.viewers.slice(0, saved.length).map(v => String(v || '')) : []; remaining = ENERGIES.filter(e => !saved.includes(e.id));
     if (!remaining.length) { phase = 'done'; showEnd(); }
   }
   if (data && typeof data.soundOn === 'boolean') Sound.on = data.soundOn;
@@ -1198,7 +1563,7 @@ function boot(data) {
   requestAnimationFrame(t => { last = t; frame(t); });
 }
 const hot = window.claude && window.claude.hot;
-if (hot && hot.snapshot) hot.snapshot(() => ({ history: history.slice(), soundOn: Sound.on }));
+if (hot && hot.snapshot) hot.snapshot(() => ({ history: history.slice(), viewers: viewers.slice(), soundOn: Sound.on }));
 if (hot && hot.ready) hot.ready(boot); else boot((hot && hot.data) || {});
 })();
 </script>
