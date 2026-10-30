@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grand Line Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Pirata+One&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">☠</span>
+    <div>
+      <h1>Grand Line Live</h1>
+      <small>Les Équipages &amp; les Peuples de Grand Line — One Piece Card Game</small>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="live" class="active">🎡 Live</button>
+    <button data-tab="rules">📜 Règles du jeu</button>
+    <button data-tab="admin">⚓ Administration</button>
+  </nav>
+  <div class="top-actions">
+    <a id="openScreen" class="btn ghost" href="screen.html" target="grandline-screen" title="Ouvre une fenêtre propre à capturer dans OBS">🖥 Fenêtre écran (OBS)</a>
+  </div>
+</header>
+
+<main>
+  <!-- ===================== LIVE ===================== -->
+  <section id="tab-live" class="tab active">
+    <section class="panel series" id="seriesPanel">
+      <div class="row between">
+        <h2>1. Quelle série ouvrez-vous ce soir ?</h2>
+        <div class="row"><input id="seriesSearch" placeholder="Rechercher (OP-17, EB-05, nom…)"><button id="seriesToggle" class="ghost hidden">Changer de série</button></div>
+      </div>
+      <div id="seriesCurrent"></div>
+      <div id="seriesPicker">
+        <div class="row" id="seriesGroups"></div>
+        <div id="seriesGrid" class="series-grid"></div>
+      </div>
+    </section>
+    <div class="live-simple">
+      <section class="stage">
+        <div class="wheel-wrap"><canvas id="wheel"></canvas></div>
+        <div id="drawInfo" class="draw-info muted"></div>
+      </section>
+
+      <aside class="panel turn">
+        <h2>2. Nouveau tour</h2>
+        <label>Pseudo du participant
+          <input id="pseudo" placeholder="Pseudo du viewer" autocomplete="off">
+        </label>
+        <label>Boosters ouverts<input id="tBoosters" type="number" min="1" value="1"></label>
+        <button id="spinBtn" class="primary big">LANCER LA ROUE</button>
+        <div id="turnCard" class="turn-card"></div>
+        <details class="rules-box">
+          <summary>Règles de la partie</summary>
+          <div id="rulesSummary"></div>
+        </details>
+        <details class="rules-box">
+          <summary>Historique des tours</summary>
+          <div class="row"><button id="exportTurns" class="ghost small">Exporter CSV</button></div>
+          <div id="turnHistory" class="history"></div>
+        </details>
+      </aside>
+    </div>
+
+    <details class="panel advanced" id="advanced">
+      <summary>Réglages avancés <span class="muted small">(type de jeu, langue, objectifs, options du tour)</span></summary>
+      <div class="advanced-grid">
+        <div class="prep">
+          <label>Type de jeu
+            <select id="gameSelect"></select>
+          </label>
+          <label>Langue des cartes
+            <select id="langSelect"></select>
+          </label>
+          <label>Ajouter un autre produit
+            <input id="productSearch" list="productList" placeholder="ex. PRB-02 puis Entrée">
+            <datalist id="productList"></datalist>
+          </label>
+          <div id="productChips" class="chips"></div>
+          <div class="grid2">
+            <label>Validation<select id="tValidation"><option value="manual">Manuelle</option><option value="auto">Automatique (saisie des cartes)</option></select></label>
+            <label>Cartes parallèles<select id="tParallels"><option value="count">Comptent</option><option value="exclude">Ne comptent pas</option></select></label>
+            <label>Réimpressions<select id="tReprints"><option value="allow">Autorisées</option><option value="exclude">Exclues</option></select></label>
+            <label>Réussites<select id="tSuccesses"><option value="single">Une seule réussite</option><option value="multiple">Plusieurs réussites</option></select></label>
+            <label>Objectif<select id="tPick"><option value="wheel">Tiré par la roue</option></select></label>
+          </div>
+          <div id="coverage"></div>
+        </div>
+        <div>
+          <h3>Objectifs <span id="objCount" class="muted"></span></h3>
+          <div class="row small">
+            <button id="objAll" class="ghost small">Tout activer</button>
+            <button id="objNone" class="ghost small">Tout désactiver</button>
+            <label class="inline"><input type="checkbox" id="showWeights"> Probabilités personnalisées</label>
+            <label class="inline"><input type="checkbox" id="showAbsent"> Afficher les familles absentes</label>
+          </div>
+          <input id="objFilter" placeholder="Filtrer les objectifs…">
+          <div id="objectives" class="objectives"></div>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- ===================== RÈGLES ===================== -->
+  <section id="tab-rules" class="tab">
+    <div class="panel">
+      <h2>📜 Règles du jeu</h2>
+      <p class="muted">Modifiez ici chaque jeu sans programmer. Les réglages sont enregistrés automatiquement dans ce navigateur et utilisés comme valeurs par défaut de chaque tour.</p>
+      <div class="row"><label>Jeu à modifier <select id="rulesGame"></select></label><button id="rulesReset" class="ghost">Rétablir les règles par défaut de ce jeu</button></div>
+      <div id="rulesForm"></div>
+    </div>
+    <div class="panel">
+      <h2>🏴‍☠️ Familles (équipages, peuples, organisations, arcs)</h2>
+      <p class="muted">Une carte appartient à une famille <strong>uniquement</strong> si l'un de ses traits officiels (champ « affiliation ») figure dans la liste ci-dessous — jamais d'après son nom. Les cartes japonaises utilisent les traits de la même impression anglaise quand elle est connue.</p>
+      <div class="row"><button id="famAdd" class="ghost">➕ Ajouter une famille</button><button id="famReset" class="ghost">Rétablir les familles par défaut</button></div>
+      <div id="familyTable"></div>
+      <h3>Traits présents dans la base</h3>
+      <input id="traitFilter" placeholder="Rechercher un trait…">
+      <div id="traitList" class="trait-list"></div>
+    </div>
+  </section>
+
+  <!-- ===================== ADMIN ===================== -->
+  <section id="tab-admin" class="tab">
+    <nav class="subtabs" id="subtabs">
+      <button data-sub="base" class="active">🗃 Base de cartes</button>
+      <button data-sub="import">📥 IMPORTER DES CARTES</button>
+      <button data-sub="sync">🔄 SYNCHRONISER</button>
+      <button data-sub="export">💾 Export &amp; sauvegarde</button>
+      <button data-sub="history">🕓 Historique</button>
+    </nav>
+    <div id="sub-base" class="sub active"></div>
+    <div id="sub-import" class="sub"></div>
+    <div id="sub-sync" class="sub"></div>
+    <div id="sub-export" class="sub"></div>
+    <div id="sub-history" class="sub"></div>
+  </section>
+</main>
+
+<div id="modal" class="modal hidden"><div class="modal-box"><button class="modal-close" id="modalClose">✕</button><div id="modalBody"></div></div></div>
+<div id="toast" class="toast hidden"></div>
+<div id="loading" class="loading"><div><span class="logo spin">☸</span><p id="loadingText">Chargement de la base…</p></div></div>
+
+<script src="js/db.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/games.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/wheel.js"></script>
+<script src="js/app.js"></script>
+<script src="js/live.js"></script>
+<script src="js/rules.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
