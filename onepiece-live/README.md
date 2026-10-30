@@ -41,10 +41,10 @@ promos, cartes « Other Product », parallèles / alt-arts et réimpressions.
    les familles absentes sont exclues automatiquement (case « Afficher les familles absentes » pour les voir).
    Si vous changez le jeu ou un réglage, ces règles sont **mémorisées pour cette série** (★) et reprises
    la prochaine fois ; « Revenir aux règles automatiques » annule.
-2. **Ajuster (optionnel)** : type de jeu (A Équipages · B Peuples · C Personnages · D Organisations & arcs ·
+2. **Réglages avancés** (repliés, optionnels) : type de jeu (A Équipages · B Peuples · C Personnages · D Organisations & arcs ·
    E Raretés · F Roue ultime · G Carte précise), langue, objectifs à activer / désactiver.
-3. **Pseudo** + réglages du tour (boosters, validation manuelle ou automatique, parallèles, réimpressions,
-   une ou plusieurs réussites) → **LANCER LA ROUE**. Le tour est verrouillé *avant* l'animation : critères
+3. **Pseudo** + nombre de boosters → **LANCER LA ROUE** (les autres options du tour sont dans les
+   réglages avancés). Le tour est verrouillé *avant* l'animation : critères
    et règles ne peuvent plus changer.
 4. **Validation** : manuelle (🏆 Gagné / ❌ Perdu) ou automatique (vous saisissez les cartes sorties, chaque
    carte qui correspond exactement à l'objectif est marquée ✅). Annulation possible avec motif.
@@ -55,15 +55,6 @@ Le tirage est équitable (générateur cryptographique) entre tous les objectifs
 24 segments sur plus d'objectifs, le tirage se fait quand même parmi **tous** (c'est indiqué à l'écran).
 Des probabilités personnalisées sont possibles (« Probabilités personnalisées ») : elles sont alors
 affichées en %.
-
-## Thème et personnage
-
-Le fond et les couleurs viennent de `assets/theme.webp`. Le personnage qui lance la roue
-(`assets/spinner.webp`) a été détouré automatiquement à partir de cette illustration : il prend son élan,
-pousse la roue, annonce l'objectif dans une bulle puis réagit au résultat (victoire, défaite, annulation),
-aussi dans la fenêtre OBS. Pour changer de thème, remplacez `assets/theme.webp` puis régénérez le
-personnage avec `tools/make_spinner.py` (instructions en tête du fichier). Sans `spinner.webp`,
-l'application affiche un médaillon découpé dans l'illustration.
 
 ## Règles du jeu (onglet 📜)
 

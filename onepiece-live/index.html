@@ -41,60 +41,69 @@
         <div id="seriesGrid" class="series-grid"></div>
       </div>
     </section>
-    <div class="live-grid">
-      <aside class="panel prep">
-        <h2>2. Ajuster le jeu <small class="muted">(optionnel)</small></h2>
-        <label>Type de jeu
-          <select id="gameSelect"></select>
-        </label>
-        <label>Booster / produit
-          <input id="productSearch" list="productList" placeholder="ex. OP-17 puis Entrée">
-          <datalist id="productList"></datalist>
-        </label>
-        <div id="productChips" class="chips"></div>
-        <label>Langue des cartes
-          <select id="langSelect"></select>
-        </label>
-        <div id="coverage"></div>
-        <h3>Objectifs compatibles <span id="objCount" class="muted"></span></h3>
-        <div class="row small">
-          <button id="objAll" class="ghost small">Tout activer</button>
-          <button id="objNone" class="ghost small">Tout désactiver</button>
-          <label class="inline"><input type="checkbox" id="showWeights"> Probabilités personnalisées</label>
-          <label class="inline"><input type="checkbox" id="showAbsent"> Afficher les familles absentes de la série</label>
-        </div>
-        <input id="objFilter" placeholder="Filtrer les objectifs…">
-        <div id="objectives" class="objectives"></div>
-      </aside>
-
+    <div class="live-simple">
       <section class="stage">
         <div class="wheel-wrap"><canvas id="wheel"></canvas></div>
         <div id="drawInfo" class="draw-info muted"></div>
-        <div id="turnCard" class="turn-card"></div>
       </section>
 
       <aside class="panel turn">
-        <h2>3. Nouveau tour</h2>
+        <h2>2. Nouveau tour</h2>
         <label>Pseudo du participant
           <input id="pseudo" placeholder="Pseudo du viewer" autocomplete="off">
         </label>
-        <div class="grid2">
-          <label>Boosters ouverts<input id="tBoosters" type="number" min="1" value="1"></label>
-          <label>Validation<select id="tValidation"><option value="manual">Manuelle</option><option value="auto">Automatique (saisie des cartes)</option></select></label>
-          <label>Cartes parallèles<select id="tParallels"><option value="count">Comptent</option><option value="exclude">Ne comptent pas</option></select></label>
-          <label>Réimpressions<select id="tReprints"><option value="allow">Autorisées</option><option value="exclude">Exclues</option></select></label>
-          <label>Réussites<select id="tSuccesses"><option value="single">Une seule réussite</option><option value="multiple">Plusieurs réussites</option></select></label>
-          <label>Objectif<select id="tPick"><option value="wheel">Tiré par la roue</option></select></label>
-        </div>
-        <button id="spinBtn" class="primary big">🎡 LANCER LA ROUE</button>
-        <details class="rules-box" open>
-          <summary>Résumé des règles (à montrer aux viewers)</summary>
+        <label>Boosters ouverts<input id="tBoosters" type="number" min="1" value="1"></label>
+        <button id="spinBtn" class="primary big">LANCER LA ROUE</button>
+        <div id="turnCard" class="turn-card"></div>
+        <details class="rules-box">
+          <summary>Règles de la partie</summary>
           <div id="rulesSummary"></div>
         </details>
-        <h3>Historique des tours <button id="exportTurns" class="ghost small">Exporter CSV</button></h3>
-        <div id="turnHistory" class="history"></div>
+        <details class="rules-box">
+          <summary>Historique des tours</summary>
+          <div class="row"><button id="exportTurns" class="ghost small">Exporter CSV</button></div>
+          <div id="turnHistory" class="history"></div>
+        </details>
       </aside>
     </div>
+
+    <details class="panel advanced" id="advanced">
+      <summary>Réglages avancés <span class="muted small">(type de jeu, langue, objectifs, options du tour)</span></summary>
+      <div class="advanced-grid">
+        <div class="prep">
+          <label>Type de jeu
+            <select id="gameSelect"></select>
+          </label>
+          <label>Langue des cartes
+            <select id="langSelect"></select>
+          </label>
+          <label>Ajouter un autre produit
+            <input id="productSearch" list="productList" placeholder="ex. PRB-02 puis Entrée">
+            <datalist id="productList"></datalist>
+          </label>
+          <div id="productChips" class="chips"></div>
+          <div class="grid2">
+            <label>Validation<select id="tValidation"><option value="manual">Manuelle</option><option value="auto">Automatique (saisie des cartes)</option></select></label>
+            <label>Cartes parallèles<select id="tParallels"><option value="count">Comptent</option><option value="exclude">Ne comptent pas</option></select></label>
+            <label>Réimpressions<select id="tReprints"><option value="allow">Autorisées</option><option value="exclude">Exclues</option></select></label>
+            <label>Réussites<select id="tSuccesses"><option value="single">Une seule réussite</option><option value="multiple">Plusieurs réussites</option></select></label>
+            <label>Objectif<select id="tPick"><option value="wheel">Tiré par la roue</option></select></label>
+          </div>
+          <div id="coverage"></div>
+        </div>
+        <div>
+          <h3>Objectifs <span id="objCount" class="muted"></span></h3>
+          <div class="row small">
+            <button id="objAll" class="ghost small">Tout activer</button>
+            <button id="objNone" class="ghost small">Tout désactiver</button>
+            <label class="inline"><input type="checkbox" id="showWeights"> Probabilités personnalisées</label>
+            <label class="inline"><input type="checkbox" id="showAbsent"> Afficher les familles absentes</label>
+          </div>
+          <input id="objFilter" placeholder="Filtrer les objectifs…">
+          <div id="objectives" class="objectives"></div>
+        </div>
+      </div>
+    </details>
   </section>
 
   <!-- ===================== RÈGLES ===================== -->
@@ -142,7 +151,6 @@
 <script src="js/games.js"></script>
 <script src="js/sync.js"></script>
 <script src="js/wheel.js"></script>
-<script src="js/mascot.js"></script>
 <script src="js/app.js"></script>
 <script src="js/live.js"></script>
 <script src="js/rules.js"></script>

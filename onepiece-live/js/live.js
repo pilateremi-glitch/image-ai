@@ -95,19 +95,20 @@ const Live = (() => {
         <span class="badge">${esc(rec?.kindLabel || '')}</span></div>
       <div>
         <div><b>${esc(App.games[S.gameId].name)}</b> <span class="badge ${saved ? 'saved' : 'auto'}">${saved ? '★ Vos règles mémorisées pour cette série' : '⚙ Règles choisies automatiquement'}</span></div>
-        <ul>${(rec?.reasons || []).map(x => `<li>${esc(x)}</li>`).join('')}
+        <ul>
           <li>${r.boosters} booster(s) par participation · parallèles ${r.parallels === 'exclude' ? 'exclues' : 'comptées'} · réimpressions ${r.reprints === 'exclude' ? 'exclues' : 'autorisées'} · validation ${r.validation === 'auto' ? 'automatique' : 'manuelle'}</li>
           ${(rec?.warnings || []).map(x => `<li class="warn-t">⚠ ${esc(x)}</li>`).join('')}</ul>
+        <details class="small"><summary class="muted">Pourquoi ce jeu ?</summary>${(rec?.reasons || []).map(x => esc(x)).join('<br>')}</details>
         <div><b>Familles présentes dans ${esc(cur.code)}</b> (${fam.length}) :</div>
         <div class="fam-chips">${fam.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>
         ${absent.length ? `<details class="small"><summary class="muted">${absent.length} famille(s) absente(s) de cette série — exclues automatiquement</summary>${absent.map(f => esc(f.label)).join(' · ')}</details>` : ''}
       </div>
       <div class="row" style="flex-direction:column;align-items:stretch">
         ${saved ? '<button id="seriesReset" class="ghost small">Revenir aux règles automatiques</button>' : ''}
-        <button id="seriesEdit" class="ghost small">Ajuster les règles ↓</button>
+        <button id="seriesEdit" class="ghost small">Réglages avancés</button>
       </div></div>`;
     if ($('#seriesReset')) $('#seriesReset').onclick = resetProfile;
-    $('#seriesEdit').onclick = () => $('.prep').scrollIntoView({ behavior: 'smooth' });
+    $('#seriesEdit').onclick = () => { $('#advanced').open = true; $('#advanced').scrollIntoView({ behavior: 'smooth' }); };
   }
 
   function renderPicker() {
@@ -284,10 +285,8 @@ const Live = (() => {
     renderPrep(); renderSeries(); renderTurn(true);
     wheel.setSegments(segments);
     App.broadcast({ type: 'spin', segments, target, turn: publicTurn() });
-    await Mascot.launch(pseudo);
     if (how === 'wheel') await wheel.spin(target);
     else await wheel.spin(target, { turns: 2, duration: 2000 });
-    Mascot.result(pick.label);
     renderTurn();
     App.broadcast({ type: 'turn', turn: publicTurn() });
     renderSummary();
@@ -397,9 +396,7 @@ const Live = (() => {
     await App.saveTurns(); await saveSession();
     renderTurn(); renderHistory(); renderPrep(); renderSeries();
     App.broadcast({ type: 'turn', turn: publicTurn() });
-    if (t.status === 'won') { confetti(); Mascot.won(t.pseudo); }
-    else if (t.status === 'lost') Mascot.lost();
-    else Mascot.cancelled();
+    if (t.status === 'won') confetti();
   }
 
   function renderHistory() {
@@ -445,7 +442,6 @@ const Live = (() => {
   // ---------- Événements ----------
   function bind() {
     wheel = new Wheel($('#wheel'));
-    Mascot.mount($('#tab-live .wheel-wrap'));
     let ctx;
     wheel.onTick = () => {
       if (!$('#soundOn') || $('#soundOn').checked) {
