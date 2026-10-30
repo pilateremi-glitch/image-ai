@@ -19,6 +19,7 @@ const Rules = (() => {
       <fieldset class="span2"><legend>Critères / familles autorisés dans ce jeu</legend>
         ${Object.entries(CAT_OPTIONS).map(([k, l]) => `<label class="inline"><input type="checkbox" data-cat="${k}" ${r.categories.includes(k) ? 'checked' : ''}> ${l}</label>`).join('')}
         <label class="inline"><input type="checkbox" data-f="otherTraits" ${r.otherTraits ? 'checked' : ''}> + autres traits présents dans le produit (non classés dans une famille)</label>
+        <label class="inline"><input type="checkbox" data-f="noUmbrella" ${r.noUmbrella ? 'checked' : ''}> Exclure les regroupements de plusieurs équipages (Quatre Empereurs, Sept Grands Corsaires, Supernovas…)</label>
       </fieldset>
       <label>Validation<select data-f="validation"><option value="manual">Manuelle</option><option value="auto">Automatique</option></select></label>
       <label>Cartes parallèles / alternatives<select data-f="parallels"><option value="count">Comptent (variantes du même personnage)</option><option value="exclude">Ne comptent pas</option></select></label>
@@ -58,12 +59,13 @@ const Rules = (() => {
   // ---------- Familles ----------
   function renderFamilies() {
     const counts = traitCounts();
-    $('#familyTable').innerHTML = `<table class="tbl"><thead><tr><th>Actif</th><th>Nom affiché</th><th>Catégorie</th><th>Traits exacts (séparés par des virgules)</th><th>Cartes</th><th></th></tr></thead><tbody>
+    $('#familyTable').innerHTML = `<table class="tbl"><thead><tr><th>Actif</th><th>Nom affiché</th><th>Catégorie</th><th title="Famille qui regroupe des membres de plusieurs équipages">Regroupement</th><th>Traits exacts (séparés par des virgules)</th><th>Cartes</th><th></th></tr></thead><tbody>
       ${App.families.map((f, i) => {
         const n = f.traits.reduce((s, t) => s + (counts.get(t) || 0), 0);
         return `<tr data-i="${i}"><td><input type="checkbox" data-k="enabled" ${f.enabled !== false ? 'checked' : ''}></td>
         <td><input data-k="label" value="${esc(f.label)}"></td>
         <td><select data-k="category">${Object.entries(Games.CATEGORIES).map(([k, l]) => `<option value="${k}" ${f.category === k ? 'selected' : ''}>${l}</option>`).join('')}</select></td>
+        <td><input type="checkbox" data-k="umbrella" ${Games.isUmbrella(f) ? 'checked' : ''}></td>
         <td><input data-k="traits" value="${esc(f.traits.join(', '))}"></td>
         <td class="${n ? '' : 'warn-t'}">${n || '0 — trait absent de la base'}</td>
         <td><button class="link" data-del="${i}" title="Supprimer">🗑</button></td></tr>`;
@@ -99,6 +101,7 @@ const Rules = (() => {
       const tr = e.target.closest('tr[data-i]'); const k = e.target.dataset.k; if (!tr || !k) return;
       const f = App.families[Number(tr.dataset.i)];
       if (k === 'enabled') f.enabled = e.target.checked;
+      else if (k === 'umbrella') f.umbrella = e.target.checked;
       else if (k === 'traits') f.traits = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
       else f[k] = e.target.value;
       App.saveSettings(); renderFamilies(); Live.recompute();

@@ -49,7 +49,7 @@ const Games = (() => {
     ['fishman-island', 'Personnages de l\'Île des Hommes-Poissons', 'arc', ['Fish-Man Island']],
     ['water-seven', 'Personnages de Water Seven', 'arc', ['Water Seven']],
     ['elbaph', 'Personnages d\'Elbaph', 'arc', ['Elbaph']],
-  ].map(([id, label, category, traits]) => ({ id, label, category, traits, enabled: true }));
+  ].map(([id, label, category, traits]) => ({ id, label, category, traits, enabled: true, umbrella: ['emperors', 'warlords', 'supernovas'].includes(id) }));
 
   // Types de jeux : A à F (+ la carte précise)
   const GAME_TYPES = {
@@ -78,11 +78,15 @@ const Games = (() => {
     cancelText: 'Tour annulé et rejoué si : booster abîmé ou ouvert hors caméra, erreur de saisie du pseudo, problème technique avant l\'ouverture.',
     categories: GAME_TYPES[id].kinds.slice(),
     otherTraits: id === 'D',    // proposer aussi les traits non classés présents dans le produit
-    topN: id === 'H' ? 6 : 0,   // ne garder que les N familles les plus présentes dans la série (0 = toutes)
+    topN: id === 'H' ? 6 : 0,
+    noUmbrella: id === 'H',     // exclure les regroupements de plusieurs équipages (Empereurs, Corsaires…)   // ne garder que les N familles les plus présentes dans la série (0 = toutes)
     weights: {},                // pondérations explicites { objectiveId: poids } (1 par défaut)
   });
 
   const norm = s => String(s || '').trim().toLowerCase();
+  // Familles qui regroupent des membres de plusieurs équipages : elles chevauchent les autres familles
+  const UMBRELLA_IDS = ['emperors', 'warlords', 'supernovas'];
+  const isUmbrella = f => f.umbrella ?? UMBRELLA_IDS.includes(f.id);
   const isParallel = c => /_p\d+$/i.test(c.print_id) || /parall|alt/i.test(c.variant || '');
   const isManga = c => c.rarity === 'MR' || /manga/i.test(c.variant || '');
   const isReprintVariant = c => /_r\d+$/i.test(c.print_id) || /r[ée]impression/i.test(c.variant || '');
@@ -131,6 +135,7 @@ const Games = (() => {
     families.filter(f => f.enabled !== false).forEach(f => {
       f.traits.forEach(t => famTraits.add(norm(t)));
       if (!cats.has(f.category)) return;
+      if (rules.noUmbrella && isUmbrella(f)) return;
       const obj = { id: `fam:${f.id}`, kind: 'family', category: f.category, label: f.label, traits: f.traits.slice() };
       objectives.push(withCount(obj, usable, rules, traitsOf, cards));
     });
@@ -310,6 +315,6 @@ const Games = (() => {
     return { gameId, cfg, kind, kindLabel: KIND_LABELS[kind], counts, reasons, warnings };
   }
 
-  return { recommend, seriesKind, topFamilies, KIND_LABELS, CATEGORIES, DEFAULT_FAMILIES, GAME_TYPES, DEFAULT_RULES, buildTraitIndex, productCards, analyze,
+  return { recommend, seriesKind, topFamilies, isUmbrella, KIND_LABELS, CATEGORIES, DEFAULT_FAMILIES, GAME_TYPES, DEFAULT_RULES, buildTraitIndex, productCards, analyze,
     matchCard, draw, successText, isParallel, isManga };
 })();

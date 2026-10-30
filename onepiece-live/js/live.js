@@ -90,7 +90,9 @@ const Live = (() => {
       rules: { ...r, categories: FAMILY_CATS, otherTraits: false, topN: 0 }, traitsOf: App.traitsOf }).objectives
       .filter(o => o.count > 0).sort((a, b) => b.count - a.count);
     const topN = Number(r.topN) || 0;
-    const top = topN ? Games.topFamilies(fam, topN) : [];
+    const famById = new Map(App.families.map(f => [`fam:${f.id}`, f]));
+    const umbrella = o => r.noUmbrella && famById.has(o.id) && Games.isUmbrella(famById.get(o.id));
+    const top = topN ? Games.topFamilies(fam.filter(o => !umbrella(o)), topN) : [];
     const others = fam.filter(o => !top.includes(o));
     const absent = App.families.filter(f => f.enabled !== false && !fam.some(o => o.id === `fam:${f.id}`));
     $('#seriesCurrent').innerHTML = `<div class="series-now">
@@ -105,7 +107,7 @@ const Live = (() => {
         ${topN ? `<div><b>Les ${top.length} familles de ${esc(cur.code)} sur la roue</b> <small class="muted">(les plus présentes dans la série)</small>
           <span class="topn">${[5, 6].map(n => `<button class="ghost small ${n === topN ? 'on' : ''}" data-topn="${n}" ${pendingTurn() ? 'disabled' : ''}>${n} familles</button>`).join('')}</span></div>
         <div class="fam-chips">${top.map(o => `<span class="fam-chip top">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>
-        ${others.length ? `<details class="small"><summary class="muted">${others.length} autre(s) famille(s) présente(s), non retenue(s)</summary><div class="fam-chips">${others.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b></span>`).join('')}</div></details>` : ''}`
+        ${others.length ? `<details class="small"><summary class="muted">${others.length} autre(s) famille(s) présente(s), non retenue(s)</summary><div class="fam-chips">${others.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b>${umbrella(o) ? ' <small>(regroupe plusieurs équipages)</small>' : ''}</span>`).join('')}</div></details>` : ''}`
         : `<div><b>Familles présentes dans ${esc(cur.code)}</b> (${fam.length}) :</div>
         <div class="fam-chips">${fam.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>`}
         ${absent.length ? `<details class="small"><summary class="muted">${absent.length} famille(s) absente(s) de cette série — exclues automatiquement</summary>${absent.map(f => esc(f.label)).join(' · ')}</details>` : ''}
