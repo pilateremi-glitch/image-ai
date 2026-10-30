@@ -234,3 +234,5 @@ img.preview { max-height: 260px; border-radius: 8px; display: block; margin: 8px
 .fam-chip.top b { color: var(--red); }
 .topn { display: inline-flex; gap: 4px; margin-left: 8px; }
 .topn button.on { background: var(--gold); color: #3a1206; border-color: var(--gold); }
+.balance { font-size: 13px; margin: 6px 0 2px; padding: 4px 10px; border-radius: 8px; display: inline-block; }
+.balance.good { background: rgba(47,158,106,.25); } .balance.ok { background: rgba(232,184,74,.2); } .balance.bad { background: rgba(244,162,97,.25); color: var(--warn); }

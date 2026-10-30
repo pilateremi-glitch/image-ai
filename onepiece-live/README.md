@@ -33,11 +33,13 @@ promos, cartes « Other Product », parallèles / alt-arts et réimpressions.
 1. **Choisissez la série du soir** dans la grille en haut (Boosters OP, Extra EB, Premium PRB, Starter ST,
    promos — ou recherche « OP-17 »). L'application règle **automatiquement** le jeu et ses règles :
    - booster principal OP, Extra Booster EB et Premium Booster PRB → **Jeu H — Les Familles de la série** :
-     la roue ne garde que les **6 familles les plus présentes** dans la série (équipages, peuples,
-     organisations, arcs), avec au moins 2 cartes chacune quand c'est possible. Les regroupements de
-     plusieurs équipages (Quatre Empereurs, Sept Grands Corsaires, Supernovas) en sont exclus pour éviter
-     qu'une même carte valide deux familles (réglable). Boutons « 5 familles /
-     6 familles » sur la carte de la série ; nombre réglable dans Règles du jeu ;
+     la roue garde **5 ou 6 familles aux nombres de cartes proches** (équipages, peuples, organisations,
+     arcs). L'application essaie tous les groupes possibles et retient celui qui maximise « plus petite
+     famille × (plus petite / plus grande) » : équilibré entre les participants et avec de vraies chances
+     de gagner. Un indicateur « Équilibre : de X à Y cartes par famille » signale les séries inégales.
+     Boutons « Auto 5-6 / 5 familles / 6 familles » ; minimum et maximum réglables dans Règles du jeu.
+     Les regroupements de plusieurs équipages (Quatre Empereurs, Sept Grands Corsaires, Supernovas) sont
+     exclus pour éviter qu'une même carte valide deux familles (réglable) ;
    - Premium Booster PRB : réimpressions autorisées (le produit n'en contient que) ;
    - Starter Deck / promo → Jeu E Raretés, avec avertissement : contenu fixe ou non documenté.
 

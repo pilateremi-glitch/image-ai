@@ -92,7 +92,11 @@ const Live = (() => {
     const topN = Number(r.topN) || 0;
     const famById = new Map(App.families.map(f => [`fam:${f.id}`, f]));
     const umbrella = o => r.noUmbrella && famById.has(o.id) && Games.isUmbrella(famById.get(o.id));
-    const top = topN ? Games.topFamilies(fam.filter(o => !umbrella(o)), topN) : [];
+    const topMin = Math.min(topN, Number(r.topMin) || topN);
+    const top = topN ? Games.topFamilies(fam.filter(o => !umbrella(o)), topN, topMin) : [];
+    const bal = Games.balanceOf(top);
+    const balClass = !bal ? '' : bal.max <= 1.5 * bal.min ? 'good' : bal.max <= 2 * bal.min ? 'ok' : 'bad';
+    const MODES = [{ label: 'Auto 5-6', max: 6, min: 5 }, { label: '5 familles', max: 5, min: 5 }, { label: '6 familles', max: 6, min: 6 }];
     const others = fam.filter(o => !top.includes(o));
     const absent = App.families.filter(f => f.enabled !== false && !fam.some(o => o.id === `fam:${f.id}`));
     $('#seriesCurrent').innerHTML = `<div class="series-now">
@@ -104,9 +108,12 @@ const Live = (() => {
           <li>${r.boosters} booster(s) par participation · parallèles ${r.parallels === 'exclude' ? 'exclues' : 'comptées'} · réimpressions ${r.reprints === 'exclude' ? 'exclues' : 'autorisées'} · validation ${r.validation === 'auto' ? 'automatique' : 'manuelle'}</li>
           ${(rec?.warnings || []).map(x => `<li class="warn-t">⚠ ${esc(x)}</li>`).join('')}</ul>
         <details class="small"><summary class="muted">Pourquoi ce jeu ?</summary>${(rec?.reasons || []).map(x => esc(x)).join('<br>')}</details>
-        ${topN ? `<div><b>Les ${top.length} familles de ${esc(cur.code)} sur la roue</b> <small class="muted">(les plus présentes dans la série)</small>
-          <span class="topn">${[5, 6].map(n => `<button class="ghost small ${n === topN ? 'on' : ''}" data-topn="${n}" ${pendingTurn() ? 'disabled' : ''}>${n} familles</button>`).join('')}</span></div>
+        ${topN ? `<div><b>Les ${top.length} familles de ${esc(cur.code)} sur la roue</b> <small class="muted">(choisies pour avoir des nombres de cartes proches)</small>
+          <span class="topn">${MODES.map(m => `<button class="ghost small ${m.max === topN && m.min === topMin ? 'on' : ''}" data-topn="${m.max}" data-topmin="${m.min}" ${pendingTurn() ? 'disabled' : ''}>${m.label}</button>`).join('')}</span></div>
         <div class="fam-chips">${top.map(o => `<span class="fam-chip top">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>
+        ${bal ? `<div class="balance ${balClass}">Équilibre : de <b>${bal.min}</b> à <b>${bal.max}</b> cartes par famille${balClass === 'bad'
+          ? ' — les familles de cette série sont très inégales ; vous pouvez désactiver la plus grosse dans les réglages avancés.'
+          : balClass === 'ok' ? ' — correct.' : ' — bien équilibré.'}</div>` : ''}
         ${others.length ? `<details class="small"><summary class="muted">${others.length} autre(s) famille(s) présente(s), non retenue(s)</summary><div class="fam-chips">${others.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b>${umbrella(o) ? ' <small>(regroupe plusieurs équipages)</small>' : ''}</span>`).join('')}</div></details>` : ''}`
         : `<div><b>Familles présentes dans ${esc(cur.code)}</b> (${fam.length}) :</div>
         <div class="fam-chips">${fam.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>`}
@@ -118,7 +125,7 @@ const Live = (() => {
       </div></div>`;
     if ($('#seriesReset')) $('#seriesReset').onclick = resetProfile;
     $$('#seriesCurrent [data-topn]').forEach(b => {
-      b.onclick = () => { S.cfg.topN = Number(b.dataset.topn); recompute(); renderSeries(); saveSession(); rememberProfile(); };
+      b.onclick = () => { S.cfg.topN = Number(b.dataset.topn); S.cfg.topMin = Number(b.dataset.topmin); recompute(); renderSeries(); saveSession(); rememberProfile(); };
     });
     $('#seriesEdit').onclick = () => { $('#advanced').open = true; $('#advanced').scrollIntoView({ behavior: 'smooth' }); };
   }

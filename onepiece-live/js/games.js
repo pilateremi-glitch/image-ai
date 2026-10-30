@@ -79,6 +79,7 @@ const Games = (() => {
     categories: GAME_TYPES[id].kinds.slice(),
     otherTraits: id === 'D',    // proposer aussi les traits non classés présents dans le produit
     topN: id === 'H' ? 6 : 0,
+    topMin: id === 'H' ? 5 : 0, // l'application choisit entre topMin et topN familles, le plus équilibré
     noUmbrella: id === 'H',     // exclure les regroupements de plusieurs équipages (Empereurs, Corsaires…)   // ne garder que les N familles les plus présentes dans la série (0 = toutes)
     weights: {},                // pondérations explicites { objectiveId: poids } (1 par défaut)
   });
@@ -175,7 +176,7 @@ const Games = (() => {
     let excluded = [];
     if (rules.topN > 0) {
       const fams = objectives.filter(o => o.kind === 'family');
-      const keep = new Set(topFamilies(fams, rules.topN).map(o => o.id));
+      const keep = new Set(topFamilies(fams, rules.topN, Math.min(rules.topN, rules.topMin || rules.topN)).map(o => o.id));
       excluded = fams.filter(o => o.count > 0 && !keep.has(o.id));
       for (let i = objectives.length - 1; i >= 0; i--) {
         if (objectives[i].kind === 'family' && !keep.has(objectives[i].id)) objectives.splice(i, 1);
@@ -184,11 +185,31 @@ const Games = (() => {
     return { cards, usable, objectives, excluded, coverage: coverage(cards, traitsOf) };
   }
 
-  // Les N familles les plus représentées (au moins 2 cartes si possible, sinon au moins 1)
-  function topFamilies(fams, n) {
+  // Choix des familles d'une série, équilibrées en nombre de cartes.
+  // On essaie tous les groupes de minN à maxN familles de tailles voisines et on retient celui qui
+  // maximise « plus petite famille × (plus petite / plus grande) » : des familles proches en nombre
+  // de cartes (équilibre entre participants) et assez fournies (vraies chances de gagner).
+  // Une famille de plus est légèrement favorisée ; les familles de moins de 3 cartes sont évitées.
+  function topFamilies(fams, maxN, minN = maxN) {
     const sorted = fams.filter(o => o.count > 0).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
-    const solid = sorted.filter(o => o.count >= 2);
-    return (solid.length >= Math.min(n, 4) ? solid : sorted).slice(0, n);
+    if (sorted.length <= minN) return sorted;
+    const cands = [];
+    for (let n = Math.min(maxN, sorted.length); n >= minN; n--) {
+      for (let i = 0; i + n <= sorted.length; i++) {
+        const win = sorted.slice(i, i + n);
+        const max = win[0].count, min = win[n - 1].count;
+        cands.push({ win, min, score: (min * min / max) * (1 + 0.1 * (n - minN)) });
+      }
+    }
+    const pool = cands.some(c => c.min >= 3) ? cands.filter(c => c.min >= 3) : cands;
+    return pool.reduce((a, b) => (b.score > a.score ? b : a)).win;
+  }
+
+  // Écart entre la plus petite et la plus grande famille retenue
+  function balanceOf(list) {
+    if (!list.length) return null;
+    const counts = list.map(o => o.count);
+    return { min: Math.min(...counts), max: Math.max(...counts) };
   }
 
   function withCount(obj, pool, rules, traitsOf, all) {
@@ -315,6 +336,6 @@ const Games = (() => {
     return { gameId, cfg, kind, kindLabel: KIND_LABELS[kind], counts, reasons, warnings };
   }
 
-  return { recommend, seriesKind, topFamilies, isUmbrella, KIND_LABELS, CATEGORIES, DEFAULT_FAMILIES, GAME_TYPES, DEFAULT_RULES, buildTraitIndex, productCards, analyze,
+  return { recommend, seriesKind, topFamilies, balanceOf, isUmbrella, KIND_LABELS, CATEGORIES, DEFAULT_FAMILIES, GAME_TYPES, DEFAULT_RULES, buildTraitIndex, productCards, analyze,
     matchCard, draw, successText, isParallel, isManga };
 })();
