@@ -32,16 +32,18 @@ promos, cartes « Other Product », parallèles / alt-arts et réimpressions.
 
 1. **Choisissez la série du soir** dans la grille en haut (Boosters OP, Extra EB, Premium PRB, Starter ST,
    promos — ou recherche « OP-17 »). L'application règle **automatiquement** le jeu et ses règles :
-   - booster principal OP → Jeu A Équipages (ou un autre si la série n'a pas assez d'équipages) ;
-   - Extra Booster EB → Jeu D Organisations & arcs ;
-   - Premium Booster PRB → Jeu E Raretés, réimpressions autorisées (le produit n'en contient que) ;
-   - Starter Deck / promo → avertissement : contenu fixe ou non documenté.
+   - booster principal OP, Extra Booster EB et Premium Booster PRB → **Jeu H — Les Familles de la série** :
+     la roue ne garde que les **6 familles les plus présentes** dans la série (équipages, peuples,
+     organisations, arcs), avec au moins 2 cartes chacune quand c'est possible. Boutons « 5 familles /
+     6 familles » sur la carte de la série ; nombre réglable dans Règles du jeu ;
+   - Premium Booster PRB : réimpressions autorisées (le produit n'en contient que) ;
+   - Starter Deck / promo → Jeu E Raretés, avec avertissement : contenu fixe ou non documenté.
 
    Elle affiche aussi **les familles réellement présentes dans la série** avec leur nombre de cartes ;
    les familles absentes sont exclues automatiquement (case « Afficher les familles absentes » pour les voir).
    Si vous changez le jeu ou un réglage, ces règles sont **mémorisées pour cette série** (★) et reprises
    la prochaine fois ; « Revenir aux règles automatiques » annule.
-2. **Réglages avancés** (repliés, optionnels) : type de jeu (A Équipages · B Peuples · C Personnages · D Organisations & arcs ·
+2. **Réglages avancés** (repliés, optionnels) : type de jeu (H Familles de la série · A Équipages · B Peuples · C Personnages · D Organisations & arcs ·
    E Raretés · F Roue ultime · G Carte précise), langue, objectifs à activer / désactiver.
 3. **Pseudo** + nombre de boosters → **LANCER LA ROUE** (les autres options du tour sont dans les
    réglages avancés). Le tour est verrouillé *avant* l'animation : critères

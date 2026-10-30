@@ -12,6 +12,7 @@ const Rules = (() => {
     $('#rulesForm').innerHTML = `<div class="form-grid">
       <label>Nom du jeu<input data-f="name" value="${esc(r.name)}"></label>
       <label>Boosters par participation<input data-f="boosters" type="number" min="1" value="${r.boosters}"></label>
+      <label>Familles retenues par série <small class="muted">(0 = toutes ; 5 ou 6 recommandé)</small><input data-f="topN" type="number" min="0" max="20" value="${r.topN || 0}"></label>
       <label class="span2">Description<textarea data-f="description" rows="2">${esc(r.description)}</textarea></label>
       <label class="span2">Critères de réussite <small class="muted">(laisser vide pour le texte automatique, recommandé : il reflète exactement les réglages)</small>
         <textarea data-f="successText" rows="2" placeholder="${esc(Games.successText(r, null))}">${esc(r.successText)}</textarea></label>
@@ -46,6 +47,7 @@ const Rules = (() => {
     if (f) {
       let v = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
       if (f === 'boosters') v = Math.max(1, Number(v) || 1);
+      if (f === 'topN') v = Math.max(0, Math.min(20, Number(v) || 0));
       if (f === 'products') v = v.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
       r[f] = v;
     }

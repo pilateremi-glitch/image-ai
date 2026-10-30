@@ -59,6 +59,7 @@ const Games = (() => {
     D: { name: 'Jeu D — Organisations et Arcs', kinds: ['org', 'arc', 'trait'], description: 'La roue choisit une organisation, une faction ou un arc. Gagné si une carte portant ce trait sort.' },
     E: { name: 'Jeu E — Les Raretés', kinds: ['rarity', 'parallel', 'manga'], description: 'La roue choisit une rareté. Gagné si une carte de cette rareté sort. Aucune rareté n\'est garantie dans un booster.' },
     F: { name: 'Jeu F — La Roue Ultime', kinds: ['crew', 'people', 'character', 'org', 'arc', 'rarity', 'parallel', 'manga'], description: 'Tous les critères mélangés : équipages, peuples, personnages, organisations et raretés.' },
+    H: { name: 'Jeu H — Les Familles de la série', kinds: ['crew', 'people', 'org', 'arc'], description: 'La roue choisit une des familles les plus présentes dans la série (équipages, peuples, organisations, arcs). Gagné si une carte de cette famille sort.' },
     G: { name: 'Jeu G — La Carte Précise', kinds: ['card'], description: 'La roue choisit une carte précise (impression exacte) du produit. Gagné si cette carte sort.' },
   };
 
@@ -77,6 +78,7 @@ const Games = (() => {
     cancelText: 'Tour annulé et rejoué si : booster abîmé ou ouvert hors caméra, erreur de saisie du pseudo, problème technique avant l\'ouverture.',
     categories: GAME_TYPES[id].kinds.slice(),
     otherTraits: id === 'D',    // proposer aussi les traits non classés présents dans le produit
+    topN: id === 'H' ? 6 : 0,   // ne garder que les N familles les plus présentes dans la série (0 = toutes)
     weights: {},                // pondérations explicites { objectiveId: poids } (1 par défaut)
   });
 
@@ -164,7 +166,24 @@ const Games = (() => {
         label: `${c.name} (${c.print_id}${c.variant !== 'Normale' ? ' · ' + c.variant : ''})`, count: 1,
         pending: c.status !== 'published', examples: [c] }));
     }
-    return { cards, usable, objectives, coverage: coverage(cards, traitsOf) };
+    // Jeu « familles de la série » : on ne garde que les N familles qui ont le plus de cartes
+    let excluded = [];
+    if (rules.topN > 0) {
+      const fams = objectives.filter(o => o.kind === 'family');
+      const keep = new Set(topFamilies(fams, rules.topN).map(o => o.id));
+      excluded = fams.filter(o => o.count > 0 && !keep.has(o.id));
+      for (let i = objectives.length - 1; i >= 0; i--) {
+        if (objectives[i].kind === 'family' && !keep.has(objectives[i].id)) objectives.splice(i, 1);
+      }
+    }
+    return { cards, usable, objectives, excluded, coverage: coverage(cards, traitsOf) };
+  }
+
+  // Les N familles les plus représentées (au moins 2 cartes si possible, sinon au moins 1)
+  function topFamilies(fams, n) {
+    const sorted = fams.filter(o => o.count > 0).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+    const solid = sorted.filter(o => o.count >= 2);
+    return (solid.length >= Math.min(n, 4) ? solid : sorted).slice(0, n);
   }
 
   function withCount(obj, pool, rules, traitsOf, all) {
@@ -255,9 +274,9 @@ const Games = (() => {
     starter: 'Starter Deck', other: 'Promo / autre produit' };
   // Ordre de préférence des jeux selon le type de produit
   const KIND_PREFS = {
-    booster: ['A', 'F', 'D', 'B', 'E', 'C'],
-    extra: ['D', 'A', 'F', 'E', 'C'],
-    premium: ['E', 'A', 'F', 'D'],
+    booster: ['H', 'A', 'F', 'D', 'B', 'E', 'C'],
+    extra: ['H', 'D', 'A', 'F', 'E', 'C'],
+    premium: ['H', 'E', 'A', 'F', 'D'],
     starter: ['E', 'C', 'G'],
     other: ['E', 'C', 'G'],
   };
@@ -291,6 +310,6 @@ const Games = (() => {
     return { gameId, cfg, kind, kindLabel: KIND_LABELS[kind], counts, reasons, warnings };
   }
 
-  return { recommend, seriesKind, KIND_LABELS, CATEGORIES, DEFAULT_FAMILIES, GAME_TYPES, DEFAULT_RULES, buildTraitIndex, productCards, analyze,
+  return { recommend, seriesKind, topFamilies, KIND_LABELS, CATEGORIES, DEFAULT_FAMILIES, GAME_TYPES, DEFAULT_RULES, buildTraitIndex, productCards, analyze,
     matchCard, draw, successText, isParallel, isManga };
 })();

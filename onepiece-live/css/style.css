@@ -230,3 +230,7 @@ img.preview { max-height: 260px; border-radius: 8px; display: block; margin: 8px
 .advanced .prep { position: static; max-height: none; overflow: visible; }
 .advanced .objectives { max-height: 420px; overflow: auto; }
 @media (max-width: 1000px) { .live-simple, .advanced-grid { grid-template-columns: 1fr; } }
+.fam-chip.top { background: var(--gold); color: #3a1206; border-color: var(--gold); font-weight: 700; font-size: 13px; padding: 5px 11px; }
+.fam-chip.top b { color: var(--red); }
+.topn { display: inline-flex; gap: 4px; margin-left: 8px; }
+.topn button.on { background: var(--gold); color: #3a1206; border-color: var(--gold); }

@@ -87,8 +87,11 @@ const Live = (() => {
     const r = rulesFor();
     // Familles réellement présentes dans la série (indépendamment du jeu choisi)
     const fam = Games.analyze({ allCards: App.cards, products: [S.series], languages: langs(), families: App.families,
-      rules: { ...r, categories: FAMILY_CATS, otherTraits: false }, traitsOf: App.traitsOf }).objectives
+      rules: { ...r, categories: FAMILY_CATS, otherTraits: false, topN: 0 }, traitsOf: App.traitsOf }).objectives
       .filter(o => o.count > 0).sort((a, b) => b.count - a.count);
+    const topN = Number(r.topN) || 0;
+    const top = topN ? Games.topFamilies(fam, topN) : [];
+    const others = fam.filter(o => !top.includes(o));
     const absent = App.families.filter(f => f.enabled !== false && !fam.some(o => o.id === `fam:${f.id}`));
     $('#seriesCurrent').innerHTML = `<div class="series-now">
       <div><div class="big">${esc(cur.code)}</div><small class="muted">${esc(cur.name || '')}</small><br>
@@ -99,8 +102,12 @@ const Live = (() => {
           <li>${r.boosters} booster(s) par participation · parallèles ${r.parallels === 'exclude' ? 'exclues' : 'comptées'} · réimpressions ${r.reprints === 'exclude' ? 'exclues' : 'autorisées'} · validation ${r.validation === 'auto' ? 'automatique' : 'manuelle'}</li>
           ${(rec?.warnings || []).map(x => `<li class="warn-t">⚠ ${esc(x)}</li>`).join('')}</ul>
         <details class="small"><summary class="muted">Pourquoi ce jeu ?</summary>${(rec?.reasons || []).map(x => esc(x)).join('<br>')}</details>
-        <div><b>Familles présentes dans ${esc(cur.code)}</b> (${fam.length}) :</div>
-        <div class="fam-chips">${fam.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>
+        ${topN ? `<div><b>Les ${top.length} familles de ${esc(cur.code)} sur la roue</b> <small class="muted">(les plus présentes dans la série)</small>
+          <span class="topn">${[5, 6].map(n => `<button class="ghost small ${n === topN ? 'on' : ''}" data-topn="${n}" ${pendingTurn() ? 'disabled' : ''}>${n} familles</button>`).join('')}</span></div>
+        <div class="fam-chips">${top.map(o => `<span class="fam-chip top">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>
+        ${others.length ? `<details class="small"><summary class="muted">${others.length} autre(s) famille(s) présente(s), non retenue(s)</summary><div class="fam-chips">${others.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b></span>`).join('')}</div></details>` : ''}`
+        : `<div><b>Familles présentes dans ${esc(cur.code)}</b> (${fam.length}) :</div>
+        <div class="fam-chips">${fam.map(o => `<span class="fam-chip">${esc(o.label)} <b>${o.count}</b></span>`).join('') || '<span class="muted">Aucune famille reconnue (traits absents des données).</span>'}</div>`}
         ${absent.length ? `<details class="small"><summary class="muted">${absent.length} famille(s) absente(s) de cette série — exclues automatiquement</summary>${absent.map(f => esc(f.label)).join(' · ')}</details>` : ''}
       </div>
       <div class="row" style="flex-direction:column;align-items:stretch">
@@ -108,6 +115,9 @@ const Live = (() => {
         <button id="seriesEdit" class="ghost small">Réglages avancés</button>
       </div></div>`;
     if ($('#seriesReset')) $('#seriesReset').onclick = resetProfile;
+    $$('#seriesCurrent [data-topn]').forEach(b => {
+      b.onclick = () => { S.cfg.topN = Number(b.dataset.topn); recompute(); renderSeries(); saveSession(); rememberProfile(); };
+    });
     $('#seriesEdit').onclick = () => { $('#advanced').open = true; $('#advanced').scrollIntoView({ behavior: 'smooth' }); };
   }
 
