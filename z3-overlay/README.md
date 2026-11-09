@@ -241,6 +241,8 @@ Deux sources navigateur dans OBS :
    - Position de ta caméra : `&cam=x,y,largeur,hauteur` en pixels sur 1920×1080, par exemple pour une cam portrait à droite `&cam=1500,80,400,700`.
      Par défaut : `1456,112,436,247` (cadre cam de l'overlay).
    - `&camonly` : seulement la carte sur la cam, sans l'animation plein écran. `&nocam` : sans remplacement de la cam.
+   - Animation : une **Poké Ball roule sur le contour** de ta cam et dessine un cadre néon, puis la carte apparaît dedans.
+   - Seuls les **vrais hits** s'affichent sur la cam : HIT, SECRÈTE, GOD PACK. Une simple RARE ne déclenche rien. Pour changer : `&camtiers=rare,ultra,secret,god`.
 
 L'overlay « hits seulement » ne tient ni récap ni classement (pas de double comptage) : c'est l'overlay complet qui les gère.
 

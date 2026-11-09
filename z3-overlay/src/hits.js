@@ -74,15 +74,28 @@
   const CAM = (Q.get('cam') || (Q.has('hitonly') ? '1456,112,436,247' : '')).split(',').map(Number);
   const camOn = CAM.length === 4 && CAM.every((v) => !isNaN(v)) && !Q.has('nocam');
   const centerOn = !Q.has('camonly');
+  const CAM_TIERS = (Q.get('camtiers') || 'ultra,secret,god').split(',');   // la carte ne s'affiche sur la cam que pour ces niveaux
   const css2 = document.createElement('style');
   css2.textContent = `
-  #hit .camcov{position:absolute;overflow:hidden;background:#0b0214;border-radius:6px;box-shadow:0 0 0 4px var(--c1),0 0 40px var(--c1);animation:camin var(--ms) cubic-bezier(.2,1.2,.3,1) forwards}
+  #hit .camwrap{position:absolute;animation:camout var(--ms) linear forwards}
+  #hit .camcov{position:absolute;inset:0;overflow:hidden;background:#0b0214;border-radius:10px;opacity:0;animation:camin .5s ease var(--trace) forwards}
+  #hit .camframe{position:absolute;inset:-9px;width:calc(100% + 18px);height:calc(100% + 18px);overflow:visible;pointer-events:none}
+  #hit .camframe rect{fill:none;stroke:var(--c1);stroke-width:7;stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;filter:drop-shadow(0 0 8px var(--c1)) drop-shadow(0 0 18px var(--c1));animation:trace var(--trace) linear forwards}
+  #hit .camframe rect.w{stroke:#fff;stroke-width:2.5;filter:none}
+  @keyframes trace{to{stroke-dashoffset:0}}
+  #hit .pball{position:absolute;left:0;top:0;width:var(--pb);height:var(--pb);margin:calc(var(--pb) / -2) 0 0 calc(var(--pb) / -2);offset-rotate:0deg;
+    offset-path:var(--op);offset-distance:0%;animation:roll var(--trace) linear forwards, pbout .35s ease var(--trace) forwards;z-index:3;filter:drop-shadow(0 0 10px var(--c1))}
+  #hit .pball svg{width:100%;height:100%;display:block;animation:spin calc(var(--trace) / 4) linear infinite}
+  @keyframes roll{to{offset-distance:100%}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pbout{to{transform:scale(1.8);opacity:0}}
+  @keyframes camout{0%,93%{opacity:1}100%{opacity:0}}
   #hit .camcov .bgb{position:absolute;inset:-30px;background:center/cover no-repeat;filter:blur(22px) brightness(.55) saturate(1.4)}
   #hit .camcov img.cc{position:absolute;inset:6% 0 14%;margin:auto;height:80%;max-width:94%;object-fit:contain;filter:drop-shadow(0 0 18px var(--c1));animation:camcard 1.6s ease-in-out infinite alternate}
   #hit .camcov .ct{position:absolute;left:0;right:0;top:4px;text-align:center;font-family:Bangers;font-size:var(--fs,40px);letter-spacing:2px;color:#fff;-webkit-text-stroke:2px var(--c1);text-shadow:0 0 14px var(--c1)}
   #hit .camcov .cn{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-family:Rajdhani;font-weight:700;font-size:calc(var(--fs,40px) * .5);color:#fff;text-shadow:0 0 10px var(--c1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
   #hit .camcov .z3{position:absolute;inset:0;display:grid;place-items:center;font-family:Bangers;font-size:calc(var(--fs,40px) * 2.4);color:#fff;text-shadow:0 0 30px var(--c1)}
-  @keyframes camin{0%{clip-path:inset(0 100% 0 0)}8%{clip-path:inset(0 0 0 0)}92%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 0);opacity:0}}
+  @keyframes camin{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
   @keyframes camcard{from{transform:scale(1) rotate(-1deg)}to{transform:scale(1.05) rotate(1deg)}}
   body.camonly #hit .dim, body.camonly #hit .speed, body.camonly #hit .glow, body.camonly #hit .ttl, body.camonly #hit .jp, body.camonly #hit .card, body.camonly #hit .sub{display:none}`;
   document.head.appendChild(css2);
@@ -146,15 +159,25 @@
       setTimeout(() => fx.burst(960, 500, T.n, '', T.cols), 1500);
       if (T.god) for (let i = 0; i < 4; i++) setTimeout(() => { fx.shake(); fx.burst(960, 500, 60, 'petal'); }, 1500 + i * 900);
     }
-    if (camOn && !T.flop) {
-      const [cx, cy, cw, ch] = CAM, src = h.img || h.snap;
+    if (camOn && CAM_TIERS.includes(h.tier)) {
+      const [cx, cy, cw, ch] = CAM, src = h.img || h.snap, trace = 1.6;
+      // cadre tracé par une Poké Ball qui roule sur le contour, puis la carte apparaît
+      const wrap = document.createElement('div'); wrap.className = 'camwrap';
+      const pb = Math.max(34, Math.round(Math.min(cw, ch) / 7)), W2 = cw + 18, H2 = ch + 18, r = 14;
+      const route = `M ${r} 0 H ${W2 - r} Q ${W2} 0 ${W2} ${r} V ${H2 - r} Q ${W2} ${H2} ${W2 - r} ${H2} H ${r} Q 0 ${H2} 0 ${H2 - r} V ${r} Q 0 0 ${r} 0 Z`;
+      wrap.style.cssText = `left:${cx}px;top:${cy}px;width:${cw}px;height:${ch}px;--trace:${trace}s;--pb:${pb}px`;
+      wrap.innerHTML = `<svg class="camframe" viewBox="0 0 ${W2} ${H2}"><rect x="0" y="0" width="${W2}" height="${H2}" rx="${r}" pathLength="1000"/><rect class="w" x="0" y="0" width="${W2}" height="${H2}" rx="${r}" pathLength="1000"/></svg>
+        <div class="pball" style="--op:path('${route}');left:-9px;top:-9px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#fff" stroke="#111" stroke-width="6"/>
+        <path d="M3 50 A47 47 0 0 1 97 50 Z" fill="#e3242b" stroke="#111" stroke-width="6"/><rect x="3" y="46" width="94" height="8" fill="#111"/>
+        <circle cx="50" cy="50" r="14" fill="#fff" stroke="#111" stroke-width="7"/><circle cx="50" cy="50" r="6" fill="#fff" stroke="#bbb" stroke-width="2"/>
+        <path d="M20 30 Q28 16 44 12" stroke="#fff" stroke-opacity=".7" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div>`;
       const cc = document.createElement('div'); cc.className = 'camcov';
-      cc.style.cssText = `left:${cx}px;top:${cy}px;width:${cw}px;height:${ch}px;--fs:${Math.max(22, Math.round(Math.min(cw, ch * 1.6) / 9))}px`;
+      cc.style.cssText = `--fs:${Math.max(22, Math.round(Math.min(cw, ch * 1.6) / 9))}px`;
       cc.innerHTML = src ? `<div class="bgb" style="background-image:url('${esc(src)}')"></div><img class="cc" src="${esc(src)}" data-alt="${esc(h.img ? h.snap : '')}">` : `<div class="z3">Z3</div>`;
       cc.insertAdjacentHTML('beforeend', `<div class="ct">${esc(T.t)}</div><div class="cn">${esc(h.name || '')}</div>`);
       const ci = cc.querySelector('img.cc');
       if (ci) ci.onerror = () => { if (ci.dataset.alt) { ci.src = ci.dataset.alt; cc.querySelector('.bgb').style.backgroundImage = `url('${ci.dataset.alt}')`; ci.dataset.alt = ''; } else { ci.remove(); } };
-      box.appendChild(cc);
+      wrap.prepend(cc); box.appendChild(wrap);
     }
     const ph = box.querySelector('.photo');                 // image officielle → sinon photo caméra → sinon carte Z3
     if (ph) ph.onerror = () => { if (ph.dataset.alt) { ph.src = ph.dataset.alt; ph.dataset.alt = ''; } else { ph.remove(); const tg = box.querySelector('.tag'); if (tg) tg.remove(); } };
