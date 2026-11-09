@@ -450,7 +450,8 @@ Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
       if ($('optGod').checked && n === 3) tier = 'god';
       const crop = cardCrop(), sc2 = document.createElement('canvas'); sc2.width = crop.w; sc2.height = crop.h;
       sc2.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(crop.data), crop.w, crop.h), 0, 0);
-      send({ kind: 'hit', tier, name, key: card ? card.key : '', img: card ? card.img : '', snap: sc2.toDataURL('image/jpeg', 0.85) });
+      send({ kind: 'hit', tier, name, key: card ? card.key : '', img: card ? card.img : '', snap: sc2.toDataURL('image/jpeg', 0.85),
+        num: card ? card.numero : '', rar: card ? card.rarete : '', serie: card ? (card.set.fr || card.set.en || card.set.ja || card.set.code) : '' });
     }
     addLog({ tier, name, how, score: sc.total, thumb });
   }

@@ -241,7 +241,7 @@ Deux sources navigateur dans OBS :
    - Position de ta caméra : `&cam=x,y,largeur,hauteur` en pixels sur 1920×1080, par exemple pour une cam portrait à droite `&cam=1500,80,400,700`.
      Par défaut : `1456,112,436,247` (cadre cam de l'overlay).
    - `&camonly` : seulement la carte sur la cam, sans l'animation plein écran. `&nocam` : sans remplacement de la cam.
-   - Animation : une **Poké Ball roule sur le contour** de ta cam et dessine un cadre néon, puis la carte apparaît dedans.
+   - Animation : la balle **roule sur le contour de la carte et le dessine**, puis la carte apparaît, centrée, sur fond transparent. Dessous s'affiche une fiche bien lisible : **numéro, rareté, série**. Le dock les remplit automatiquement à partir de la base master set.
    - **Cadre selon la rareté** : néon violet pour HIT, **doré brillant** (reflet qui court et étincelles aux coins) pour SECRÈTE et GOD PACK.
    - **Balle selon la rareté** : Poké Ball (RARE), Super Ball (HIT), Hyper Ball (SECRÈTE), Master Ball (GOD PACK).
    - **Son de capture** synthétisé, sans fichier : roulement, puis « clic » et 3 secousses, puis jingle, plus épique selon la rareté.
