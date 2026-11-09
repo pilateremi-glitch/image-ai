@@ -74,14 +74,30 @@
   const CAM = (Q.get('cam') || (Q.has('hitonly') ? '1456,112,436,247' : '')).split(',').map(Number);
   const camOn = CAM.length === 4 && CAM.every((v) => !isNaN(v)) && !Q.has('nocam');
   const centerOn = !Q.has('camonly');
-  const CAM_TIERS = (Q.get('camtiers') || 'ultra,secret,god').split(',');   // la carte ne s'affiche sur la cam que pour ces niveaux
+  const CAM_TIERS = (Q.get('camtiers') || 'ultra,secret,god').split(',');
+  /* Poké Ball (RARE) · Super Ball (HIT) · Hyper Ball (SECRÈTE) · Master Ball (GOD PACK) */
+  const ballBase = (top, extra) => `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#fff" stroke="#111" stroke-width="6"/>
+    <path d="M3 50 A47 47 0 0 1 97 50 Z" fill="${top}" stroke="#111" stroke-width="6"/>${extra}<rect x="3" y="46" width="94" height="8" fill="#111"/>
+    <circle cx="50" cy="50" r="14" fill="#fff" stroke="#111" stroke-width="7"/><circle cx="50" cy="50" r="6" fill="#fff" stroke="#bbb" stroke-width="2"/>
+    <path d="M20 30 Q28 16 44 12" stroke="#fff" stroke-opacity=".7" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`;
+  const BALLS = {
+    poke: ballBase('#e3242b', ''),
+    super: ballBase('#2a6fe0', '<path d="M18 26 Q24 14 34 10 L38 22 Q28 26 24 34 Z" fill="#e3242b" stroke="#111" stroke-width="3"/><path d="M82 26 Q76 14 66 10 L62 22 Q72 26 76 34 Z" fill="#e3242b" stroke="#111" stroke-width="3"/>'),
+    hyper: ballBase('#1b1b1b', '<path d="M22 20 L36 40 M78 20 L64 40" stroke="#ffd23a" stroke-width="9" stroke-linecap="round"/><path d="M36 30 H64" stroke="#ffd23a" stroke-width="5"/>'),
+    master: ballBase('#7b2fbe', '<circle cx="27" cy="31" r="7" fill="#ff5fb0" stroke="#111" stroke-width="2"/><circle cx="73" cy="31" r="7" fill="#ff5fb0" stroke="#111" stroke-width="2"/><path d="M39 36 V20 L50 30 L61 20 V36" fill="none" stroke="#fff" stroke-width="5" stroke-linejoin="round"/>'),
+  };   // la carte ne s'affiche sur la cam que pour ces niveaux
   const css2 = document.createElement('style');
   css2.textContent = `
   #hit .camwrap{position:absolute;animation:camout var(--ms) linear forwards}
   #hit .camcov{position:absolute;inset:0;overflow:hidden;background:#0b0214;border-radius:10px;opacity:0;animation:camin .5s ease var(--trace) forwards}
   #hit .camframe{position:absolute;inset:-9px;width:calc(100% + 18px);height:calc(100% + 18px);overflow:visible;pointer-events:none}
-  #hit .camframe rect{fill:none;stroke:var(--c1);stroke-width:7;stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;filter:drop-shadow(0 0 8px var(--c1)) drop-shadow(0 0 18px var(--c1));animation:trace var(--trace) linear forwards}
-  #hit .camframe rect.w{stroke:#fff;stroke-width:2.5;filter:none}
+  #hit .camframe rect{fill:none;stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;animation:trace var(--trace) linear forwards}
+  #hit .camframe rect.halo{stroke:var(--fg1);stroke-width:16;opacity:.45;filter:blur(7px)}
+  #hit .camframe rect.main{stroke-width:8;filter:drop-shadow(0 0 6px var(--fg1)) drop-shadow(0 0 16px var(--fg1)) drop-shadow(0 0 30px var(--fg2))}
+  #hit .camframe rect.core{stroke:#fff;stroke-width:2.2;opacity:.9}
+  #hit .camwrap.gold .camframe rect.main{stroke-width:10}
+  #hit .camframe .glint{opacity:0;animation:glintin .3s ease var(--trace) forwards}
+  @keyframes glintin{to{opacity:1}}
   @keyframes trace{to{stroke-dashoffset:0}}
   #hit .pball{position:absolute;left:0;top:0;width:var(--pb);height:var(--pb);margin:calc(var(--pb) / -2) 0 0 calc(var(--pb) / -2);offset-rotate:0deg;
     offset-path:var(--op);offset-distance:0%;animation:roll var(--trace) linear forwards, pbout .35s ease var(--trace) forwards;z-index:3;filter:drop-shadow(0 0 10px var(--c1))}
@@ -160,17 +176,26 @@
       if (T.god) for (let i = 0; i < 4; i++) setTimeout(() => { fx.shake(); fx.burst(960, 500, 60, 'petal'); }, 1500 + i * 900);
     }
     if (camOn && CAM_TIERS.includes(h.tier)) {
-      const [cx, cy, cw, ch] = CAM, src = h.img || h.snap, trace = 1.6;
+      const [cx, cy, cw, ch] = CAM, src = h.img || h.snap, trace = h.tier === 'god' ? 2.2 : 1.6;
+      const gold = h.tier === 'secret' || h.tier === 'god';
+      const FR = gold ? { g1: '#fff6c2', g2: '#ffd23a', g3: '#c98a12', fg1: '#ffcf3a', fg2: '#ff9d00' }    // doré brillant
+                      : { g1: '#f2d4ff', g2: '#b44dff', g3: '#7a1fd6', fg1: '#c46bff', fg2: '#ff3fd0' };   // néon violet
       // cadre tracé par une Poké Ball qui roule sur le contour, puis la carte apparaît
       const wrap = document.createElement('div'); wrap.className = 'camwrap';
-      const pb = Math.max(34, Math.round(Math.min(cw, ch) / 7)), W2 = cw + 18, H2 = ch + 18, r = 14;
+      const pb = Math.max(46, Math.round(Math.min(cw, ch) / 5.2)), W2 = cw + 18, H2 = ch + 18, r = 14;
       const route = `M ${r} 0 H ${W2 - r} Q ${W2} 0 ${W2} ${r} V ${H2 - r} Q ${W2} ${H2} ${W2 - r} ${H2} H ${r} Q 0 ${H2} 0 ${H2 - r} V ${r} Q 0 0 ${r} 0 Z`;
-      wrap.style.cssText = `left:${cx}px;top:${cy}px;width:${cw}px;height:${ch}px;--trace:${trace}s;--pb:${pb}px`;
-      wrap.innerHTML = `<svg class="camframe" viewBox="0 0 ${W2} ${H2}"><rect x="0" y="0" width="${W2}" height="${H2}" rx="${r}" pathLength="1000"/><rect class="w" x="0" y="0" width="${W2}" height="${H2}" rx="${r}" pathLength="1000"/></svg>
-        <div class="pball" style="--op:path('${route}');left:-9px;top:-9px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#fff" stroke="#111" stroke-width="6"/>
-        <path d="M3 50 A47 47 0 0 1 97 50 Z" fill="#e3242b" stroke="#111" stroke-width="6"/><rect x="3" y="46" width="94" height="8" fill="#111"/>
-        <circle cx="50" cy="50" r="14" fill="#fff" stroke="#111" stroke-width="7"/><circle cx="50" cy="50" r="6" fill="#fff" stroke="#bbb" stroke-width="2"/>
-        <path d="M20 30 Q28 16 44 12" stroke="#fff" stroke-opacity=".7" stroke-width="5" fill="none" stroke-linecap="round"/></svg></div>`;
+      wrap.style.cssText = `left:${cx}px;top:${cy}px;width:${cw}px;height:${ch}px;--trace:${trace}s;--pb:${pb}px;--fg1:${FR.fg1};--fg2:${FR.fg2}`;
+      if (gold) wrap.classList.add('gold');
+      const gid = 'fg' + Date.now().toString(36);
+      const rect = (cls, stroke) => `<rect class="${cls}" x="0" y="0" width="${W2}" height="${H2}" rx="${r}" pathLength="1000"${stroke ? ` stroke="${stroke}"` : ''}/>`;
+      wrap.innerHTML = `<svg class="camframe" viewBox="0 0 ${W2} ${H2}"><defs>
+          <linearGradient id="${gid}" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="${W2}" y2="${H2}" spreadMethod="reflect">
+            <stop offset="0" stop-color="${FR.g3}"/><stop offset=".35" stop-color="${FR.g2}"/><stop offset=".5" stop-color="${FR.g1}"/><stop offset=".65" stop-color="${FR.g2}"/><stop offset="1" stop-color="${FR.g3}"/>
+            <animateTransform attributeName="gradientTransform" type="translate" from="${-W2} ${-H2}" to="${W2} ${H2}" dur="${gold ? 1.4 : 2.4}s" repeatCount="indefinite"/></linearGradient></defs>
+          ${rect('halo')}${rect('main', `url(#${gid})`)}${rect('core')}
+          ${[[0, 0], [W2, 0], [W2, H2], [0, H2]].map(([gx, gy], k) => `<g class="glint" style="animation-delay:calc(var(--trace) + ${k * 0.08}s)" transform="translate(${gx} ${gy})"><path d="M0 -14 L3 -3 L14 0 L3 3 L0 14 L-3 3 L-14 0 L-3 -3 Z" fill="#fff"><animateTransform attributeName="transform" type="scale" values="0.6;1.3;0.6" dur="1.1s" repeatCount="indefinite"/></path></g>`).join('')}
+        </svg>
+        <div class="pball" style="--op:path('${route}');left:-9px;top:-9px">${BALLS[{ rare: 'poke', ultra: 'super', secret: 'hyper', god: 'master' }[h.tier] || 'poke']}</div>`;
       const cc = document.createElement('div'); cc.className = 'camcov';
       cc.style.cssText = `--fs:${Math.max(22, Math.round(Math.min(cw, ch * 1.6) / 9))}px`;
       cc.innerHTML = src ? `<div class="bgb" style="background-image:url('${esc(src)}')"></div><img class="cc" src="${esc(src)}" data-alt="${esc(h.img ? h.snap : '')}">` : `<div class="z3">Z3</div>`;
@@ -178,6 +203,7 @@
       const ci = cc.querySelector('img.cc');
       if (ci) ci.onerror = () => { if (ci.dataset.alt) { ci.src = ci.dataset.alt; cc.querySelector('.bgb').style.backgroundImage = `url('${ci.dataset.alt}')`; ci.dataset.alt = ''; } else { ci.remove(); } };
       wrap.prepend(cc); box.appendChild(wrap);
+      if (window.Z3Sfx) { Z3Sfx.roll(trace); setTimeout(() => Z3Sfx.capture(h.tier), trace * 1000); }
     }
     const ph = box.querySelector('.photo');                 // image officielle → sinon photo caméra → sinon carte Z3
     if (ph) ph.onerror = () => { if (ph.dataset.alt) { ph.src = ph.dataset.alt; ph.dataset.alt = ''; } else { ph.remove(); const tg = box.querySelector('.tag'); if (tg) tg.remove(); } };

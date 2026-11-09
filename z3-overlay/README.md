@@ -242,6 +242,10 @@ Deux sources navigateur dans OBS :
      Par défaut : `1456,112,436,247` (cadre cam de l'overlay).
    - `&camonly` : seulement la carte sur la cam, sans l'animation plein écran. `&nocam` : sans remplacement de la cam.
    - Animation : une **Poké Ball roule sur le contour** de ta cam et dessine un cadre néon, puis la carte apparaît dedans.
+   - **Cadre selon la rareté** : néon violet pour HIT, **doré brillant** (reflet qui court et étincelles aux coins) pour SECRÈTE et GOD PACK.
+   - **Balle selon la rareté** : Poké Ball (RARE), Super Ball (HIT), Hyper Ball (SECRÈTE), Master Ball (GOD PACK).
+   - **Son de capture** synthétisé, sans fichier : roulement, puis « clic » et 3 secousses, puis jingle, plus épique selon la rareté.
+     `&volume=0.5` règle le volume, `&nosound` coupe le son. Dans OBS, coche « Contrôler l'audio via OBS » dans les propriétés de la source.
    - Seuls les **vrais hits** s'affichent sur la cam : HIT, SECRÈTE, GOD PACK. Une simple RARE ne déclenche rien. Pour changer : `&camtiers=rare,ultra,secret,god`.
 
 L'overlay « hits seulement » ne tient ni récap ni classement (pas de double comptage) : c'est l'overlay complet qui les gère.
