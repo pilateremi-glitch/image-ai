@@ -292,7 +292,11 @@
         const old = [...box.children].filter((c) => c !== fr); setTimeout(() => old.forEach((o) => o.remove()), 1000);
       } else { box.innerHTML = ''; box.appendChild(fr); }
     });
-    if (animate && prev >= 0 && level > prev) sfx(level);
+    if (animate && prev >= 0 && level > prev) {
+      sfx(level);
+      const x = 20 + A.SW.x0 + A.sandwichRemaining(level) * (A.SW.x1 - A.SW.x0);
+      window.dispatchEvent(new CustomEvent('z3level', { detail: { level, x, y: 1005 } }));
+    }
   }
   const SFX = ['CROC !', 'MIAM !', 'SLURP !', 'CRUNCH !', 'GLOUPS !', 'NOM NOM !'];
   function sfx(level) {
@@ -336,7 +340,7 @@
     $('#vTime').textContent = fmt(rem);
     const level = rem <= 0 ? A.LEVELS - 1 : Math.min(A.LEVELS - 2, Math.floor((1 - rem / st.total) * (A.LEVELS - 1)));
     setLevel(level, curLevel >= 0);
-    document.body.classList.toggle('urgent', rem > 0 && rem <= 300);
+    document.body.classList.toggle('urgent', rem > 0 && rem <= Math.min(300, st.total * 0.15));
   }
   function shift(sec) {
     if (st.paused) st.left = Math.max(0, st.left + sec); else st.endAt += sec * 1000;

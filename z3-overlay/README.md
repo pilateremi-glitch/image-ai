@@ -46,6 +46,23 @@ Les 5 dernières minutes, le chrono clignote en rouge.
 
 Pour **Dernier acheteur / Dernier follow / Top supporter / Viewers / Alertes** : place tes widgets StreamElements ou Streamlabs (ou des sources Texte OBS) par-dessus les emplacements prévus. Si tu veux les données en direct, ajoute l'overlay avec `&only=decor,brand,webcam,partner,gauge,timer,sandwich,drink` et tes propres widgets au-dessus.
 
+
+### Décors animés & interactifs (`src/fx.js`)
+
+| Paramètre | Effet |
+|---|---|
+| `&fx` | Pétales de sakura, étincelles d'énergie, éclairs néon, réactions aux niveaux — **sur fond transparent**, utilisable en live |
+| `&scene=mix` | Version MIX : les 5 fonds (`preview/fond-*`) s'enchaînent avec un coup de sabre lumineux + zoom lent + parallaxe (active aussi les décors) |
+| `&scene=fond-2-z3-violet.png` | Un seul fond animé |
+| `&slide=7` | Durée de chaque fond en secondes (mode MIX) |
+
+Réactions automatiques : à chaque bouchée → tremblement d'écran, flash, miettes qui volent, onde de choc. Dernières minutes → vignette rouge qui pulse.
+
+Interactif (clic droit sur la source → **Interagir**) : la souris fait bouger les fonds (parallaxe) et écarte les pétales, **clic** = explosion d'énergie, `B` = fond suivant, `F` = décors on/off.
+
+Exemple scène d'attente / pause : `overlay.html?scene=mix&duration=3h`
+Exemple live par-dessus la cam : `overlay.html?fx&duration=3h`
+
 ---
 
 ## Option B — PNG séparés (`export/`)
