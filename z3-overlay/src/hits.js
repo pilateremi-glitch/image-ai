@@ -104,6 +104,7 @@
   #hit .camframe .glint{opacity:0;animation:glintin .3s ease var(--trace) forwards}
   @keyframes glintin{to{opacity:1}}
   @keyframes trace{to{stroke-dashoffset:0}}
+  #hit .ballhost{position:absolute;overflow:visible;pointer-events:none;z-index:3}
   #hit .pball{position:absolute;left:0;top:0;width:var(--pb);height:var(--pb);margin:calc(var(--pb) / -2) 0 0 calc(var(--pb) / -2);offset-rotate:0deg;
     offset-path:var(--op);offset-distance:0%;animation:roll var(--trace) linear forwards, pbout .35s ease var(--trace) forwards;z-index:3;filter:drop-shadow(0 0 10px var(--fg1))}
   #hit .pball svg{width:100%;height:100%;display:block;animation:spin calc(var(--trace) / 4) linear infinite}
@@ -193,10 +194,11 @@
       const cardH = Math.min(avail, (cw * 0.84) / 0.716), cardW = cardH * 0.716;
       const kx = (cw - cardW) / 2, ky = titleH + pad;
       const wrap = document.createElement('div'); wrap.className = 'camwrap';
-      wrap.style.cssText = `left:${cx}px;top:${cy}px;width:${cw}px;height:${ch}px;--trace:${trace}s;--fg1:${FR.fg1};--fg2:${FR.fg2};--fs:${fs}px`;
+      const total = trace + 0.75;   // roulement + capture (saut, 3 secousses, flash)
+      wrap.style.cssText = `left:${cx}px;top:${cy}px;width:${cw}px;height:${ch}px;--trace:${total}s;--fg1:${FR.fg1};--fg2:${FR.fg2};--fs:${fs}px`;
       if (gold) wrap.classList.add('gold');
       // la balle roule sur le CONTOUR DE LA CARTE et le dessine
-      const pb = Math.max(40, Math.round(cardW / 4.2)), m = 5, W2 = cardW + m * 2, H2 = cardH + m * 2, r = Math.round(cardW * 0.05);
+      const pb = Math.max(44, Math.round(cardW / 3.6)), m = 5, W2 = cardW + m * 2, H2 = cardH + m * 2, r = Math.round(cardW * 0.05);
       const route = `M ${r} 0 H ${W2 - r} Q ${W2} 0 ${W2} ${r} V ${H2 - r} Q ${W2} ${H2} ${W2 - r} ${H2} H ${r} Q 0 ${H2} 0 ${H2 - r} V ${r} Q 0 0 ${r} 0 Z`;
       const gid = 'fg' + Date.now().toString(36);
       const rect = (cls, stroke) => `<rect class="${cls}" x="0" y="0" width="${W2}" height="${H2}" rx="${r}" pathLength="1000"${stroke ? ` stroke="${stroke}"` : ''}/>`;
@@ -209,7 +211,7 @@
           ${rect('halo')}${rect('main', `url(#${gid})`)}${rect('core')}
           ${[[0, 0], [W2, 0], [W2, H2], [0, H2]].map(([gx, gy], k) => `<g class="glint" style="animation-delay:calc(var(--trace) + ${k * 0.08}s)" transform="translate(${gx} ${gy})"><path d="M0 -12 L3 -3 L12 0 L3 3 L0 12 L-3 3 L-12 0 L-3 -3 Z" fill="#fff"><animateTransform attributeName="transform" type="scale" values="0.6;1.3;0.6" dur="1.1s" repeatCount="indefinite"/></path></g>`).join('')}
         </svg>
-        <div class="pball" style="--op:path('${route}');left:${-m}px;top:${-m}px">${BALLS[{ rare: 'poke', ultra: 'super', secret: 'hyper', god: 'master' }[h.tier] || 'poke']}</div></div>`;
+        <div class="ballhost" style="left:${-m}px;top:${-m}px;width:${W2}px;height:${H2}px"></div></div>`;
       // fiche bien lisible sous la carte
       const rar = h.rar ? (window.Z3Rarity ? Z3Rarity.info(h.rar).label : h.rar) : '';
       const nom = (h.name || '').replace(/\s+\S*\d+\/\S+$/, '');
@@ -221,6 +223,11 @@
       const ci = wrap.querySelector('img.cc');
       if (ci) ci.onerror = () => { if (ci.dataset.alt) { ci.src = ci.dataset.alt; ci.dataset.alt = ''; } else { ci.remove(); } };
       box.appendChild(wrap);
+      const ballType = { rare: 'poke', ultra: 'super', secret: 'hyper', god: 'master' }[h.tier] || 'poke';
+      if (window.Z3Balls) {
+        const rects = [...wrap.querySelectorAll('.camframe rect')]; rects.forEach((rc) => { rc.style.animation = 'none'; rc.style.strokeDashoffset = '1000'; });
+        Z3Balls.trace({ host: wrap.querySelector('.ballhost'), W: W2, H: H2, r, size: pb, type: ballType, dur: trace, color: FR.fg1, rects });
+      }
       if (window.Z3Sfx) { Z3Sfx.roll(trace); setTimeout(() => Z3Sfx.capture(h.tier), trace * 1000); }
     }
     const ph = box.querySelector('.photo');                 // image officielle → sinon photo caméra → sinon carte Z3
