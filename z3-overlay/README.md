@@ -1,4 +1,4 @@
-# 🔥 Z3 LIVE — TEAM Z3F4 × LA MAISON DU TCG — Overlay OBS 1920×1080
+# 🔥 Z3 LIVE — TEAM Z3F4 × LE RAINTÉ DU TCG — Overlay OBS 1920×1080
 
 Overlay anime / TCG / néon nocturne (noir, violet électrique, fuchsia, blanc) avec la **jauge sandwich + boisson** comme mécanique signature du live :
 **« LE LIVE SE TERMINE QUAND IL NE RESTE PLUS RIEN 😈 »**
@@ -58,7 +58,7 @@ export/
 ├─ overlay_sans_sandwich_ni_boisson.png   ← base fixe à combiner avec les frames
 ├─ calques/                               ← 1920×1080, un élément par fichier
 │   01_decor_energie · 02_branding_z3_team_z3f4 · 03_cadre_webcam · 04_viewers
-│   05_widgets_acheteur_follow_supporter · 06_partenaire_la_maison_du_tcg
+│   05_widgets_acheteur_follow_supporter · 06_partenaire_le_rainte_du_tcg
 │   07_objectif_du_live · 08_zone_alertes · 09_jauge_rail
 │   10_chrono_cadre · 10b_chrono_exemple_00-00-00
 ├─ sandwich/  sandwich_01_100pct.png … sandwich_15_000pct.png   (1920×1080, position finale)
@@ -103,4 +103,4 @@ npm i -D playwright      # si Playwright n'est pas déjà installé
 node render.js
 ```
 
-Le dessin est dans `src/art.js` (sandwich, boisson, emblème Maison du TCG), la mise en page dans `src/overlay.css` et `src/overlay.js`.
+Le dessin est dans `src/art.js` (sandwich, boisson, emblème Rainté du TCG), la mise en page dans `src/overlay.css` et `src/overlay.js`.

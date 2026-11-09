@@ -21,7 +21,10 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 1920px; height: 1080px; overflow: hidden; background: transparent; }
 body { position: relative; font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--white); }
-body.preview-bg { background: #120420 url(../preview/stream-sample.jpg) center / cover no-repeat; }
+body.preview-bg { background: #120420; --bg: url(../preview/stream-sample.jpg); }
+body.preview-bg::before, body.preview-bg::after { content: ''; position: absolute; inset: 0; z-index: -1; background: var(--bg) center / cover no-repeat; }
+body.preview-bg.bg-contain::before { inset: -60px; filter: blur(28px) brightness(.55) saturate(1.3); }
+body.preview-bg.bg-contain::after { background-size: contain; }
 
 .layer { position: absolute; inset: 0; pointer-events: none; }
 .abs { position: absolute; }

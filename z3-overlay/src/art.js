@@ -1,6 +1,6 @@
 /* ==========================================================================
-   Z3 / TEAM Z3F4 × LA MAISON DU TCG — générateurs SVG vectoriels
-   Sandwich (15 niveaux) · Boisson (15 niveaux) · Emblème Maison du TCG
+   Z3 / TEAM Z3F4 × LE RAINTÉ DU TCG — générateurs SVG vectoriels
+   Sandwich (15 niveaux) · Boisson (15 niveaux) · Emblème Rainté du TCG
    Tout est déterministe : même position, même taille, même éclairage
    pour chaque niveau → remplacement image par image sans décalage.
    ========================================================================== */
@@ -342,7 +342,7 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* EMBLÈME « LA MAISON DU TCG » : maison japonaise + cartes + énergie  */
+  /* EMBLÈME « LE RAINTÉ DU TCG » : maison japonaise + cartes + énergie  */
   /* ------------------------------------------------------------------ */
   function emblemSVG(size, uid, opts) {
     uid = uid || 'em';
@@ -366,7 +366,7 @@
   <circle cx="100" cy="100" r="93" fill="none" stroke="url(#${uid}-roof)" stroke-width="3.5"/>
   <circle cx="100" cy="100" r="66" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="1.2" stroke-dasharray="2 5"/>
   <text font-family="Rajdhani, sans-serif" font-weight="700" font-size="17" letter-spacing="4.2" fill="#fff">
-    <textPath href="#${uid}-arc" startOffset="50%" text-anchor="middle">LA MAISON DU TCG</textPath></text>
+    <textPath href="#${uid}-arc" startOffset="50%" text-anchor="middle">LE RAINTÉ DU TCG</textPath></text>
   <text font-family="Rajdhani, sans-serif" font-weight="700" font-size="12" letter-spacing="6" fill="#ff7be6">
     <textPath href="#${uid}-arc2" startOffset="50%" text-anchor="middle">★ OFFICIAL PARTNER ★</textPath></text>` : ''}
   <!-- éventail de cartes -->

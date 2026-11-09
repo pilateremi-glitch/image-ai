@@ -21,7 +21,7 @@ const LAYERS = [
   ['03_cadre_webcam', 'webcam'],
   ['04_viewers', 'viewers'],
   ['05_widgets_acheteur_follow_supporter', 'widgets'],
-  ['06_partenaire_la_maison_du_tcg', 'partner'],
+  ['06_partenaire_le_rainte_du_tcg', 'partner'],
   ['07_objectif_du_live', 'goal'],
   ['08_zone_alertes', 'alerts'],
   ['09_jauge_rail', 'gauge'],
@@ -53,8 +53,12 @@ const LAYERS = [
 
   await shot('level=0', 'overlay_complet_1920x1080.png');
   await shot('level=0&only=decor,brand,webcam,viewers,widgets,partner,goal,alerts,gauge,timer', 'overlay_sans_sandwich_ni_boisson.png');
+  const FONDS = fs.readdirSync(path.join(ROOT, 'preview')).filter((f) => /^fond-/.test(f)).sort();
   for (const [l, t] of [[0, '03:00:00'], [7, '01:30:00'], [11, '00:38:34'], [14, '00:00:00']]) {
     await shot(`level=${l}&demo=1&digits=1&time=${t}&previewbg=1`, `apercus/apercu_niveau_${pad(l + 1)}.png`);
+  }
+  for (const fond of FONDS) {
+    await shot(`level=6&demo=1&digits=1&time=01:42:17&previewbg=${fond}`, `apercus/apercu_${fond.replace(/\.\w+$/, '')}.png`);
   }
   await browser.close();
 })().catch((e) => { console.error(e); process.exit(1); });

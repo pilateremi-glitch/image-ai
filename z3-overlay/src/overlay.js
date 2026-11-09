@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Z3 LIVE — TEAM Z3F4 × LA MAISON DU TCG — overlay OBS
+   Z3 LIVE — TEAM Z3F4 × LE RAINTÉ DU TCG — overlay OBS
    - Mode LIVE (source navigateur OBS) : chrono + sandwich + boisson automatiques
    - Mode STATIC (?static=1) : utilisé par render.js pour exporter les PNG
    ========================================================================== */
@@ -13,7 +13,11 @@
   const STATIC = Q.has('static');
   document.body.classList.add(STATIC ? 'static' : 'live');
   if (Q.has('digits')) document.body.classList.add('digits');
-  if (Q.has('previewbg')) document.body.classList.add('preview-bg');
+  if (Q.has('previewbg')) {
+    document.body.classList.add('preview-bg');
+    const bg = Q.get('previewbg');
+    if (bg) { document.body.style.setProperty('--bg', `url("${new URL('preview/' + bg, location.href).href}")`); document.body.classList.add('bg-contain'); }
+  }
 
   /* ---------------- icônes ---------------- */
   const ICON = {
@@ -184,17 +188,17 @@
       <div class="emblem">${A.emblemSVG(142, 'emB')}</div>
       <div class="z3">Z3</div><div class="live-tag">LIVE</div><div class="divider"></div>
       <div class="team">TEAM <b>Z3F4</b></div>
-      <div class="by"><small>BY</small><span class="lmdt">LA MAISON DU TCG</span></div>
+      <div class="by"><small>BY</small><span class="lmdt">LE RAINTÉ DU TCG</span></div>
       <div class="jp jp-tag">カードの館 · ライブ</div>
     </div>
     <div class="abs live-pill"><span class="dot"></span><span>EN DIRECT</span><span class="jp">生配信</span></div>
-    <div class="abs live-sub">Z3F4 <b>×</b> LA MAISON DU TCG</div>
+    <div class="abs live-sub">Z3F4 <b>×</b> LE RAINTÉ DU TCG</div>
   </div>
 
   <div class="layer" id="webcam">
     <div class="panel cam" id="camBox">
       <div class="tab">${ICON.cam.replace('<svg', '<svg width="20" height="20"')}Z3F4 CAM</div>
-      <div class="ribbon">${A.emblemSVG(22, 'emC', { ring: false })}LA MAISON DU TCG</div>
+      <div class="ribbon">${A.emblemSVG(22, 'emC', { ring: false })}LE RAINTÉ DU TCG</div>
     </div>
   </div>
 
@@ -224,7 +228,7 @@
     <div class="panel card" data-panel='{"cut":18}'>
       <div class="emb">${A.emblemSVG(144, 'emP')}</div>
       <div class="t1">PARTENAIRE OFFICIEL</div>
-      <div class="t2">LA MAISON<br>DU TCG</div>
+      <div class="t2">LE RAINTÉ<br>DU TCG</div>
       <div class="t3">BOOSTERS · DISPLAYS · CARTES</div>
     </div>
   </div>
@@ -248,14 +252,14 @@
   <div class="layer" id="gauge">
     <div class="panel rail" id="railBox"></div>
     <div class="mention">LE LIVE SE TERMINE QUAND IL NE RESTE PLUS RIEN ${ICON.devil}</div>
-    <div class="brand-mini">${A.emblemSVG(26, 'emG', { ring: false })}SPONSORISÉ PAR LA MAISON DU TCG</div>
+    <div class="brand-mini">${A.emblemSVG(26, 'emG', { ring: false })}SPONSORISÉ PAR LE RAINTÉ DU TCG</div>
   </div>
 
   <div class="layer" id="timer">
     <div class="abs badge" id="timerBox">
       <div class="lbl">TEMPS RESTANT<span class="jp">時間</span></div>
       <div class="digits">${ICON.clock}<span class="t" id="vTime">00:00:00</span></div>
-      <div class="foot">Z3F4 × LA MAISON DU TCG</div>
+      <div class="foot">Z3F4 × LE RAINTÉ DU TCG</div>
     </div>
   </div>
 
