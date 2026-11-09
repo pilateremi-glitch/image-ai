@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Z3 LIVE — Scènes (bientôt · pause · fin)</title>
+<link rel="stylesheet" href="src/overlay.css">
+<style>
+  .stage { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+  .card { position: relative; width: 1180px; padding: 46px 60px 40px; text-align: center;
+    background: linear-gradient(135deg, rgba(14,3,28,.84), rgba(48,8,80,.72));
+    clip-path: polygon(40px 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%, 0 40px); }
+  .card::before { content: ''; position: absolute; inset: 0; border: 2px solid rgba(255,63,208,.8);
+    clip-path: inherit; pointer-events: none; }
+  .top { display: flex; justify-content: center; align-items: center; gap: 22px; }
+  .top .z3 { font-family: Bangers; font-size: 120px; line-height: .9; transform: skewX(-8deg);
+    background: linear-gradient(180deg, #fff, #ffd2f6 30%, #ff3fd0 62%, #9a2cff); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 14px rgba(255,63,208,.9)) drop-shadow(0 5px 0 #4a0f86); }
+  .top .names { text-align: left; }
+  .top .names div:first-child { font-size: 46px; letter-spacing: 7px; text-shadow: var(--glow-v); }
+  .top .names div:first-child b { color: var(--pink); }
+  .top .names div:last-child { font-size: 26px; letter-spacing: 5px; color: #e9c7ff; }
+  .top .names div:last-child span { color: #fff; background: linear-gradient(90deg, #ff3fd0, #8b2cff); padding: 2px 12px; margin-left: 6px; }
+  .title { margin-top: 26px; font-family: Bangers; font-size: 104px; letter-spacing: 4px; line-height: 1; color: #fff;
+    -webkit-text-stroke: 2px #ff3fd0; text-shadow: 0 0 26px rgba(255,63,208,.9), 0 6px 0 #3a0a66; }
+  .jp { display: block; margin-top: 6px; font-size: 30px; letter-spacing: 16px; color: var(--pink); }
+  .count { margin-top: 18px; font-family: Orbitron; font-weight: 900; font-size: 110px; letter-spacing: 6px; color: #fff;
+    text-shadow: 0 0 2px #fff, 0 0 18px #ff3fd0, 0 0 44px rgba(255,63,208,.8), 0 5px 0 #5a0f86; font-variant-numeric: tabular-nums; }
+  .sub { margin-top: 8px; font-size: 26px; letter-spacing: 8px; color: #f0d4ff; }
+  .food { position: relative; height: 150px; margin-top: 18px; }
+  .food .sw { position: absolute; left: 0; bottom: 6px; width: 860px; height: 60px; }
+  .food .dk { position: absolute; right: 20px; bottom: 0; width: 136px; height: 150px; }
+  .food svg { width: 100%; height: 100%; overflow: visible; }
+  .rule { margin-top: 10px; display: inline-flex; align-items: center; gap: 10px; font-size: 22px; letter-spacing: 4px; padding: 6px 18px;
+    background: linear-gradient(90deg, rgba(255,63,208,.95), rgba(139,44,255,.9)); clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+  .ticker { position: absolute; left: 0; right: 0; bottom: 24px; height: 52px; overflow: hidden; display: flex; align-items: center;
+    background: linear-gradient(90deg, rgba(14,3,28,.0), rgba(14,3,28,.85) 10%, rgba(14,3,28,.85) 90%, rgba(14,3,28,0));
+    border-top: 2px solid rgba(255,63,208,.7); border-bottom: 2px solid rgba(180,77,255,.7); }
+  .ticker .run { white-space: nowrap; font-size: 26px; letter-spacing: 6px; animation: tick 40s linear infinite; }
+  .ticker .run b { color: var(--pink); margin: 0 26px; }
+  @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .badge { position: absolute; right: 40px; top: 36px; display: flex; align-items: center; gap: 14px; font-size: 18px; letter-spacing: 5px; color: #e9c7ff; }
+  .badge .t2 { margin-top: 6px; font-family: Bangers; font-size: 40px; letter-spacing: 2px; color: #fff; text-shadow: 0 0 12px #ff3fd0; line-height: .95; }
+</style>
+</head>
+<body>
+<div class="layer" id="ui">
+  <div class="badge"><span id="emb"></span><div>PARTENAIRE OFFICIEL<div class="t2">LE RAINTÉ DU TCG</div></div></div>
+  <div class="stage"><div class="card">
+    <div class="top"><div class="z3">Z3</div><div class="names"><div>TEAM <b>Z3F4</b></div><div>BY<span>LE RAINTÉ DU TCG</span></div></div></div>
+    <div class="title" id="title"></div>
+    <span class="jp" id="jp"></span>
+    <div class="count" id="count">00:00</div>
+    <div class="sub" id="sub"></div>
+    <div class="food"><div class="sw" id="sw"></div><div class="dk" id="dk"></div></div>
+    <div class="rule" id="rule"></div>
+  </div></div>
+  <div class="ticker"><div class="run" id="run"></div></div>
+</div>
+<script src="src/art.js"></script>
+<script>
+(function () {
+  'use strict';
+  const Q = new URLSearchParams(location.search);
+  const mode = Q.get('mode') || 'soon';
+  // les fonds MIX + décors interactifs sont activés par défaut
+  if (!Q.has('scene')) { const u = new URL(location.href); u.searchParams.set('scene', Q.get('bg') || 'mix'); history.replaceState(null, '', u); }
+  const A = window.Z3Art, $ = (s) => document.getElementById(s);
+  $('emb').innerHTML = A.emblemSVG(86, 'emS');
+  const DEVIL = '<svg width="26" height="26" viewBox="0 0 32 32"><path d="M5 4l5 7M27 4l-5 7" stroke="#ff2f8a" stroke-width="4" stroke-linecap="round"/><circle cx="16" cy="18" r="12" fill="#b44dff"/><circle cx="12" cy="17.6" r="1.8" fill="#fff"/><circle cx="20" cy="17.6" r="1.8" fill="#fff"/><path d="M9.5 21.5q6.5 6 13 0" fill="#fff"/></svg>';
+
+  // niveau du sandwich : repris du chrono de l'overlay (même ordinateur), sinon selon la scène
+  let level = mode === 'soon' ? 0 : mode === 'end' ? 14 : 7;
+  try { const st = JSON.parse(localStorage.getItem('z3f4-timer-v1') || 'null');
+    if (st && mode === 'pause') { const rem = st.paused ? st.left : (st.endAt - Date.now()) / 1000; level = rem <= 0 ? 14 : Math.min(13, Math.floor((1 - rem / st.total) * 14)); } } catch (e) { /* rien */ }
+  if (Q.has('level')) level = +Q.get('level');
+  $('sw').innerHTML = A.sandwichSVG(level, 'scsw').replace('viewBox="0 0 1600 112"', 'viewBox="0 0 1600 112" preserveAspectRatio="xMinYMax meet"');
+  $('dk').innerHTML = A.drinkSVG(level, 'scdk');
+
+  const M = {
+    soon:  { t: 'LE LIVE COMMENCE BIENTÔT', jp: 'まもなく配信開始', sub: 'INSTALLE-TOI · SORS LES BOOSTERS · ÇA VA OUVRIR FORT', rule: `LE SANDWICH EST PRÊT… LE LIVE DURE TANT QU'IL EN RESTE ${DEVIL}` },
+    pause: { t: 'PETITE PAUSE', jp: '休憩中', sub: 'ON REVIENT TRÈS VITE · NE BOUGE PAS', rule: `LE SANDWICH ATTEND… IL EN RESTE ENCORE ${DEVIL}` },
+    end:   { t: 'MERCI POUR LE LIVE !', jp: 'ありがとう', sub: 'IL NE RESTE PLUS RIEN · À TRÈS VITE SUR Z3 LIVE', rule: `SANDWICH TERMINÉ · VERRE VIDE · GG ${DEVIL}` },
+  }[mode] || {};
+  $('title').textContent = M.t; $('jp').textContent = M.jp; $('sub').textContent = M.sub; $('rule').innerHTML = M.rule;
+  const items = ['OUVERTURES DE DISPLAYS', 'POKÉMON', 'ONE PIECE CARD GAME', 'TEAM Z3F4', 'LE RAINTÉ DU TCG', 'LE LIVE SE TERMINE QUAND IL NE RESTE PLUS RIEN', 'FOLLOW POUR NE RIEN RATER'];
+  const line = items.map((t) => `${t}<b>✦</b>`).join('');
+  $('run').innerHTML = line + line;
+
+  // compte à rebours : ?in=10m · ?at=20:30 · fin : pas de compteur
+  const dur = (s) => { let t = 0, m; const re = /(\d+(?:\.\d+)?)\s*(h|m|s)/g; while ((m = re.exec(s))) t += parseFloat(m[1]) * (m[2] === 'h' ? 3600 : m[2] === 'm' ? 60 : 1); return t || parseFloat(s) || 0; };
+  let target = null;
+  if (Q.get('at')) { const [h, mi] = Q.get('at').split(':').map(Number); const d = new Date(); d.setHours(h, mi || 0, 0, 0); if (d < new Date()) d.setDate(d.getDate() + 1); target = +d; }
+  else if (mode !== 'end') target = Date.now() + dur(Q.get('in') || (mode === 'pause' ? '5m' : '10m')) * 1000;
+  const fmt = (s) => { s = Math.max(0, Math.ceil(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60; return (h ? String(h).padStart(2, '0') + ':' : '') + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0'); };
+  if (!target) $('count').style.display = 'none';
+  else setInterval(function t() {
+    const rem = (target - Date.now()) / 1000;
+    $('count').textContent = rem > 0 ? fmt(rem) : (mode === 'soon' ? "C'EST PARTI !" : 'ON REVIENT !');
+    return t;
+  }(), 250);
+})();
+</script>
+<script src="src/fx.js"></script>
+</body>
+</html>

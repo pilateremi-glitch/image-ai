@@ -63,6 +63,37 @@ Interactif (clic droit sur la source → **Interagir**) : la souris fait bouger 
 Exemple scène d'attente / pause : `overlay.html?scene=mix&duration=3h`
 Exemple live par-dessus la cam : `overlay.html?fx&duration=3h`
 
+
+### Thèmes de couleur
+
+`&theme=violet | rouge | cyan | rose | or` change la couleur de toute l'interface (le sandwich et la boisson gardent leurs vraies couleurs).
+En mode `scene=…` le thème suit automatiquement le fond : fond 1 → rouge, 2 → violet, 3 → cyan, 4 → rose, 5 → or.
+
+### Alertes en direct (`src/events.js`)
+
+Chaque événement affiche un grand bandeau manga (nom + montant), une explosion de pétales/énergie, met à jour les widgets
+(dernier follow, dernier acheteur, top supporter calculé automatiquement) et le fil de la zone Alertes.
+
+| Paramètre | Effet |
+|---|---|
+| `&se=<JWT>` | Connexion **StreamElements** (Dashboard › Mon compte › Canaux › JWT) |
+| `&sl=<token>` | Connexion **Streamlabs** (Paramètres › Clés API › Socket API Token) |
+| `&addtime` | Façon subathon : chaque événement **rajoute du temps** (et donc du sandwich) |
+| `&t_follow=60&t_sub=300&t_don=60&t_achat=120&t_raid=300&t_bits=60` | Secondes ajoutées (don : par €, bits : par 100) |
+| `&demoevents` | Événements de démonstration automatiques |
+
+Tests dans **Interagir** : `1` follow · `2` achat · `3` don · `4` sub · `5` raid. Depuis un script : `Z3.event({ type: 'achat', name: 'Sacha', amount: 49.9 })`.
+⚠️ Le jeton StreamElements/Streamlabs est secret : ne partage jamais l'URL complète de la source.
+
+## Scènes « Bientôt / Pause / Fin » (`scenes.html`)
+
+| URL | Scène |
+|---|---|
+| `scenes.html?mode=soon&in=10m` ou `&at=20:30` | Le live commence bientôt + compte à rebours |
+| `scenes.html?mode=pause&in=5m` | Petite pause (le sandwich affiche l'avancée réelle du live) |
+| `scenes.html?mode=end` | Merci pour le live (miettes + verre vide) |
+| `&bg=fond-2-z3-violet.png` | Un seul fond au lieu du MIX |
+
 ---
 
 ## Option B — PNG séparés (`export/`)

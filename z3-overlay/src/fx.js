@@ -11,6 +11,22 @@
   'use strict';
   const Q = new URLSearchParams(location.search);
   const scene = Q.get('scene');
+
+  /* ---------------- thèmes de couleur (rotation de teinte de l'interface) ---------------- */
+  const THEMES = { violet: 0, rouge: 45, cyan: -130, rose: 18, or: 92 };
+  const THEME_OF = { 'fond-1': 'rouge', 'fond-2': 'violet', 'fond-3': 'cyan', 'fond-4': 'rose', 'fond-5': 'or' };
+  const themeCss = document.createElement('style');
+  themeCss.textContent = `body{--hue:0deg}.layer:not(#sandwich):not(#drink):not(#decor):not(#evt){filter:hue-rotate(var(--hue));transition:filter 1.2s ease}#decor{filter:hue-rotate(var(--hue))}`;
+  document.head.appendChild(themeCss);
+  function setTheme(t) {
+    if (!(t in THEMES)) return;
+    document.body.style.setProperty('--hue', THEMES[t] + 'deg');
+    document.body.dataset.theme = t;
+  }
+  const themeParam = Q.get('theme') || (scene === 'mix' ? 'auto' : scene ? 'auto' : 'violet');
+  const autoTheme = themeParam === 'auto';
+  if (!autoTheme) setTheme(themeParam);
+  window.Z3theme = setTheme;
   if (!Q.has('fx') && !scene) return;
   const STATIC = Q.has('static');
   const W = 1920, H = 1080;
@@ -53,7 +69,7 @@
     const dur = parseFloat(Q.get('slide') || '7');
     sc.style.setProperty('--d', dur + 1.5 + 's');
     list.forEach((f) => {
-      const s = document.createElement('div'); s.className = 'sl';
+      const s = document.createElement('div'); s.className = 'sl'; s.dataset.f = f;
       s.innerHTML = `<div class="bl" style="background-image:url('${url(f)}')"></div><div class="mn" style="background-image:url('${url(f)}')"></div>`;
       sc.appendChild(s); slides.push(s);
     });
@@ -68,6 +84,7 @@
     const prev = slides[cur];
     cur = (cur + 1) % slides.length;
     const s = slides[cur];
+    if (autoTheme) setTheme(THEME_OF[(s.dataset.f || '').slice(0, 6)] || 'violet');
     s.classList.remove('on', 'wipe'); void s.offsetWidth;
     s.style.zIndex = 2; if (prev) prev.style.zIndex = 1;
     s.classList.add('on'); if (prev) { s.classList.add('wipe'); const fl = document.querySelector('#scene .flashline'); fl.classList.remove('go'); void fl.offsetWidth; fl.classList.add('go'); burst(rnd(300, 1600), rnd(200, 800), 30, 'petal'); }
@@ -189,5 +206,6 @@
     document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake');
   });
 
+  window.Z3fx = { burst, flash, next, shake: () => { document.body.classList.remove('shake'); void document.body.offsetWidth; document.body.classList.add('shake'); } };
   requestAnimationFrame(draw);
 })();
