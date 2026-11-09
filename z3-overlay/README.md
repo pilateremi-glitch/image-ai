@@ -85,6 +85,23 @@ Chaque événement affiche un grand bandeau manga (nom + montant), une explosion
 Tests dans **Interagir** : `1` follow · `2` achat · `3` don · `4` sub · `5` raid. Depuis un script : `Z3.event({ type: 'achat', name: 'Sacha', amount: 49.9 })`.
 ⚠️ Le jeton StreamElements/Streamlabs est secret : ne partage jamais l'URL complète de la source.
 
+
+### Alertes spéciales TCG pendant les ouvertures (`src/hits.js`)
+
+Dans **Interagir**, pendant l'ouverture d'un booster :
+
+| Touche | Alerte | Effet |
+|---|---|---|
+| `6` | **CARTE RARE !** (レア) | carte argentée qui se retourne, 1 étoile |
+| `7` | **HIT !!** (当たり) | carte dorée, lignes de vitesse manga, explosions dorées |
+| `8` | **SECRÈTE !!!** (シークレット) | carte holo arc-en-ciel animée |
+| `9` | **GOD PACK !!!!** (神引き) | tout en même temps, plus long, plusieurs secousses |
+| `0` | **FLOP…** (爆死) | carte grise qui tombe, pluie triste |
+
+- `&hitname` : demande le nom de la carte avant l'alerte (ex. « Dracaufeu ex »), affiché sur la carte et sous le titre.
+- Compteur **HITS DU LIVE** affiché à l'écran + ajout dans le fil Alertes.
+- Script / dock : `Z3.hit('god', 'Luffy Gear 5')`. Démo : `&demohits`.
+
 ## Scènes « Bientôt / Pause / Fin » (`scenes.html`)
 
 | URL | Scène |

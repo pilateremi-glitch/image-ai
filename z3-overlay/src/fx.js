@@ -16,7 +16,7 @@
   const THEMES = { violet: 0, rouge: 45, cyan: -130, rose: 18, or: 92 };
   const THEME_OF = { 'fond-1': 'rouge', 'fond-2': 'violet', 'fond-3': 'cyan', 'fond-4': 'rose', 'fond-5': 'or' };
   const themeCss = document.createElement('style');
-  themeCss.textContent = `body{--hue:0deg}.layer:not(#sandwich):not(#drink):not(#decor):not(#evt){filter:hue-rotate(var(--hue));transition:filter 1.2s ease}#decor{filter:hue-rotate(var(--hue))}`;
+  themeCss.textContent = `body{--hue:0deg}.layer:not(#sandwich):not(#drink):not(#decor):not(#evt):not(#hit){filter:hue-rotate(var(--hue));transition:filter 1.2s ease}#decor{filter:hue-rotate(var(--hue))}`;
   document.head.appendChild(themeCss);
   function setTheme(t) {
     if (!(t in THEMES)) return;
@@ -114,11 +114,11 @@
   for (let i = 0; i < 40; i++) P.push({ k: 'mote', x: rnd(0, W), y: rnd(0, H), vy: rnd(-0.6, -0.15), r: rnd(0.8, 2.4), t: rnd(0, 6.28), life: 1e9, c: Math.random() < .5 ? '#ff7be6' : '#ffffff' });
 
   const rings = [];
-  function burst(x, y, n, kind) {
+  function burst(x, y, n, kind, cols) {
     for (let i = 0; i < n; i++) {
       const a = rnd(0, 6.28), v = rnd(2, 9);
       if (kind === 'petal') { const p = petal(x, y, Math.cos(a) * v * .6, Math.sin(a) * v * .6); p.life = 260; p.max = 260; P.push(p); }
-      else P.push(spark(x, y, Math.cos(a) * v, Math.sin(a) * v));
+      else P.push(spark(x, y, Math.cos(a) * v, Math.sin(a) * v, cols && cols[(Math.random() * cols.length) | 0]));
     }
     rings.push({ x, y, r: 10, life: 30 });
   }
