@@ -30,6 +30,19 @@
   .food .sw { position: absolute; left: 0; bottom: 6px; width: 860px; height: 60px; }
   .food .dk { position: absolute; right: 20px; bottom: 0; width: 136px; height: 150px; }
   .food svg { width: 100%; height: 100%; overflow: visible; }
+  .recap { margin-top: 18px; filter: hue-rotate(calc(-1 * var(--hue, 0deg))); }   /* couleurs des raretés fixes quel que soit le thème */
+  .recap .chips { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .recap .chip { min-width: 128px; padding: 6px 12px 4px; background: rgba(255,255,255,.06); border: 1.5px solid var(--c, #b44dff); }
+  .recap .chip b { display: block; font-family: Orbitron; font-weight: 900; font-size: 34px; line-height: 1.1; color: var(--c, #fff); text-shadow: 0 0 12px var(--c, #ff3fd0); }
+  .recap .chip span { font-size: 13px; letter-spacing: 3px; color: #f0d4ff; }
+  .recap .gal { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
+  .recap .cardx { position: relative; width: 118px; height: 165px; border-radius: 8px; overflow: hidden; border: 3px solid var(--c); box-shadow: 0 0 16px var(--c);
+    background: linear-gradient(160deg, #2a0748, #12031f); display: grid; place-items: center; animation: pop .6s cubic-bezier(.2,1.6,.4,1) both; }
+  .recap .cardx img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .recap .cardx i { position: absolute; left: 0; right: 0; bottom: 0; padding: 3px 4px; font-style: normal; font-size: 11px; line-height: 1.1; background: rgba(10,2,20,.88); color: #fff; }
+  .recap .cardx em { font-style: normal; font-family: Bangers; font-size: 30px; color: var(--c); }
+  @keyframes pop { from { transform: scale(.2) rotate(-10deg); opacity: 0; } }
+  .recap .none { color: #e9c7ff; letter-spacing: 4px; margin-top: 10px; }
   .rule { margin-top: 10px; display: inline-flex; align-items: center; gap: 10px; font-size: 22px; letter-spacing: 4px; padding: 6px 18px;
     background: linear-gradient(90deg, rgba(255,63,208,.95), rgba(139,44,255,.9)); clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
   .ticker { position: absolute; left: 0; right: 0; bottom: 24px; height: 52px; overflow: hidden; display: flex; align-items: center;
@@ -52,6 +65,7 @@
     <div class="count" id="count">00:00</div>
     <div class="sub" id="sub"></div>
     <div class="food"><div class="sw" id="sw"></div><div class="dk" id="dk"></div></div>
+    <div class="recap" id="recap" hidden></div>
     <div class="rule" id="rule"></div>
   </div></div>
   <div class="ticker"><div class="run" id="run"></div></div>
@@ -93,6 +107,29 @@
   else if (mode !== 'end') target = Date.now() + dur(Q.get('in') || (mode === 'pause' ? '5m' : '10m')) * 1000;
   const fmt = (s) => { s = Math.max(0, Math.ceil(s)); const h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60, x = s % 60; return (h ? String(h).padStart(2, '0') + ':' : '') + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0'); };
   if (!target) $('count').style.display = 'none';
+
+  /* récap du live (rempli par l'overlay pendant le live) */
+  if (mode === 'end') {
+    let r = null; try { r = JSON.parse(localStorage.getItem('z3-recap-v1') || 'null'); } catch (e) { r = null; }
+    if (Q.has('demo')) r = { cards: 214, newCards: 37, flops: 3, hits: [
+      { tier: 'god', name: 'GOD PACK' }, { tier: 'secret', name: 'Pikachu-ex 238/191' }, { tier: 'secret', name: 'Luffy OP05-119' },
+      { tier: 'ultra', name: 'Balbalèze 201/191' }, { tier: 'ultra', name: 'Shanks OP09-004' }, { tier: 'rare', name: 'Évoli' }, { tier: 'ultra', name: 'Dracaufeu-ex' }] };
+    if (r) {
+      const C = { rare: '#7bd0ff', ultra: '#ffd23a', secret: '#ff3fd0', god: '#ffd23a' }, L = { rare: 'RARE', ultra: 'HIT', secret: 'SECRÈTE', god: 'GOD' };
+      const cnt = (t) => r.hits.filter((h) => h.tier === t).length;
+      const esc = (x) => String(x || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      const chips = [['CARTES', r.cards, '#b44dff'], ['NOUVELLES', r.newCards, '#3dff9a'], ['RARE', cnt('rare'), C.rare], ['HIT', cnt('ultra'), C.ultra], ['SECRÈTE', cnt('secret'), C.secret], ['GOD PACK', cnt('god'), C.god]]
+        .map(([l, v, c]) => `<div class="chip" style="--c:${c}"><b>${v}</b><span>${l}</span></div>`).join('');
+      const rank = { god: 4, secret: 3, ultra: 2, rare: 1 };
+      const top = r.hits.slice().sort((a, b) => (rank[b.tier] - rank[a.tier]) || (b.t || 0) - (a.t || 0)).filter((h) => h.tier !== 'god' || h.img || h.snap).slice(0, 7);
+      const gal = top.map((h, i) => `<div class="cardx" style="--c:${C[h.tier]};animation-delay:${0.3 + i * 0.15}s"><em>${L[h.tier]}</em>${h.img || h.snap ? `<img src="${esc(h.img || h.snap)}" data-alt="${esc(h.img ? h.snap : '')}">` : ''}<i>${esc(h.name)}</i></div>`).join('');
+      $('recap').innerHTML = `<div class="chips">${chips}</div>${gal ? `<div class="gal">${gal}</div>` : '<div class="none">PAS DE HIT CE SOIR… LE PROCHAIN SERA LE BON</div>'}`;
+      $('recap').querySelectorAll('img').forEach((im) => { im.onerror = () => { if (im.dataset.alt) { im.src = im.dataset.alt; im.dataset.alt = ''; } else im.remove(); }; });
+      $('recap').hidden = false;
+      document.querySelector('.food').style.display = 'none';
+      $('sub').textContent = 'RÉCAP DU LIVE · ' + r.hits.filter((h) => h.tier !== 'god').length + ' HITS · À TRÈS VITE SUR Z3 LIVE';
+    }
+  }
   else setInterval(function t() {
     const rem = (target - Date.now()) / 1000;
     $('count').textContent = rem > 0 ? fmt(rem) : (mode === 'soon' ? "C'EST PARTI !" : 'ON REVIENT !');

@@ -14,7 +14,8 @@
     if (!m || !m.z3 || (m.id && seen.has(m.id))) return;
     if (m.id) { seen.add(m.id); if (seen.size > 200) seen.delete(seen.values().next().value); }
     const Z = window.Z3 || {}, fx = window.Z3fx;
-    if (m.kind === 'hit' && Z.hit) Z.hit(m.tier, m.name);
+    if (m.kind === 'hit' && Z.hit) Z.hit(m.tier, m.name, { img: m.img, snap: m.snap, key: m.key });
+    else if (m.kind === 'card' && Z.card) Z.card(m);
     else if (m.kind === 'event' && Z.event) Z.event(m);
     else if (m.kind === 'cmd') {
       if (m.cmd === 'add' && Z.add) Z.add(+m.sec || 0);

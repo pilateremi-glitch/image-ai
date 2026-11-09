@@ -126,6 +126,10 @@
 <script src="data/db-pokemon.js"></script>
 <script src="data/db-onepiece.js"></script>
 <script src="src/db.js"></script>
+<script src="src/phash.js"></script>
+<!-- empreintes visuelles (générées sur ton PC par tools/build-prints.mjs ; absentes = reconnaissance visuelle désactivée) -->
+<script src="data/print-pokemon.js" onerror="void 0"></script>
+<script src="data/print-onepiece.js" onerror="void 0"></script>
 <script src="src/obsws.js"></script>
 <script src="src/detect.js"></script>
 <script src="test/cards.js"></script>
@@ -242,7 +246,48 @@
 
   /* ---------- calibrage ---------- */
   let lastF = null;
-  $('calBg').addEventListener('click', () => { if (!lastF) return; bgThumb = Array.from(lastF.thumb); store.set('bg', bgThumb); det.setBackground({ thumb: bgThumb }); flash($('calBg')); });
+  /* reconnaissance visuelle : découpe précise de la carte (différence avec la zone vide) */
+  const VW = 240, VH = 336;
+  const vc = document.createElement('canvas'); vc.width = VW; vc.height = VH;
+  const vx = vc.getContext('2d', { willReadFrequently: true });
+  let bgFull = null;
+  function zoneFull() { const z = zoneRect(cv.width, cv.height); vx.drawImage(cv, z.x, z.y, z.w, z.h, 0, 0, VW, VH); return vx.getImageData(0, 0, VW, VH); }
+  function cardCrop() {
+    const im = zoneFull();
+    if (!bgFull) return { data: im.data, w: VW, h: VH };
+    const d = im.data, b = bgFull, rows = new Uint16Array(VH), cols = new Uint16Array(VW);
+    for (let y = 0; y < VH; y++) for (let x = 0; x < VW; x++) {
+      const i = (y * VW + x) * 4;
+      if (Math.abs(d[i] - b[i]) + Math.abs(d[i + 1] - b[i + 1]) + Math.abs(d[i + 2] - b[i + 2]) > 60) { rows[y]++; cols[x]++; }
+    }
+    const span = (arr, n, min) => { let a = 0, z = n - 1; while (a < n && arr[a] < min) a++; while (z > a && arr[z] < min) z--; return [a, z]; };
+    const [y0, y1] = span(rows, VH, VW * 0.25), [x0, x1] = span(cols, VW, VH * 0.25);
+    if (y1 - y0 < VH * 0.3 || x1 - x0 < VW * 0.3) return { data: d, w: VW, h: VH };
+    const w = x1 - x0 + 1, h = y1 - y0 + 1, out = new Uint8ClampedArray(w * h * 4);
+    for (let y = 0; y < h; y++) out.set(d.subarray(((y0 + y) * VW + x0) * 4, ((y0 + y) * VW + x1 + 1) * 4), y * w * 4);
+    return { data: out, w, h, box: [x0, y0, w, h] };
+  }
+  const PRINTS = {};
+  function prints(game) {
+    if (PRINTS[game]) return PRINTS[game];
+    const raw = (window.Z3PRINTS || {})[game]; if (!raw) return null;
+    const idx = {}; for (const k in raw) { const v = raw[k]; idx[k] = { f: v.slice(0, 16), a: v.slice(16, 32), c: [parseInt(v.slice(32, 34), 16), parseInt(v.slice(34, 36), 16), parseInt(v.slice(36, 38), 16)] }; }
+    return (PRINTS[game] = idx);
+  }
+  function recognize() {
+    const game = $('game').value, idx = prints(game); if (!idx) return null;
+    let keys = null;
+    if ($('setSel').value !== '') {
+      const st = Z3Base.sets(game)[+$('setSel').value];
+      keys = Z3Base.cardsOf(game, st.i).map((c) => c.key).filter((k) => idx[k]);
+    }
+    const c = cardCrop(), p = window.Z3Print.cardPrint(c.data, c.w, c.h);
+    const m = window.Z3Print.match(p, idx, keys);
+    if (!m) return null;
+    const ok = m.d <= 30 && m.marge >= 5;
+    return Object.assign(m, { ok, card: ok ? Z3Base.byKey(m.key) : null });
+  }
+  $('calBg').addEventListener('click', () => { if (!lastF) return; bgThumb = Array.from(lastF.thumb); store.set('bg', bgThumb); det.setBackground({ thumb: bgThumb }); bgFull = zoneFull().data.slice(); flash($('calBg')); });
   $('calCommon').addEventListener('click', () => { if (!lastF) return; common = { gold: lastF.gold, rainbow: lastF.rainbow, sparkle: lastF.sparkle, lowerSat: lastF.lowerSat }; store.set('common', common); flash($('calCommon')); });
   function flash(b) { b.style.borderColor = '#3dff9a'; b.querySelector('.step').textContent = '✔'; }
   if (common) flash($('calCommon'));
@@ -305,7 +350,7 @@ Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
       return `<option value="${x.i}">${label.replace(/</g, '&lt;')}</option>`; }).join('');
     $('setSel').value = store.get('set-' + g, '');
     const m = window.Z3DB || {};
-    $('dbInfo').textContent = 'Base master set : ' + (m.pokemon ? m.pokemon.sets.length + ' extensions Pokémon (' + m.pokemon.cards.length + ' cartes)' : '') + (m.onepiece ? ' · ' + m.onepiece.packs.length + ' boosters One Piece (' + m.onepiece.cards.length + ' cartes)' : '') + '. En mode IA, chaque carte lue est vérifiée dans la base (rareté officielle).';
+    $('dbInfo').textContent = 'Base master set : ' + (m.pokemon ? m.pokemon.sets.length + ' extensions Pokémon (' + m.pokemon.cards.length + ' cartes)' : '') + (m.onepiece ? ' · ' + m.onepiece.packs.length + ' boosters One Piece (' + m.onepiece.cards.length + ' cartes)' : '') + '. ' + (window.Z3PRINTS ? 'Reconnaissance visuelle : ' + Object.entries(window.Z3PRINTS).map(([g, v]) => Object.keys(v).length + ' empreintes ' + (g === 'pokemon' ? 'Pokémon' : 'One Piece')).join(', ') + '.' : 'Reconnaissance visuelle : lance tools/build-prints.mjs pour l\'activer.');
   }
   $('game').value = store.get('game', 'pokemon');
   $('game').addEventListener('change', () => { store.set('game', $('game').value); fillSets(); });
@@ -332,8 +377,12 @@ Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
   async function onCard(f, sc) {
     const sens = +$('sens').value, m = mode();
     const thumb = zc.toDataURL('image/jpeg', 0.7);
-    let tier = D.tierFromScore(sc.total, sens), name = '', how = 'local';
-    if (m === 'ai' || (m === 'hybrid' && sc.total >= 0.7 / sens)) {
+    let tier = D.tierFromScore(sc.total, sens), name = '', how = 'local', card = null;
+    // 1) reconnaissance visuelle locale (empreintes) : gratuite, instantanée
+    const rec = recognize();
+    if (rec && rec.ok) { card = rec.card; how = `VISUEL ✓ (écart ${rec.d.toFixed(0)})`; }
+    // 2) IA si besoin (mode IA, ou hybride quand la carte brille et n'a pas été reconnue)
+    else if (m === 'ai' || (m === 'hybrid' && sc.total >= 0.7 / sens)) {
       how = 'IA';
       try {
         const r = await askClaude(await hiResCrop());
@@ -342,17 +391,21 @@ Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
         // la base master set fait foi : rareté officielle + nom français
         const hit = r.carte_visible && window.Z3Base && Z3Base.find({ jeu: r.jeu === 'autre' ? $('game').value : r.jeu, code: r.code_extension, numero: r.numero, nom: r.nom, variante: r.variante,
           setHint: $('game').value === 'pokemon' ? $('setSel').value : '' });
-        if (hit && hit.confiance >= 0.6) {
-          tier = hit.tier; name = hit.nom + ' ' + hit.numero;
-          how = 'BASE ✓ ' + (hit.set.fr || hit.set.en || hit.set.ja || hit.set.code) + ' · ' + hit.rarete;
-          Z3Base.collection.add(hit.key);
-        }
+        if (hit && hit.confiance >= 0.6) { card = hit; how = 'IA + BASE ✓'; }
       } catch (e) { how = 'IA indispo (' + e.message + ') → local'; }
+    }
+    if (card) {
+      tier = card.tier; name = card.nom + ' ' + card.numero;
+      how += ' · ' + (card.set.fr || card.set.en || card.set.ja || card.set.code) + ' · ' + card.rarete;
+      const isNew = Z3Base.collection.add(card.key) === 1;
+      send({ kind: 'card', key: card.key, name, tier, newCard: isNew });
     }
     if (tier) {
       const n = det.registerHit();
       if ($('optGod').checked && n === 3) tier = 'god';
-      send({ kind: 'hit', tier, name });
+      const crop = cardCrop(), sc2 = document.createElement('canvas'); sc2.width = crop.w; sc2.height = crop.h;
+      sc2.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(crop.data), crop.w, crop.h), 0, 0);
+      send({ kind: 'hit', tier, name, key: card ? card.key : '', img: card ? card.img : '', snap: sc2.toDataURL('image/jpeg', 0.85) });
     }
     addLog({ tier, name, how, score: sc.total, thumb });
   }

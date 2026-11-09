@@ -163,6 +163,34 @@ cd z3-overlay/tools && npm install && node build-db.mjs
 ```
 Le script lit les fichiers de données comme du texte (sans exécuter de code) et régénère `data/db-pokemon.js` et `data/db-onepiece.js`.
 
+
+### 👁️ Reconnaissance visuelle locale (sans IA, gratuite)
+
+Le détecteur peut reconnaître **la carte exacte** juste avec la caméra, en comparant son **empreinte visuelle** à celles des images officielles.
+
+1. Sur ton PC (une fois, puis à chaque nouvelle extension) :
+   ```bash
+   cd z3-overlay/tools && npm install
+   node build-prints.mjs                     # Pokémon FR/EN depuis 2023 + tout One Piece
+   node build-prints.mjs --sets sv08,me05    # ou seulement les extensions que tu ouvres
+   ```
+   Le script télécharge les images officielles (TCGdex, site One Piece) et crée `data/print-pokemon.js` et `data/print-onepiece.js`.
+   Il reprend là où il s'est arrêté. Compte plusieurs dizaines de minutes pour tout.
+2. Dans le dock : refais le calibrage **A (zone vide)**. Il sert à découper précisément la carte.
+3. **Choisis l'extension que tu ouvres** dans le menu : la reconnaissance compare alors à ~250 cartes au lieu de milliers, elle est beaucoup plus fiable.
+
+Ordre de décision pour chaque carte : **empreinte reconnue** → rareté officielle de la base (gratuit). Sinon, en mode hybride ou IA : **Claude lit la carte** → base. Sinon : **analyse de brillance**.
+
+### 🖼️ Image de la carte dans l'alerte
+
+L'alerte affiche l'**image officielle** de la carte reconnue. Sans Internet, c'est la **photo de la caméra** qui s'affiche, et en dernier recours la carte Z3.
+
+### 🏆 Récap de fin de live
+
+Pendant le live, l'overlay garde le compte : cartes identifiées, nouvelles cartes du master set, RARE / HIT / SECRÈTE / GOD PACK, et images des hits.
+La scène **`scenes.html?mode=end`** affiche ce récap automatiquement (chiffres et galerie des meilleurs hits).
+Le récap repart à zéro quand l'overlay est lancé avec `&reset` ou `&newlive`. Aperçu : `scenes.html?mode=end&demo`.
+
 ## Scènes « Bientôt / Pause / Fin » (`scenes.html`)
 
 | URL | Scène |

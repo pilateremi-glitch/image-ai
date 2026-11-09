@@ -100,7 +100,7 @@ async function pokemon(root, dataDir, region) {
     if (!s.id || /pocket/i.test(serie.name && serie.name.en || '') || serie.id === 'tcgp') continue;   // TCG Pocket = numérique
     if (!sets.has(s.id)) {
       sets.set(s.id, {
-        id: s.id, region, serie: (serie.name && (serie.name.fr || serie.name.en || serie.name.ja)) || serie.id || '',
+        id: s.id, region, serieId: serie.id || '', serie: (serie.name && (serie.name.fr || serie.name.en || serie.name.ja)) || serie.id || '',
         fr: (s.name && s.name.fr) || '', en: (s.name && s.name.en) || '', ja: (s.name && s.name.ja) || '',
         code: (s.abbreviations && s.abbreviations.official) || '', codeFr: (s.abbreviations && s.abbreviations.fr) || '',
         off: (s.cardCount && s.cardCount.official) || 0, date: typeof s.releaseDate === 'object' && s.releaseDate ? String(Object.values(s.releaseDate)[0] || '') : String(s.releaseDate || ''), n: 0,
@@ -133,7 +133,8 @@ function onepiece(root) {
     for (const sub of fs.readdirSync(path.join(dir, 'cards'))) {
       for (const f of fs.readdirSync(path.join(dir, 'cards', sub))) {
         const d = JSON.parse(fs.readFileSync(path.join(dir, 'cards', sub, f), 'utf8'));
-        const cur = cards.get(d.id) || { id: d.id, base: d.id.split('_')[0], v: (d.id.split('_')[1] || ''), p: d.pack_id, en: '', fr: '', r: d.rarity, k: d.category, col: (d.colors || []).join('/') };
+        const cur = cards.get(d.id) || { id: d.id, base: d.id.split('_')[0], v: (d.id.split('_')[1] || ''), p: d.pack_id, en: '', fr: '', r: d.rarity, k: d.category, col: (d.colors || []).join('/'), img: '' };
+        if (d.img_full_url && (key === 'fr' || !cur.img)) cur.img = d.img_full_url;
         cur[key] = decode(d.name); cards.set(d.id, cur);
       }
     }
@@ -156,7 +157,7 @@ function writePokemon(intl, jp) {
     for (const c of list) rows.push([idx.get(c.s + '|' + region), c.l, c.fr, c.en, c.ja, rar.indexOf(c.r), c.t]);
   }
   const db = { v: 1, built: new Date().toISOString(), source: 'TCGdex (MIT)', rarities: rar,
-    sets: sets.map((s) => [s.id, s.region, s.serie, s.fr, s.en, s.ja, s.code, s.codeFr, s.off, s.n, s.date]), cards: rows };
+    sets: sets.map((s) => [s.id, s.region, s.serie, s.fr, s.en, s.ja, s.code, s.codeFr, s.off, s.n, s.date, s.serieId]), cards: rows };
   fs.writeFileSync(path.join(OUT, 'db-pokemon.js'), '/* Base master set Pokémon — générée par tools/build-db.mjs — source TCGdex (MIT) */\n' +
     'window.Z3DB=window.Z3DB||{};window.Z3DB.pokemon=' + JSON.stringify(db) + ';\n');
   return { sets: sets.length, cards: rows.length };
@@ -167,7 +168,7 @@ function writeOnePiece(op) {
   const rar = [...new Set(op.cards.map((c) => c.r))];
   const db = { v: 1, built: new Date().toISOString(), source: 'Punk Records / site officiel One Piece Card Game', rarities: rar,
     packs: packs.map((p) => [p.id, p.label, p.fr, p.en]),
-    cards: op.cards.sort((a, b) => a.id.localeCompare(b.id)).map((c) => [c.id, pidx.has(c.p) ? pidx.get(c.p) : -1, c.fr, c.en, rar.indexOf(c.r), c.t, c.k, c.col]) };
+    cards: op.cards.sort((a, b) => a.id.localeCompare(b.id)).map((c) => [c.id, pidx.has(c.p) ? pidx.get(c.p) : -1, c.fr, c.en, rar.indexOf(c.r), c.t, c.k, c.col, c.img]) };
   fs.writeFileSync(path.join(OUT, 'db-onepiece.js'), '/* Base master set One Piece Card Game — générée par tools/build-db.mjs — données © Bandai / Eiichiro Oda */\n' +
     'window.Z3DB=window.Z3DB||{};window.Z3DB.onepiece=' + JSON.stringify(db) + ';\n');
   return { packs: packs.length, cards: db.cards.length };

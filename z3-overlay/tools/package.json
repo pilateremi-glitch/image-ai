@@ -2,7 +2,14 @@
   "name": "z3-overlay-tools",
   "private": true,
   "type": "module",
-  "description": "Construit la base master set (Pokémon, One Piece) utilisée par le détecteur Z3",
-  "scripts": { "build-db": "node build-db.mjs" },
-  "devDependencies": { "acorn": "^8.14.0", "esbuild": "^0.25.0" }
+  "description": "Construit la base master set et les empreintes visuelles utilisées par le détecteur Z3",
+  "scripts": {
+    "build-db": "node build-db.mjs",
+    "build-prints": "node build-prints.mjs"
+  },
+  "devDependencies": {
+    "acorn": "^8.14.0",
+    "esbuild": "^0.25.0",
+    "sharp": "^0.34.0"
+  }
 }

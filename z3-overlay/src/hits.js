@@ -44,6 +44,9 @@
   #hit.rainbow .front{background:linear-gradient(125deg,#ff3fd0,#ffd23a,#7bffea,#7b9bff,#ff3fd0);background-size:300% 300%;animation:holo 1.6s linear infinite}
   @keyframes holo{to{background-position:300% 0}}
   #hit.flop .front{background:linear-gradient(160deg,#d7dbe5,#8a92a6 60%,#4a5163);filter:grayscale(1)}
+  #hit .front .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+  #hit .front .tag{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:8px 10px;background:linear-gradient(transparent,rgba(10,2,20,.92));font-family:Rajdhani;font-weight:700;font-size:20px;color:#fff;text-align:center;letter-spacing:1px}
+  #hit .front .shine{z-index:3}
   #hit .front .art{position:absolute;left:18px;right:18px;top:54px;height:200px;border-radius:8px;background:rgba(18,3,31,.65);display:grid;place-items:center;overflow:hidden}
   #hit .front .art b{font-family:Bangers;font-size:110px;color:#fff;letter-spacing:2px;text-shadow:0 0 20px var(--c1),0 5px 0 #3a0a66}
   #hit .front .nm{position:absolute;left:18px;right:18px;top:16px;font-family:Rajdhani;font-weight:700;font-size:22px;letter-spacing:2px;color:#12031f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -77,9 +80,25 @@
   showCount();
 
   const queue = []; let busy = false;
-  function hit(tier, name) {
+  /* ---------- récap du live (lu par la scène « Merci » : scenes.html?mode=end) ---------- */
+  const RKEY = 'z3-recap-v1';
+  const recap = {
+    load() { try { return JSON.parse(localStorage.getItem(RKEY) || 'null') || this.fresh(); } catch (e) { return this.fresh(); } },
+    fresh() { return { start: Date.now(), hits: [], flops: 0, cards: 0, newCards: 0, seen: {} }; },
+    save(r) { try { localStorage.setItem(RKEY, JSON.stringify(r)); } catch (e) { /* stockage plein : on garde la session */ } },
+  };
+  if (Q.has('reset') || Q.has('newlive')) recap.save(recap.fresh());
+  function card(m) {                             // carte identifiée par le détecteur (commune ou non)
+    const r = recap.load(); r.cards++;
+    if (m.newCard) r.newCards++;
+    if (m.key) r.seen[m.key] = (r.seen[m.key] || 0) + 1;
+    recap.save(r);
+  }
+
+  function hit(tier, name, opts) {
     if (!TIERS[tier]) tier = 'ultra';
-    queue.push({ tier, name: name ? String(name).slice(0, 28) : '' });
+    opts = opts || {};
+    queue.push({ tier, name: name ? String(name).slice(0, 34) : '', img: opts.img || '', snap: opts.snap || '', key: opts.key || '' });
     if (!busy) play();
   }
   function play() {
@@ -94,7 +113,7 @@
       <div class="ttl">${T.t}</div><div class="jp">${T.jp}</div>
       <div class="card"><div class="inner">
         <div class="face back">${emblem}</div>
-        <div class="face front"><div class="nm">${esc(h.name || (T.flop ? 'Commune' : 'Carte du live'))}</div>
+        <div class="face front">${h.img || h.snap ? `<img class="photo" src="${esc(h.img || h.snap)}" data-alt="${esc(h.img ? h.snap : '')}"><div class="tag">${esc(h.name)}</div>` : ''}<div class="nm">${esc(h.name || (T.flop ? 'Commune' : 'Carte du live'))}</div>
           <div class="art"><b>${T.flop ? '…' : 'Z3'}</b></div>
           <div class="stars">${T.flop ? '●' : '★'.repeat(T.star)}</div>
           <div class="ft">TEAM Z3F4 × LE RAINTÉ DU TCG</div>${T.flop ? '' : '<div class="shine"></div>'}</div>
@@ -108,13 +127,16 @@
       setTimeout(() => fx.burst(960, 500, T.n, '', T.cols), 1500);
       if (T.god) for (let i = 0; i < 4; i++) setTimeout(() => { fx.shake(); fx.burst(960, 500, 60, 'petal'); }, 1500 + i * 900);
     }
+    const ph = box.querySelector('.photo');                 // image officielle → sinon photo caméra → sinon carte Z3
+    if (ph) ph.onerror = () => { if (ph.dataset.alt) { ph.src = ph.dataset.alt; ph.dataset.alt = ''; } else { ph.remove(); const tg = box.querySelector('.tag'); if (tg) tg.remove(); } };
     if (!T.flop) { hits++; try { sessionStorage.setItem('z3f4-hits', hits); } catch (e) { /* rien */ } showCount(); }
+    { const r = recap.load(); if (T.flop) r.flops++; else { r.hits.push({ tier: h.tier, name: h.name, img: h.img, snap: h.snap, key: h.key, t: Date.now() }); if (r.hits.length > 40) r.hits.shift(); } recap.save(r); }
     const feed = document.querySelector('#alerts .zone .feed');
     if (feed) { feed.insertAdjacentHTML('beforeend', `<div class="it" style="--c:${T.c1}"><b>${T.flop ? 'FLOP' : 'HIT'}</b><span>${esc(h.name || T.t)}</span><i>${'★'.repeat(T.star)}</i></div>`); while (feed.children.length > 5) feed.firstChild.remove(); }
     setTimeout(() => { box.className = 'layer'; box.innerHTML = ''; play(); }, T.ms + 200);
   }
 
-  window.Z3 = Object.assign(window.Z3 || {}, { hit });
+  window.Z3 = Object.assign(window.Z3 || {}, { hit, card, recap: () => recap.load() });
   const KEYS = { 6: 'rare', 7: 'ultra', 8: 'secret', 9: 'god', 0: 'flop' };
   window.addEventListener('keydown', (e) => {
     const t = KEYS[e.key]; if (!t) return;

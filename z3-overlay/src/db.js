@@ -23,11 +23,12 @@
   const game = (j) => (/one\s*piece|^op$/i.test(j || '') ? 'onepiece' : 'pokemon');
 
   /* ---------- Pokémon ---------- */
-  function pkSet(i) { const s = DB().pokemon.sets[i]; return { i, id: s[0], region: s[1], serie: s[2], fr: s[3], en: s[4], ja: s[5], code: s[6], codeFr: s[7], off: s[8], total: s[9], date: s[10] }; }
+  function pkSet(i) { const s = DB().pokemon.sets[i]; return { i, id: s[0], region: s[1], serie: s[2], fr: s[3], en: s[4], ja: s[5], code: s[6], codeFr: s[7], off: s[8], total: s[9], date: s[10], serieId: s[11] || '' }; }
   function pkCard(c) {
     const P = DB().pokemon, s = pkSet(c[0]);
     return { jeu: 'pokemon', key: 'pk:' + s.id + ':' + s.region + ':' + c[1], set: s, numero: c[1] + (s.off ? '/' + s.off : ''),
-      nom: c[2] || c[3] || c[4], nomEn: c[3], rarete: P.rarities[c[5]], niveau: c[6], tier: TIER[c[6]] };
+      nom: c[2] || c[3] || c[4], nomEn: c[3], rarete: P.rarities[c[5]], niveau: c[6], tier: TIER[c[6]],
+      img: s.serieId ? `https://assets.tcgdex.net/${s.region === 'jp' ? 'ja' : 'en'}/${s.serieId}/${s.id}/${c[1]}/high.webp` : '' };
   }
   function findPokemon(q) {
     const P = DB().pokemon; if (!P) return null;
@@ -61,7 +62,7 @@
   function opCard(c) {
     const O = DB().onepiece, p = O.packs[c[1]] || [];
     return { jeu: 'onepiece', key: 'op:' + c[0], id: c[0], set: { i: c[1], id: p[0], code: p[1], fr: p[2], en: p[3] }, numero: c[0].split('_')[0],
-      variante: c[0].split('_')[1] || '', nom: c[2] || c[3], nomEn: c[3], rarete: O.rarities[c[4]], niveau: c[5], tier: TIER[c[5]] };
+      variante: c[0].split('_')[1] || '', nom: c[2] || c[3], nomEn: c[3], rarete: O.rarities[c[4]], niveau: c[5], tier: TIER[c[5]], img: c[8] || '' };
   }
   function findOnePiece(q) {
     const O = DB().onepiece; if (!O) return null;
@@ -102,5 +103,14 @@
     save(o) { try { localStorage.setItem(CKEY, JSON.stringify(o)); } catch (e) { /* rien */ } },
     add(key, n) { const o = coll.load(); o[key] = Math.max(0, (o[key] || 0) + (n === undefined ? 1 : n)); if (!o[key]) delete o[key]; coll.save(o); return o[key] || 0; } };
 
-  global.Z3Base = { find, sets, cardsOf, sim, norm, collection: coll, TIER };
+  function byKey(key) {                     // 'pk:sv08:int:238' ou 'op:OP09-004_p1'
+    const p = String(key || '').split(':');
+    if (p[0] === 'op' && DB().onepiece) { const c = DB().onepiece.cards.find((x) => x[0] === p.slice(1).join(':')); return c ? opCard(c) : null; }
+    if (p[0] === 'pk' && DB().pokemon) {
+      const si = DB().pokemon.sets.findIndex((s) => s[0] === p[1] && s[1] === p[2]); if (si < 0) return null;
+      return cardsOf('pokemon', si).find((c) => c.key === key) || null;
+    }
+    return null;
+  }
+  global.Z3Base = { find, sets, cardsOf, byKey, sim, norm, collection: coll, TIER };
 })(typeof window !== 'undefined' ? window : globalThis);
