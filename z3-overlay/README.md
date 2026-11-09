@@ -210,6 +210,27 @@ Chaque booster acheté par un viewer lui est attribué, et les hits de **son** b
 - **Sur l'overlay :** panneau **TOP TIREURS** (top 5, « BOOSTER DE @… », file d'attente), avec la mention « BOOSTER DE @… » dans chaque alerte de hit. Touche `N` = booster suivant. `&notireurs` masque le panneau.
 - **Fin de live :** podium sur la scène « Merci » et dans la vidéo récap.
 
+
+## 🛒 Acheteurs Voggt / Whatnot → file des boosters (`extension-chrome/`)
+
+Une extension Chrome lit ta **page vendeur** pendant le live. À chaque nouvel achat, le **pseudo** et la **quantité** sont envoyés à l'overlay via OBS WebSocket.
+Ça déclenche l'alerte « NOUVEL ACHAT » et ajoute les boosters à la file **Top tireurs**. Ensuite, « Booster suivant » dans le dock ouvre pour le bon viewer.
+
+**Installation (une fois)**
+1. Chrome › `chrome://extensions` › active le **Mode développeur** › **Charger l'extension non empaquetée** › choisis le dossier `z3-overlay/extension-chrome`.
+2. Clique sur l'icône de l'extension › mot de passe OBS WebSocket › **Enregistrer & tester** (doit afficher « ✔ connecté »).
+3. L'overlay doit avoir `&obs&obspass=MOTDEPASSE` dans son URL.
+
+**Réglage par site (une fois par plateforme)**
+1. Ouvre ta page vendeur Voggt ou Whatnot avec au moins un achat visible.
+2. Extension › **🎯 Apprendre** › clique sur le **pseudo d'un acheteur** dans la liste des ventes.
+3. (Optionnel) **🎯 Quantité** › clique sur l'article/quantité d'un achat. « x3 », « 3x », « Qté : 3 » sont reconnus, sinon 1 booster.
+4. C'est tout : l'extension mémorise le réglage pour ce site. Les achats déjà affichés au moment du réglage ne sont pas comptés, seulement les nouveaux.
+
+Le popup affiche les derniers acheteurs lus et un journal des envois. Le bouton « Envoyer un achat test » permet de tester.
+L'extension ne fait que **lire** la page : aucun clic, aucune modification, rien n'est envoyé ailleurs qu'à ton OBS.
+Elle tourne d'office sur voggt.com et whatnot.com. Sur un autre site, le bouton « Apprendre » l'active pour cet onglet.
+
 ## Scènes « Bientôt / Pause / Fin » (`scenes.html`)
 
 | URL | Scène |

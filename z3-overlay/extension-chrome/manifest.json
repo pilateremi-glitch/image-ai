@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Z3 — Acheteurs du live",
+  "version": "1.0.0",
+  "description": "Lit le pseudo des acheteurs sur ta page vendeur (Voggt, Whatnot…) et l'envoie à l'overlay Z3 via OBS WebSocket.",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": ["*://*.voggt.com/*", "*://*.whatnot.com/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [{ "matches": ["*://*.voggt.com/*", "*://*.whatnot.com/*"], "js": ["content.js"], "run_at": "document_idle" }],
+  "action": { "default_popup": "popup.html", "default_title": "Z3 — Acheteurs du live" }
+}
