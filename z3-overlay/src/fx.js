@@ -27,7 +27,8 @@
   const autoTheme = themeParam === 'auto';
   if (!autoTheme) setTheme(themeParam);
   window.Z3theme = setTheme;
-  if (!Q.has('fx') && !scene) return;
+  const AMBIENT = !Q.has('hitonly');
+  if (!Q.has('fx') && !scene && Q.has('hitonly') === false) return;
   const STATIC = Q.has('static');
   const W = 1920, H = 1080;
   const FONDS = ['fond-2-z3-violet.png', 'fond-1-z3-rouge.png', 'fond-3-z3-ruelle.png', 'fond-4-z3-sakura.png', 'fond-5-team-z3f4.jpg'];
@@ -110,8 +111,8 @@
     const cs = ['#f2a93b', '#ffd98a', '#58c43c', '#ff3348', '#ffd23a', '#ff9bb0'];
     return { k: 'crumb', x, y, vx: rnd(-5, 5), vy: rnd(-9, -3), r: rnd(2, 5), a: rnd(0, 6), life: 120, max: 120, c: cs[(Math.random() * cs.length) | 0] };
   }
-  for (let i = 0; i < 46; i++) P.push(petal(rnd(0, W), rnd(-H, H)));
-  for (let i = 0; i < 40; i++) P.push({ k: 'mote', x: rnd(0, W), y: rnd(0, H), vy: rnd(-0.6, -0.15), r: rnd(0.8, 2.4), t: rnd(0, 6.28), life: 1e9, c: Math.random() < .5 ? '#ff7be6' : '#ffffff' });
+  if (AMBIENT) for (let i = 0; i < 46; i++) P.push(petal(rnd(0, W), rnd(-H, H)));
+  if (AMBIENT) for (let i = 0; i < 40; i++) P.push({ k: 'mote', x: rnd(0, W), y: rnd(0, H), vy: rnd(-0.6, -0.15), r: rnd(0.8, 2.4), t: rnd(0, 6.28), life: 1e9, c: Math.random() < .5 ? '#ff7be6' : '#ffffff' });
 
   const rings = [];
   function burst(x, y, n, kind, cols) {
@@ -178,7 +179,7 @@
       ctx.globalAlpha = r.life / 30; ctx.strokeStyle = '#ff7be6'; ctx.lineWidth = 4; ctx.shadowColor = '#ff3fd0'; ctx.shadowBlur = 20;
       ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, 6.28); ctx.stroke(); ctx.shadowBlur = 0;
     }
-    if (--nextBolt <= 0) { bolt = makeBolt(); nextBolt = rnd(160, 420); }
+    if (AMBIENT && --nextBolt <= 0) { bolt = makeBolt(); nextBolt = rnd(160, 420); }
     if (bolt) {
       ctx.globalAlpha = bolt.life / 14 * (bolt.life % 4 < 2 ? 1 : .4);
       ctx.lineJoin = 'round';

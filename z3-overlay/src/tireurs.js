@@ -8,7 +8,7 @@
 (function () {
   'use strict';
   const Q = new URLSearchParams(location.search);
-  if (Q.has('static') || !window.Z3 || !window.Z3.hit) return;
+  if (Q.has('static') || Q.has('hitonly') || !window.Z3 || !window.Z3.hit) return;   // l'overlay principal tient le classement
   const RKEY = 'z3-recap-v1', PTS = { rare: 1, ultra: 3, secret: 6, god: 10, flop: 0 };
   const load = () => { try { return JSON.parse(localStorage.getItem(RKEY) || 'null') || window.Z3.recap(); } catch (e) { return window.Z3.recap(); } };
   const save = (r) => { try { localStorage.setItem(RKEY, JSON.stringify(r)); } catch (e) { /* rien */ } };
@@ -67,14 +67,15 @@
     publish(r);
   }
   function publish(r) {
-    if (window.Z3send) window.Z3send({ kind: 'state', current: r.current, queue: r.queue.slice(0, 30), top: ranking(r).slice(0, 10).map((p) => ({ name: p.name, score: p.score, boosters: p.boosters })) });
+    if (window.Z3send) window.Z3send({ kind: 'state', items: r.items || {}, boosters: r.boosters || 0, cards: r.cards || 0, current: r.current, queue: r.queue.slice(0, 30), top: ranking(r).slice(0, 10).map((p) => ({ name: p.name, score: p.score, boosters: p.boosters })) });
   }
 
   /* ---------- actions ---------- */
   function setBuyer(name, fromQueue) {
     const r = ensure(load()); name = clean(name);
     r.current = name;
-    if (name) { if (!fromQueue) { const i = r.queue.indexOf(name); if (i >= 0) r.queue.splice(i, 1); } player(r, name).boosters++; }
+    if (name) { if (!fromQueue) { const i = r.queue.indexOf(name); if (i >= 0) r.queue.splice(i, 1); } player(r, name).boosters++;
+      if (!Q.has('nocountbuyer')) { r.items = r.items || {}; r.items.Booster = (r.items.Booster || 0) + 1; r.boosters = (r.boosters || 0) + 1; } }
     save(r); render();
   }
   function nextBuyer() { const r = ensure(load()); const n = r.queue.shift() || ''; save(r); setBuyer(n, true); }
@@ -111,6 +112,12 @@
     else if (m.cmd === 'nextbuyer') nextBuyer();
     else if (m.cmd === 'addbooster') addBooster(m.name, m.qty);
     else if (m.cmd === 'state') render();
+    else if (m.cmd === 'item' || m.cmd === 'itemundo') {        // produit ouvert (ETB, UPC, Tripack…)
+      const r = ensure(load()); r.items = r.items || {}; const k = String(m.item || 'Booster').slice(0, 24), n = Math.max(0, +m.boosters || 0), d = m.cmd === 'item' ? 1 : -1;
+      if (d < 0 && !r.items[k]) return;
+      r.items[k] = (r.items[k] || 0) + d; if (!r.items[k]) delete r.items[k];
+      r.boosters = Math.max(0, (r.boosters || 0) + d * n); save(r); render();
+    }
     else if (m.cmd === 'getrecap' && window.Z3send) window.Z3send({ kind: 'recapdata', recap: ensure(load()), rank: ranking(ensure(load())) });
   };
   window.Z3.tireurs = () => ranking(ensure(load()));

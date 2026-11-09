@@ -13,6 +13,7 @@
   const STATIC = Q.has('static');
   document.body.classList.add(STATIC ? 'static' : 'live');
   if (Q.has('digits')) document.body.classList.add('digits');
+  if (Q.has('hitonly')) document.body.classList.add('hitonly');   // overlay invisible : ne s'affiche qu'en cas de hit
   if (Q.has('previewbg')) {
     document.body.classList.add('preview-bg');
     const bg = Q.get('previewbg');

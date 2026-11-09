@@ -70,6 +70,23 @@
   #hitcount b{font-family:Orbitron;font-weight:900;color:#ffd23a}
   `;
   document.head.appendChild(css);
+  /* carte affichée À LA PLACE de la caméra pendant un hit : ?cam=x,y,largeur,hauteur (px, canevas 1920×1080) */
+  const CAM = (Q.get('cam') || (Q.has('hitonly') ? '1456,112,436,247' : '')).split(',').map(Number);
+  const camOn = CAM.length === 4 && CAM.every((v) => !isNaN(v)) && !Q.has('nocam');
+  const centerOn = !Q.has('camonly');
+  const css2 = document.createElement('style');
+  css2.textContent = `
+  #hit .camcov{position:absolute;overflow:hidden;background:#0b0214;border-radius:6px;box-shadow:0 0 0 4px var(--c1),0 0 40px var(--c1);animation:camin var(--ms) cubic-bezier(.2,1.2,.3,1) forwards}
+  #hit .camcov .bgb{position:absolute;inset:-30px;background:center/cover no-repeat;filter:blur(22px) brightness(.55) saturate(1.4)}
+  #hit .camcov img.cc{position:absolute;inset:6% 0 14%;margin:auto;height:80%;max-width:94%;object-fit:contain;filter:drop-shadow(0 0 18px var(--c1));animation:camcard 1.6s ease-in-out infinite alternate}
+  #hit .camcov .ct{position:absolute;left:0;right:0;top:4px;text-align:center;font-family:Bangers;font-size:var(--fs,40px);letter-spacing:2px;color:#fff;-webkit-text-stroke:2px var(--c1);text-shadow:0 0 14px var(--c1)}
+  #hit .camcov .cn{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-family:Rajdhani;font-weight:700;font-size:calc(var(--fs,40px) * .5);color:#fff;text-shadow:0 0 10px var(--c1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+  #hit .camcov .z3{position:absolute;inset:0;display:grid;place-items:center;font-family:Bangers;font-size:calc(var(--fs,40px) * 2.4);color:#fff;text-shadow:0 0 30px var(--c1)}
+  @keyframes camin{0%{clip-path:inset(0 100% 0 0)}8%{clip-path:inset(0 0 0 0)}92%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 0);opacity:0}}
+  @keyframes camcard{from{transform:scale(1) rotate(-1deg)}to{transform:scale(1.05) rotate(1deg)}}
+  body.camonly #hit .dim, body.camonly #hit .speed, body.camonly #hit .glow, body.camonly #hit .ttl, body.camonly #hit .jp, body.camonly #hit .card, body.camonly #hit .sub{display:none}`;
+  document.head.appendChild(css2);
+  if (!centerOn) document.body.classList.add('camonly');
   document.body.insertAdjacentHTML('beforeend', '<div id="hit" class="layer"></div><div id="hitcount" class="layer-free">HITS DU LIVE <b id="hitn">0</b></div>');
   const box = document.getElementById('hit');
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -84,14 +101,16 @@
   const RKEY = 'z3-recap-v1';
   const recap = {
     load() { try { return JSON.parse(localStorage.getItem(RKEY) || 'null') || this.fresh(); } catch (e) { return this.fresh(); } },
-    fresh() { return { start: Date.now(), hits: [], flops: 0, cards: 0, newCards: 0, seen: {} }; },
-    save(r) { try { localStorage.setItem(RKEY, JSON.stringify(r)); } catch (e) { /* stockage plein : on garde la session */ } },
+    fresh() { return { start: Date.now(), hits: [], flops: 0, cards: 0, newCards: 0, seen: {}, rarities: {}, items: {}, boosters: 0 }; },
+    save(r) { if (Q.has('hitonly')) return;   // l'overlay « hits seulement » n'écrit pas le récap (évite le double comptage)
+      try { localStorage.setItem(RKEY, JSON.stringify(r)); } catch (e) { /* stockage plein : on garde la session */ } },
   };
   if (Q.has('reset') || Q.has('newlive')) recap.save(recap.fresh());
   function card(m) {                             // carte identifiée par le détecteur (commune ou non)
     const r = recap.load(); r.cards++;
     if (m.newCard) r.newCards++;
     if (m.key) r.seen[m.key] = (r.seen[m.key] || 0) + 1;
+    r.rarities = r.rarities || {}; const rk = m.rarete || 'Common'; r.rarities[rk] = (r.rarities[rk] || 0) + 1;
     recap.save(r);
   }
 
@@ -127,6 +146,16 @@
       setTimeout(() => fx.burst(960, 500, T.n, '', T.cols), 1500);
       if (T.god) for (let i = 0; i < 4; i++) setTimeout(() => { fx.shake(); fx.burst(960, 500, 60, 'petal'); }, 1500 + i * 900);
     }
+    if (camOn && !T.flop) {
+      const [cx, cy, cw, ch] = CAM, src = h.img || h.snap;
+      const cc = document.createElement('div'); cc.className = 'camcov';
+      cc.style.cssText = `left:${cx}px;top:${cy}px;width:${cw}px;height:${ch}px;--fs:${Math.max(22, Math.round(Math.min(cw, ch * 1.6) / 9))}px`;
+      cc.innerHTML = src ? `<div class="bgb" style="background-image:url('${esc(src)}')"></div><img class="cc" src="${esc(src)}" data-alt="${esc(h.img ? h.snap : '')}">` : `<div class="z3">Z3</div>`;
+      cc.insertAdjacentHTML('beforeend', `<div class="ct">${esc(T.t)}</div><div class="cn">${esc(h.name || '')}</div>`);
+      const ci = cc.querySelector('img.cc');
+      if (ci) ci.onerror = () => { if (ci.dataset.alt) { ci.src = ci.dataset.alt; cc.querySelector('.bgb').style.backgroundImage = `url('${ci.dataset.alt}')`; ci.dataset.alt = ''; } else { ci.remove(); } };
+      box.appendChild(cc);
+    }
     const ph = box.querySelector('.photo');                 // image officielle → sinon photo caméra → sinon carte Z3
     if (ph) ph.onerror = () => { if (ph.dataset.alt) { ph.src = ph.dataset.alt; ph.dataset.alt = ''; } else { ph.remove(); const tg = box.querySelector('.tag'); if (tg) tg.remove(); } };
     if (!T.flop) { hits++; try { sessionStorage.setItem('z3f4-hits', hits); } catch (e) { /* rien */ } showCount(); }
@@ -136,7 +165,7 @@
     setTimeout(() => { box.className = 'layer'; box.innerHTML = ''; play(); }, T.ms + 200);
   }
 
-  window.Z3 = Object.assign(window.Z3 || {}, { hit, card, recap: () => recap.load() });
+  window.Z3 = Object.assign(window.Z3 || {}, { hit, card, recap: () => recap.load(), saveRecap: (r) => recap.save(r) });
   const KEYS = { 6: 'rare', 7: 'ultra', 8: 'secret', 9: 'god', 0: 'flop' };
   window.addEventListener('keydown', (e) => {
     const t = KEYS[e.key]; if (!t) return;

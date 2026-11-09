@@ -105,6 +105,13 @@
   </section>
 
   <section>
+    <h2>PRODUITS OUVERTS</h2>
+    <div class="tiers" id="prodBtns" style="grid-template-columns:repeat(3,1fr)"></div>
+    <div class="row" style="margin-top:6px"><input id="prodCfg" class="grow" title="Produit=nombre de boosters, séparés par des virgules"><button id="prodUndo" title="Annuler le dernier">↶</button></div>
+    <div class="mut" id="prodInfo">Clique sur le produit que tu ouvres : il est compté dans le récap avec ses boosters.</div>
+  </section>
+
+  <section>
     <h2>BOOSTERS DU CHAT · TOP TIREURS</h2>
     <div class="row" id="buyerNow" style="font-size:16px">Booster en cours : <b id="curBuyer" style="color:var(--f)">—</b></div>
     <div class="row"><input id="buyerName" placeholder="Pseudo du viewer" class="grow"><input id="buyerQty" type="number" min="1" max="36" value="1" style="width:56px" title="Nombre de boosters">
@@ -169,10 +176,22 @@
   /* ---------- envoi vers l'overlay ---------- */
   const bc = (() => { try { return new BroadcastChannel('z3'); } catch (e) { return null; } })();
   let obs = null;
+  /* produits ouverts (ETB, UPC, Tripack…) */
+  const PROD_DEF = 'Booster=1, Tripack=3, Coffret=4, ETB=9, UPC=16, Display=36';
+  let lastProd = null;
+  function prods() { return ($('prodCfg').value || PROD_DEF).split(',').map((p) => p.split('=').map((x) => x.trim())).filter((p) => p[0]).map(([n, b]) => ({ n, b: Math.max(0, +b || 1) })); }
+  function drawProds() { $('prodBtns').innerHTML = prods().map((p) => `<button data-prod="${p.n.replace(/"/g, '')}" data-b="${p.b}">${p.n.replace(/</g, '&lt;')}<br><small class="mut">${p.b} booster${p.b > 1 ? 's' : ''}</small></button>`).join(''); }
+  $('prodCfg').value = store.get('prods', PROD_DEF);
+  $('prodCfg').addEventListener('change', () => { store.set('prods', $('prodCfg').value); drawProds(); });
+  $('prodBtns').addEventListener('click', (e) => { const b = e.target.closest('[data-prod]'); if (!b) return; lastProd = { item: b.dataset.prod, boosters: +b.dataset.b }; send({ kind: 'cmd', cmd: 'item', item: lastProd.item, boosters: lastProd.boosters }); });
+  $('prodUndo').addEventListener('click', () => { if (lastProd) send({ kind: 'cmd', cmd: 'itemundo', item: lastProd.item, boosters: lastProd.boosters }); lastProd = null; });
+  drawProds();
+
   /* état renvoyé par l'overlay (file d'attente, classement) */
   function onState(m) {
     if (!m || !m.z3 || m.kind !== 'state') return;
     $('curBuyer').textContent = m.current ? '@' + m.current : '—';
+    if (m.items) $('prodInfo').textContent = 'Ce live : ' + (Object.entries(m.items).map(([k, v]) => v + ' × ' + k).join(' · ') || 'rien encore') + ' — ' + (m.boosters || 0) + ' boosters · ' + (m.cards || 0) + ' cartes vues';
     $('queueList').textContent = m.queue && m.queue.length ? 'File : ' + m.queue.join(' → ') : 'File vide. Les achats StreamElements/Streamlabs s\'ajoutent tout seuls.';
     $('topList').textContent = m.top && m.top.length ? 'Top : ' + m.top.slice(0, 5).map((p, i) => `${i + 1}. ${p.name} (${p.score} pts, ${p.boosters} boosters)`).join(' · ') : '';
   }
@@ -418,12 +437,14 @@ Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
         if (hit && hit.confiance >= 0.6) { card = hit; how = 'IA + BASE ✓'; }
       } catch (e) { how = 'IA indispo (' + e.message + ') → local'; }
     }
+    let isNew = false;
     if (card) {
       tier = card.tier; name = card.nom + ' ' + card.numero;
       how += ' · ' + (card.set.fr || card.set.en || card.set.ja || card.set.code) + ' · ' + card.rarete;
-      const isNew = Z3Base.collection.add(card.key) === 1;
-      send({ kind: 'card', key: card.key, name, tier, newCard: isNew });
+      isNew = Z3Base.collection.add(card.key) === 1;
     }
+    // chaque carte compte dans le récap (rareté officielle, sinon estimée)
+    send({ kind: 'card', key: card ? card.key : '', name, tier, newCard: isNew, rarete: card ? card.rarete : ({ rare: 'Rare', ultra: 'Ultra Rare', secret: 'Secret Rare' }[tier] || 'Common') });
     if (tier) {
       const n = det.registerHit();
       if ($('optGod').checked && n === 3) tier = 'god';

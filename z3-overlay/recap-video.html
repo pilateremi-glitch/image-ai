@@ -44,6 +44,7 @@
 </div>
 <script src="data/fonds.js"></script>
 <script src="src/art.js"></script>
+<script src="src/rarities.js"></script>
 <script src="src/obsws.js"></script>
 <script>
 (function () {
@@ -57,7 +58,8 @@
   let data = null, assets = null;
 
   /* ---------------- données ---------------- */
-  const DEMO = { recap: { cards: 214, newCards: 37, flops: 3, start: Date.now() - 3 * 3600e3, hits: [
+  const DEMO = { recap: { cards: 412, newCards: 37, flops: 3, boosters: 41, items: { ETB: 2, UPC: 1, Tripack: 3, Booster: 5 },
+      rarities: { Common: 210, Uncommon: 118, Rare: 34, 'Holo Rare': 21, 'Double rare': 15, 'Ultra Rare': 6, 'Illustration rare': 4, 'Special illustration rare': 2, 'Hyper rare': 1 }, start: Date.now() - 3 * 3600e3, hits: [
       { tier: 'god', name: 'GOD PACK' }, { tier: 'secret', name: 'Pikachu-ex 238/191' }, { tier: 'secret', name: 'Luffy OP05-119' },
       { tier: 'ultra', name: 'Balbalèze 201/191' }, { tier: 'ultra', name: 'Shanks OP09-004' }, { tier: 'rare', name: 'Évoli' }] },
     rank: [{ name: 'KaizokuKing', score: 19, boosters: 6 }, { name: 'SachaDu93', score: 12, boosters: 4 }, { name: 'NamiDeals', score: 7, boosters: 3 }] };
@@ -145,17 +147,28 @@
       text('DU LIVE', W / 2, 1060, { font: '150px Bangers', color: '#ffd23a', stroke: '#6a1fd1', sw: 10, glow: '#ffd23a', rot: -0.06 });
       text('ライブまとめ', W / 2, 1220, { font: '56px NotoJP', color: '#ff7be6' });
       if (A.emblem) { x.globalAlpha = ease((t - 1) / 1); x.drawImage(A.emblem, W / 2 - 150, 1330, 300, 300); x.globalAlpha = 1; }
-    } else if (sec(4, 9)) {                            // chiffres
-      const k = ease((t - 4) / 2.5), cnt = (t2) => (r.hits || []).filter((h) => h.tier === t2).length;
-      const st = [['CARTES OUVERTES', r.cards || 0, '#b44dff'], ['NOUVELLES AU MASTER SET', r.newCards || 0, '#3dff9a'], ['HITS', (r.hits || []).filter((h) => h.tier !== 'god').length, '#ffd23a'], ['SECRÈTES', cnt('secret'), '#ff3fd0'], ['GOD PACK', cnt('god'), '#ffd23a']];
-      st.forEach(([l, v, c], i) => {
-        const ki = ease((t - 4 - i * 0.25) / 0.8), yy = 520 + i * 250;
+    } else if (sec(4, 9)) {                            // produits ouverts + boosters + cartes
+      const k = ease((t - 4) / 2.5);
+      const items = Object.entries(r.items || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]).slice(0, 5);
+      text('CE QU\u2019ON A OUVERT', W / 2, 420, { font: '84px Bangers', color: '#fff', stroke: '#ff3fd0', sw: 6, glow: '#ff3fd0', rot: -0.03 });
+      const cols = ['#ff3fd0', '#ffd23a', '#7bd0ff', '#3dff9a', '#b44dff'];
+      items.forEach(([name, v], i) => {
+        const ki = ease((t - 4 - i * 0.2) / 0.7), yy = 560 + i * 132;
         x.save(); x.globalAlpha = ki; x.translate((1 - ki) * -300, 0);
-        rrect(110, yy - 95, 860, 190, 20); x.fillStyle = 'rgba(20,4,40,.78)'; x.fill(); x.lineWidth = 4; x.strokeStyle = c; x.stroke();
-        text(String(Math.round(v * k)), 300, yy, { font: '120px Orbitron', color: c, glow: c });
-        text(l, 640, yy, { font: '44px Rajdhani', color: '#fff', align: 'center' });
+        rrect(150, yy - 56, 780, 112, 18); x.fillStyle = 'rgba(20,4,40,.8)'; x.fill(); x.lineWidth = 4; x.strokeStyle = cols[i % 5]; x.stroke();
+        text(String(Math.round(v * k)) + ' ×', 330, yy, { font: '76px Orbitron', color: cols[i % 5], glow: cols[i % 5], align: 'right' });
+        text(name.toUpperCase(), 380, yy, { font: '64px Bangers', color: '#fff', align: 'left' });
         x.restore();
       });
+      const yb = 560 + Math.max(1, items.length) * 132 + 40, kb = ease((t - 5.2) / 0.8);
+      x.save(); x.globalAlpha = kb;
+      rrect(110, yb, 420, 230, 22); x.fillStyle = 'rgba(255,63,208,.18)'; x.fill(); x.lineWidth = 5; x.strokeStyle = '#ff3fd0'; x.stroke();
+      rrect(550, yb, 420, 230, 22); x.fillStyle = 'rgba(180,77,255,.18)'; x.fill(); x.strokeStyle = '#b44dff'; x.stroke();
+      text(String(Math.round((r.boosters || 0) * k)), 320, yb + 95, { font: '110px Orbitron', color: '#fff', glow: '#ff3fd0' });
+      text('BOOSTERS', 320, yb + 185, { font: '48px Rajdhani', color: '#ffd2f6' });
+      text(String(Math.round((r.cards || 0) * k)), 760, yb + 95, { font: '110px Orbitron', color: '#fff', glow: '#b44dff' });
+      text('CARTES', 760, yb + 185, { font: '48px Rajdhani', color: '#e9c7ff' });
+      x.restore();
     } else if (sec(9, 9 + A.top.length * 2.2 || 9)) {  // meilleurs hits
       const i = Math.floor((t - 9) / 2.2), lt = ((t - 9) % 2.2) / 2.2, h = A.top[i];
       rays(C[h.tier], 0.35);
@@ -164,20 +177,21 @@
       text(h.name || '', W / 2, 1480, { font: '62px Rajdhani', color: '#fff', glow: C[h.tier], blur: 20 });
       if (h.by) text('BOOSTER DE @' + h.by, W / 2, 1560, { font: '44px Rajdhani', color: '#ff7be6' });
       text(`#${i + 1} / ${A.top.length}`, W / 2, 1650, { font: '34px Orbitron', color: '#b9a2d6' });
-    } else if (sec(9 + A.top.length * 2.2, DUR - 3.5)) {   // podium top tireurs
+    } else if (sec(9 + A.top.length * 2.2, DUR - 3.5)) {   // cartes obtenues par rareté (commune → gold)
       const t0 = 9 + A.top.length * 2.2, k = (t - t0);
-      text('TOP TIREURS', W / 2, 470, { font: '150px Bangers', color: '#fff', stroke: '#ff3fd0', sw: 10, glow: '#ff3fd0', rot: -0.04 });
-      const top = (d.rank || []).slice(0, 3), med = ['#ffd23a', '#e6e9f2', '#e09a5a'];
-      if (!top.length) text('PERSONNE… LA PROCHAINE FOIS !', W / 2, 960, { font: '56px Rajdhani', color: '#e9c7ff' });
-      [[1, 270, 1080], [0, 540, 960], [2, 810, 1160]].forEach(([idx, xx, yy]) => {
-        const p = top[idx]; if (!p) return; const ki = ease((k - (2 - idx) * 0.35) / 0.8);
-        const hh = 1700 - yy;
-        x.save(); x.globalAlpha = ki; x.translate(0, (1 - ki) * 400);
-        rrect(xx - 125, yy, 250, hh, 18); x.fillStyle = 'rgba(20,4,40,.85)'; x.fill(); x.lineWidth = 5; x.strokeStyle = med[idx]; x.stroke();
-        text(String(idx + 1), xx, yy + 90, { font: '120px Orbitron', color: med[idx], glow: med[idx] });
-        text(p.name.length > 12 ? p.name.slice(0, 11) + '…' : p.name, xx, yy - 60, { font: '46px Rajdhani', color: '#fff', glow: '#ff3fd0', blur: 14 });
-        text(p.score + (p.score > 1 ? ' pts' : ' pt'), xx, yy + 210, { font: '44px Orbitron', color: '#fff' });
-        text((p.boosters || 0) + ' boosters', xx, yy + 280, { font: '32px Rajdhani', color: '#e9c7ff' });
+      text('CARTES OBTENUES', W / 2, 420, { font: '100px Bangers', color: '#fff', stroke: '#ff3fd0', sw: 8, glow: '#ff3fd0', rot: -0.03 });
+      const rows = window.Z3Rarity ? Z3Rarity.summary(r.rarities) : [];
+      if (!rows.length) text('AUCUNE CARTE COMPTÉE', W / 2, 960, { font: '56px Rajdhani', color: '#e9c7ff' });
+      const n = rows.length, gap = Math.min(110, 1180 / Math.max(1, n)), y0 = 560, mx = Math.max(1, ...rows.map((q) => q.count));
+      rows.forEach((q, i) => {
+        const ki = ease((k - i * 0.12) / 0.6), yy = y0 + i * gap, hue = 260 - Math.min(1, q.rank / 10) * 215;   // violet (commune) → or (gold)
+        const col = `hsl(${hue},95%,${q.rank >= 9 ? 58 : 66}%)`;
+        x.save(); x.globalAlpha = ki;
+        text(q.label.toUpperCase(), 120, yy, { font: `${Math.min(46, gap * 0.45)}px Rajdhani`, color: '#fff', align: 'left' });
+        const bw = 280 * ki * Math.max(0.02, q.count / mx);
+        x.fillStyle = 'rgba(255,255,255,.1)'; x.fillRect(560, yy - gap * 0.2, 280, gap * 0.4);
+        x.fillStyle = col; x.shadowColor = col; x.shadowBlur = 16; x.fillRect(560, yy - gap * 0.2, bw, gap * 0.4); x.shadowBlur = 0;
+        text(String(Math.round(q.count * ki)), 970, yy, { font: `${Math.min(56, gap * 0.5)}px Orbitron`, color: col, align: 'right' });
         x.restore();
       });
     } else if (t >= DUR - 3.5) {                        // outro
@@ -193,7 +207,7 @@
   }
 
   /* ---------------- lecture & enregistrement ---------------- */
-  async function prepare() { if (!data) useData(localData() || DEMO, localData() ? 'ce navigateur' : 'démo'); if (!assets) { status('Préparation des images…'); assets = await loadAssets(); } DUR = 9 + assets.top.length * 2.2 + 4.5 + 3.5; }
+  async function prepare() { if (!data) useData(localData() || DEMO, localData() ? 'ce navigateur' : 'démo'); if (!assets) { status('Préparation des images…'); assets = await loadAssets(); } DUR = 9 + assets.top.length * 2.2 + 5 + 3.5; }
   let playing = false;
   async function play(onDone) {
     await prepare(); playing = true; const t0 = performance.now();

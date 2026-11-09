@@ -192,3 +192,6 @@ body.live #brand .z3 { animation: pulse 3s ease-in-out infinite; }
 
 /* affichage sélectif d'un calque (export) */
 body[data-only] .layer { display: none; }
+
+/* ---------- mode « hits seulement » (?hitonly) : tout est caché sauf l'alerte de hit ---------- */
+body.hitonly .layer:not(#hit), body.hitonly #hitcount, body.hitonly #redv { display: none !important; }

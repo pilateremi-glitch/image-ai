@@ -231,6 +231,25 @@ Le popup affiche les derniers acheteurs lus et un journal des envois. Le bouton 
 L'extension ne fait que **lire** la page : aucun clic, aucune modification, rien n'est envoyé ailleurs qu'à ton OBS.
 Elle tourne d'office sur voggt.com et whatnot.com. Sur un autre site, le bouton « Apprendre » l'active pour cet onglet.
 
+
+## 👻 Overlay « hits seulement » (invisible, ne s'active qu'en cas de hit)
+
+Deux sources navigateur dans OBS :
+1. **Overlay complet** (scène d'attente / habillage) : `overlay.html?duration=3h&obs&obspass=…`
+2. **Overlay hits seulement**, placé **au-dessus de tout** dans tes scènes de live : `overlay.html?hitonly&obs&obspass=…`
+   Il est **100 % transparent** en temps normal. À chaque hit, il affiche l'alerte (RARE / HIT / SECRÈTE / GOD PACK) et **la carte remplace l'image de ta caméra** pendant l'alerte.
+   - Position de ta caméra : `&cam=x,y,largeur,hauteur` en pixels sur 1920×1080, par exemple pour une cam portrait à droite `&cam=1500,80,400,700`.
+     Par défaut : `1456,112,436,247` (cadre cam de l'overlay).
+   - `&camonly` : seulement la carte sur la cam, sans l'animation plein écran. `&nocam` : sans remplacement de la cam.
+
+L'overlay « hits seulement » ne tient ni récap ni classement (pas de double comptage) : c'est l'overlay complet qui les gère.
+
+## 📦 Produits ouverts & cartes par rareté
+
+- Dans le dock, section **PRODUITS OUVERTS** : clique sur ce que tu ouvres (Booster, Tripack, Coffret, ETB, UPC, Display). Chaque clic compte le produit **et ses boosters**. La liste se modifie dans le champ (`ETB=9, UPC=16…`) et ↶ annule le dernier clic.
+- Chaque carte vue par le détecteur est comptée par **rareté officielle** (commune → peu commune → rare → … → hyper rare / gold).
+- La **vidéo récap** et la scène « Merci » affichent : produits ouverts (ex. 2 × ETB, 1 × UPC, 3 × Tripack), **total de boosters**, total de cartes et **répartition par rareté de la commune à la gold**. Les points ne sont plus affichés.
+
 ## Scènes « Bientôt / Pause / Fin » (`scenes.html`)
 
 | URL | Scène |

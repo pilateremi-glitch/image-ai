@@ -32,7 +32,7 @@
   .food svg { width: 100%; height: 100%; overflow: visible; }
   .recap { margin-top: 18px; filter: hue-rotate(calc(-1 * var(--hue, 0deg))); }   /* couleurs des raretés fixes quel que soit le thème */
   .recap .chips { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-  .recap .chip { min-width: 128px; padding: 6px 12px 4px; background: rgba(255,255,255,.06); border: 1.5px solid var(--c, #b44dff); }
+  .recap .chip { min-width: 112px; padding: 6px 12px 4px; background: rgba(255,255,255,.06); border: 1.5px solid var(--c, #b44dff); }
   .recap .chip b { display: block; font-family: Orbitron; font-weight: 900; font-size: 34px; line-height: 1.1; color: var(--c, #fff); text-shadow: 0 0 12px var(--c, #ff3fd0); }
   .recap .chip span { font-size: 13px; letter-spacing: 3px; color: #f0d4ff; }
   .recap .gal { display: flex; justify-content: center; gap: 12px; margin-top: 16px; }
@@ -118,7 +118,7 @@
       const C = { rare: '#7bd0ff', ultra: '#ffd23a', secret: '#ff3fd0', god: '#ffd23a' }, L = { rare: 'RARE', ultra: 'HIT', secret: 'SECRÈTE', god: 'GOD' };
       const cnt = (t) => r.hits.filter((h) => h.tier === t).length;
       const esc = (x) => String(x || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-      const chips = [['CARTES', r.cards, '#b44dff'], ['NOUVELLES', r.newCards, '#3dff9a'], ['RARE', cnt('rare'), C.rare], ['HIT', cnt('ultra'), C.ultra], ['SECRÈTE', cnt('secret'), C.secret], ['GOD PACK', cnt('god'), C.god]]
+      const chips = [['BOOSTERS', r.boosters || 0, '#ff3fd0'], ['CARTES', r.cards, '#b44dff'], ['NOUVELLES', r.newCards, '#3dff9a'], ['RARE', cnt('rare'), C.rare], ['HIT', cnt('ultra'), C.ultra], ['SECRÈTE', cnt('secret'), C.secret], ['GOD PACK', cnt('god'), C.god]]
         .map(([l, v, c]) => `<div class="chip" style="--c:${c}"><b>${v}</b><span>${l}</span></div>`).join('');
       const rank = { god: 4, secret: 3, ultra: 2, rare: 1 };
       const top = r.hits.slice().sort((a, b) => (rank[b.tier] - rank[a.tier]) || (b.t || 0) - (a.t || 0)).filter((h) => h.tier !== 'god' || h.img || h.snap).slice(0, 7);
@@ -127,9 +127,9 @@
       $('recap').querySelectorAll('img').forEach((im) => { im.onerror = () => { if (im.dataset.alt) { im.src = im.dataset.alt; im.dataset.alt = ''; } else im.remove(); }; });
       $('recap').hidden = false;
       document.querySelector('.food').style.display = 'none';
-      const pl = Object.entries(r.players || {}).map(([n, p]) => ({ n, s: p.score || 0 })).filter((p) => p.s).sort((a, b) => b.s - a.s).slice(0, 3);
-      if (Q.has('demo')) pl.push({ n: 'KaizokuKing', s: 19 }, { n: 'SachaDu93', s: 12 }, { n: 'NamiDeals', s: 7 });
-      if (pl.length) $('rule').textContent = 'TOP TIREURS · ' + pl.map((p, i) => ['🥇', '🥈', '🥉'][i] + ' ' + p.n + ' ' + p.s + ' PTS').join('   ');
+      if (Q.has('demo')) { r.items = { ETB: 2, UPC: 1, Tripack: 3, Booster: 5 }; r.boosters = 41; }
+      const it = Object.entries(r.items || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+      if (it.length || r.boosters) $('rule').textContent = 'OUVERT CE SOIR · ' + it.map(([k, v]) => v + ' ' + k.toUpperCase()).join(' · ') + (r.boosters ? ' · ' + r.boosters + ' BOOSTERS' : '');
       $('sub').textContent = 'RÉCAP DU LIVE · ' + r.hits.filter((h) => h.tier !== 'god').length + ' HITS · À TRÈS VITE SUR Z3 LIVE';
     }
   }
