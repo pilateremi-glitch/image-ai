@@ -98,7 +98,7 @@
   function hit(tier, name, opts) {
     if (!TIERS[tier]) tier = 'ultra';
     opts = opts || {};
-    queue.push({ tier, name: name ? String(name).slice(0, 34) : '', img: opts.img || '', snap: opts.snap || '', key: opts.key || '' });
+    queue.push({ tier, name: name ? String(name).slice(0, 34) : '', img: opts.img || '', snap: opts.snap || '', key: opts.key || '', by: opts.by || '' });
     if (!busy) play();
   }
   function play() {
@@ -118,7 +118,7 @@
           <div class="stars">${T.flop ? '●' : '★'.repeat(T.star)}</div>
           <div class="ft">TEAM Z3F4 × LE RAINTÉ DU TCG</div>${T.flop ? '' : '<div class="shine"></div>'}</div>
       </div></div>
-      <div class="sub">${esc(h.name ? h.name.toUpperCase() + ' · ' + T.sub : T.sub)}</div>`;
+      <div class="sub">${esc((h.name ? h.name.toUpperCase() + ' · ' : '') + (h.by ? 'BOOSTER DE @' + h.by.toUpperCase() : T.sub))}</div>`;
     const fx = window.Z3fx;
     if (fx && !T.flop) {
       fx.shake(); fx.flash(960, 500);
@@ -130,9 +130,9 @@
     const ph = box.querySelector('.photo');                 // image officielle → sinon photo caméra → sinon carte Z3
     if (ph) ph.onerror = () => { if (ph.dataset.alt) { ph.src = ph.dataset.alt; ph.dataset.alt = ''; } else { ph.remove(); const tg = box.querySelector('.tag'); if (tg) tg.remove(); } };
     if (!T.flop) { hits++; try { sessionStorage.setItem('z3f4-hits', hits); } catch (e) { /* rien */ } showCount(); }
-    { const r = recap.load(); if (T.flop) r.flops++; else { r.hits.push({ tier: h.tier, name: h.name, img: h.img, snap: h.snap, key: h.key, t: Date.now() }); if (r.hits.length > 40) r.hits.shift(); } recap.save(r); }
+    { const r = recap.load(); if (T.flop) r.flops++; else { r.hits.push({ tier: h.tier, name: h.name, img: h.img, snap: h.snap, key: h.key, by: h.by, t: Date.now() }); if (r.hits.length > 40) r.hits.shift(); } recap.save(r); }
     const feed = document.querySelector('#alerts .zone .feed');
-    if (feed) { feed.insertAdjacentHTML('beforeend', `<div class="it" style="--c:${T.c1}"><b>${T.flop ? 'FLOP' : 'HIT'}</b><span>${esc(h.name || T.t)}</span><i>${'★'.repeat(T.star)}</i></div>`); while (feed.children.length > 5) feed.firstChild.remove(); }
+    if (feed) { feed.insertAdjacentHTML('beforeend', `<div class="it" style="--c:${T.c1}"><b>${T.flop ? 'FLOP' : 'HIT'}</b><span>${esc(h.name || T.t)}</span><i>${'★'.repeat(T.star)}</i></div>`); while (feed.children.length > 4) feed.firstChild.remove(); }
     setTimeout(() => { box.className = 'layer'; box.innerHTML = ''; play(); }, T.ms + 200);
   }
 
@@ -141,10 +141,10 @@
   window.addEventListener('keydown', (e) => {
     const t = KEYS[e.key]; if (!t) return;
     const name = Q.has('hitname') && t !== 'flop' ? window.prompt('Nom de la carte ? (vide = aucun)') : '';
-    hit(t, name);
+    (window.Z3.hit || hit)(t, name);
   });
   if (Q.has('demohits')) {
     const seq = [['rare', 'Évoli'], ['ultra', 'Dracaufeu ex'], ['flop', ''], ['secret', 'Luffy Gear 5 Alt Art'], ['god', '']];
-    seq.forEach(([t, n], i) => setTimeout(() => hit(t, n), 1200 + i * 200));
+    seq.forEach(([t, n], i) => setTimeout(() => (window.Z3.hit || hit)(t, n), 1200 + i * 200));
   }
 })();

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Z3 — Vidéo récap 9:16</title>
+<style>
+  @font-face { font-family: 'Bangers'; src: url(fonts/bangers.ttf); }
+  @font-face { font-family: 'Orbitron'; font-weight: 900; src: url(fonts/orbitron-900.ttf); }
+  @font-face { font-family: 'Rajdhani'; font-weight: 700; src: url(fonts/rajdhani-700.ttf); }
+  @font-face { font-family: 'NotoJP'; font-weight: 900; src: url(fonts/notojp-900-subset.ttf); }
+  :root { --f: #ff3fd0; --line: #4a1d77; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0e0219; color: #f3e8ff; font: 700 15px Rajdhani, system-ui, sans-serif; display: flex; gap: 24px; padding: 20px; flex-wrap: wrap; }
+  canvas { width: min(420px, 90vw); aspect-ratio: 9/16; border: 2px solid var(--f); box-shadow: 0 0 30px rgba(255,63,208,.4); background: #000; }
+  .side { flex: 1; min-width: 280px; max-width: 520px; display: grid; gap: 10px; align-content: start; }
+  h1 { margin: 0; font-family: Bangers; font-size: 34px; letter-spacing: 1px; background: linear-gradient(180deg, #fff, #ff3fd0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .box { background: #1a0630; border: 1px solid var(--line); padding: 10px; display: grid; gap: 8px; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  input, button { font: inherit; color: #f3e8ff; background: #0e0219; border: 1px solid var(--line); padding: 6px 10px; min-width: 0; }
+  button { cursor: pointer; background: #2a0b47; } button:hover { border-color: var(--f); }
+  button.go { background: linear-gradient(90deg, #ff3fd0, #8b2cff); border: 0; padding: 10px; font-size: 17px; }
+  .mut { color: #b9a2d6; font-size: 13px; }
+  #status { min-height: 20px; }
+</style>
+</head>
+<body>
+<canvas id="cv" width="1080" height="1920"></canvas>
+<div class="side">
+  <h1>VIDÉO RÉCAP 9:16</h1>
+  <div class="box">
+    <b>1 · Données du live</b>
+    <div class="row"><input id="host" value="127.0.0.1" style="width:110px"><input id="port" value="4455" style="width:64px"><input id="pass" type="password" placeholder="Mot de passe OBS WebSocket" style="flex:1"></div>
+    <div class="row"><button id="btnObs">Récupérer le récap depuis OBS</button><button id="btnLocal">Ce navigateur</button><button id="btnDemo">Démo</button></div>
+    <div class="mut">Le récap est tenu par l'overlay dans OBS. Depuis Chrome, il passe par OBS WebSocket (overlay lancé avec <code>&amp;obs&amp;obspass=…</code>).</div>
+  </div>
+  <div class="box">
+    <b>2 · Génération</b>
+    <div class="row"><button id="btnPlay">▶ Aperçu</button><button id="btnRec" class="go">🎬 GÉNÉRER LA VIDÉO</button></div>
+    <div class="mut">Environ 20 à 30 secondes selon le nombre de hits, 1080×1920, 30 i/s. Le fichier se télécharge tout seul (MP4 si le navigateur le permet, sinon WebM).<br>
+      Avec <code>?auto</code> dans l'adresse, la page attend la fin du live (chrono à zéro) et génère la vidéo automatiquement.</div>
+    <div id="status" class="mut"></div>
+  </div>
+</div>
+<script src="data/fonds.js"></script>
+<script src="src/art.js"></script>
+<script src="src/obsws.js"></script>
+<script>
+(function () {
+  'use strict';
+  const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
+  const cv = $('cv'), x = cv.getContext('2d'), W = 1080, H = 1920, FPS = 30;
+  let DUR = 24;
+  const FONDS = ['fond-2-z3-violet.png', 'fond-1-z3-rouge.png', 'fond-3-z3-ruelle.png', 'fond-4-z3-sakura.png', 'fond-5-team-z3f4.jpg'];
+  const C = { rare: '#7bd0ff', ultra: '#ffd23a', secret: '#ff3fd0', god: '#ffd23a' }, L = { rare: 'RARE', ultra: 'HIT', secret: 'SECRÈTE', god: 'GOD PACK' };
+  const status = (t) => { $('status').textContent = t; };
+  let data = null, assets = null;
+
+  /* ---------------- données ---------------- */
+  const DEMO = { recap: { cards: 214, newCards: 37, flops: 3, start: Date.now() - 3 * 3600e3, hits: [
+      { tier: 'god', name: 'GOD PACK' }, { tier: 'secret', name: 'Pikachu-ex 238/191' }, { tier: 'secret', name: 'Luffy OP05-119' },
+      { tier: 'ultra', name: 'Balbalèze 201/191' }, { tier: 'ultra', name: 'Shanks OP09-004' }, { tier: 'rare', name: 'Évoli' }] },
+    rank: [{ name: 'KaizokuKing', score: 19, boosters: 6 }, { name: 'SachaDu93', score: 12, boosters: 4 }, { name: 'NamiDeals', score: 7, boosters: 3 }] };
+  function useData(d, src) { data = d; assets = null; status('Récap chargé (' + src + ') : ' + (d.recap.hits || []).length + ' hits, ' + (d.recap.cards || 0) + ' cartes.'); }
+  function localData() {
+    let r = null; try { r = JSON.parse(localStorage.getItem('z3-recap-v1') || 'null'); } catch (e) { r = null; }
+    if (!r) return null;
+    const rank = Object.entries(r.players || {}).map(([name, p]) => Object.assign({ name }, p)).filter((p) => p.score || p.boosters).sort((a, b) => b.score - a.score);
+    return { recap: r, rank };
+  }
+  let obs = null;
+  async function obsData() {
+    if (!obs || !obs.ready) { obs = new window.Z3OBS({ host: $('host').value, port: $('port').value, password: $('pass').value }); await obs.connect(); obs.on('CustomEvent', onObs); }
+    return new Promise((res, rej) => {
+      pendingRecap = res; obs.broadcast({ kind: 'cmd', cmd: 'getrecap', id: 'g' + Date.now() });
+      setTimeout(() => { if (pendingRecap) { pendingRecap = null; rej(new Error('pas de réponse de l\'overlay (ajoute &obs à son URL)')); } }, 4000);
+    });
+  }
+  let pendingRecap = null;
+  function onObs(m) {
+    if (!m || !m.z3) return;
+    if (m.kind === 'recapdata' && pendingRecap) { const r = pendingRecap; pendingRecap = null; r({ recap: m.recap, rank: m.rank }); }
+    if (m.kind === 'liveend' && Q.has('auto')) { useData({ recap: m.recap, rank: m.rank }, 'fin du live'); record(); }
+  }
+  try { new BroadcastChannel('z3').onmessage = (e) => onObs(e.data); } catch (e) { /* rien */ }
+  $('btnDemo').onclick = () => useData(DEMO, 'démo');
+  $('btnLocal').onclick = () => { const d = localData(); d ? useData(d, 'ce navigateur') : status('Aucun récap dans ce navigateur.'); };
+  $('btnObs').onclick = async () => { status('Connexion à OBS…'); try { useData(await obsData(), 'OBS'); } catch (e) { status('Erreur : ' + e.message); } };
+
+  /* ---------------- images ---------------- */
+  const img = (src, cors) => new Promise((res) => { if (!src) return res(null); const i = new Image(); if (cors) i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+  async function loadAssets() {
+    await document.fonts.load('80px Bangers'); await document.fonts.load('40px Orbitron'); await document.fonts.load('30px Rajdhani'); await document.fonts.load('30px NotoJP');
+    // fonds intégrés en data URL (data/fonds.js) : sinon le canvas devient « non enregistrable »
+    const F = window.Z3FONDS || {};
+    const bgs = await Promise.all(Object.keys(F).length ? Object.values(F).map((u) => img(u)) : FONDS.map((f) => img('preview/' + f)));
+    const emblem = await img('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(window.Z3Art.emblemSVG(400, 'emV')));
+    const rankT = { god: 4, secret: 3, ultra: 2, rare: 1 };
+    const top = (data.recap.hits || []).slice().sort((a, b) => (rankT[b.tier] - rankT[a.tier]) || (b.t || 0) - (a.t || 0)).slice(0, 5);
+    for (const h of top) h.im = (await img(h.img, true)) || (await img(h.snap)) || null;   // officielle (CORS) → photo caméra
+    return { bgs: bgs.filter(Boolean), emblem, top };
+  }
+
+  /* ---------------- dessin ---------------- */
+  const ease = (t) => 1 - Math.pow(1 - Math.max(0, Math.min(1, t)), 3);
+  const R = (() => { let a = 7; return () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; }; })();
+  const petals = Array.from({ length: 60 }, () => ({ x: R() * W, y: R() * H, s: 8 + R() * 14, v: 1 + R() * 2.5, p: R() * 6.28 }));
+  function text(t, xx, yy, o) {
+    x.save(); x.font = o.font; x.textAlign = o.align || 'center'; x.textBaseline = 'middle';
+    if (o.rot) { x.translate(xx, yy); x.rotate(o.rot); xx = 0; yy = 0; }
+    if (o.glow) { x.shadowColor = o.glow; x.shadowBlur = o.blur || 30; }
+    if (o.stroke) { x.lineWidth = o.sw || 8; x.strokeStyle = o.stroke; x.lineJoin = 'round'; x.strokeText(t, xx, yy); }
+    x.fillStyle = o.color || '#fff'; x.fillText(t, xx, yy); x.restore();
+  }
+  function cover(im, z, ox, oy) { const s = Math.max(W / im.width, H / im.height) * z; x.drawImage(im, (W - im.width * s) / 2 + (ox || 0), (H - im.height * s) / 2 + (oy || 0), im.width * s, im.height * s); }
+  function rrect(xx, yy, w, h, r) { x.beginPath(); x.moveTo(xx + r, yy); x.arcTo(xx + w, yy, xx + w, yy + h, r); x.arcTo(xx + w, yy + h, xx, yy + h, r); x.arcTo(xx, yy + h, xx, yy, r); x.arcTo(xx, yy, xx + w, yy, r); x.closePath(); }
+  function rays(col, a) { x.save(); x.globalAlpha = a; x.translate(W / 2, 900); for (let i = 0; i < 48; i++) { x.rotate(Math.PI * 2 / 48); x.fillStyle = col; x.fillRect(260, -3, 1400, 6); } x.restore(); }
+  function card(h, cx, cy, w, t) {
+    const ht = w * 1.4, k = ease(t), flip = Math.max(0, 1 - t * 2.2);
+    x.save(); x.translate(cx, cy + (1 - k) * 600); x.scale(Math.cos(flip * Math.PI / 2) || 0.01, 1);
+    x.shadowColor = C[h.tier]; x.shadowBlur = 60; rrect(-w / 2, -ht / 2, w, ht, 22); x.fillStyle = '#12031f'; x.fill(); x.shadowBlur = 0;
+    x.save(); rrect(-w / 2, -ht / 2, w, ht, 22); x.clip();
+    if (h.im) { const s = Math.max(w / h.im.width, ht / h.im.height); x.drawImage(h.im, -h.im.width * s / 2, -h.im.height * s / 2, h.im.width * s, h.im.height * s); }
+    else { const g = x.createLinearGradient(-w / 2, -ht / 2, w / 2, ht / 2); g.addColorStop(0, '#3a0c66'); g.addColorStop(1, C[h.tier]); x.fillStyle = g; x.fillRect(-w / 2, -ht / 2, w, ht); text('Z3', 0, -40, { font: '200px Bangers', color: '#fff', glow: C[h.tier] }); }
+    const sh = (t * 1.4 % 1) * w * 2 - w; const g2 = x.createLinearGradient(sh - 80, 0, sh + 80, 0); g2.addColorStop(0, 'rgba(255,255,255,0)'); g2.addColorStop(.5, 'rgba(255,255,255,.45)'); g2.addColorStop(1, 'rgba(255,255,255,0)');
+    x.fillStyle = g2; x.fillRect(-w / 2, -ht / 2, w, ht); x.restore();
+    x.lineWidth = 10; x.strokeStyle = C[h.tier]; rrect(-w / 2, -ht / 2, w, ht, 22); x.stroke();
+    x.restore();
+  }
+  function frame(t) {
+    const d = data, A = assets, r = d.recap;
+    x.fillStyle = '#0b0214'; x.fillRect(0, 0, W, H);
+    const bi = Math.floor(t / 5) % A.bgs.length, bt = (t % 5) / 5;
+    if (A.bgs.length) { x.globalAlpha = 1; cover(A.bgs[bi], 1.05 + bt * 0.08, 0, -bt * 40); }
+    const vg = x.createLinearGradient(0, 0, 0, H); vg.addColorStop(0, 'rgba(11,2,20,.55)'); vg.addColorStop(.45, 'rgba(11,2,20,.75)'); vg.addColorStop(1, 'rgba(11,2,20,.92)');
+    x.fillStyle = vg; x.fillRect(0, 0, W, H);
+    for (const p of petals) { const yy = (p.y + t * 60 * p.v) % (H + 40) - 20, xx = (p.x + Math.sin(t * 1.3 + p.p) * 40) % W; x.save(); x.translate(xx, yy); x.rotate(t + p.p); x.globalAlpha = .75; x.fillStyle = '#ff9be8'; x.beginPath(); x.ellipse(0, 0, p.s, p.s * .55, 0, 0, 6.28); x.fill(); x.restore(); }
+    // en-tête permanent
+    text('Z3 LIVE', W / 2, 150, { font: '150px Bangers', color: '#fff', stroke: '#ff3fd0', sw: 10, glow: '#ff3fd0', rot: -0.04 });
+    text('TEAM Z3F4 × LE RAINTÉ DU TCG', W / 2, 270, { font: '46px Rajdhani', color: '#ffd2f6', glow: '#b44dff', blur: 16 });
+    const sec = (a, b) => t >= a && t < b;
+    if (sec(0, 4)) {                                   // intro
+      const k = ease(t / 1.2);
+      text('RÉCAP', W / 2, 820, { font: `${Math.round(260 * k)}px Bangers`, color: '#fff', stroke: '#ff3fd0', sw: 12, glow: '#ff3fd0', rot: -0.06 });
+      text('DU LIVE', W / 2, 1060, { font: '150px Bangers', color: '#ffd23a', stroke: '#6a1fd1', sw: 10, glow: '#ffd23a', rot: -0.06 });
+      text('ライブまとめ', W / 2, 1220, { font: '56px NotoJP', color: '#ff7be6' });
+      if (A.emblem) { x.globalAlpha = ease((t - 1) / 1); x.drawImage(A.emblem, W / 2 - 150, 1330, 300, 300); x.globalAlpha = 1; }
+    } else if (sec(4, 9)) {                            // chiffres
+      const k = ease((t - 4) / 2.5), cnt = (t2) => (r.hits || []).filter((h) => h.tier === t2).length;
+      const st = [['CARTES OUVERTES', r.cards || 0, '#b44dff'], ['NOUVELLES AU MASTER SET', r.newCards || 0, '#3dff9a'], ['HITS', (r.hits || []).filter((h) => h.tier !== 'god').length, '#ffd23a'], ['SECRÈTES', cnt('secret'), '#ff3fd0'], ['GOD PACK', cnt('god'), '#ffd23a']];
+      st.forEach(([l, v, c], i) => {
+        const ki = ease((t - 4 - i * 0.25) / 0.8), yy = 520 + i * 250;
+        x.save(); x.globalAlpha = ki; x.translate((1 - ki) * -300, 0);
+        rrect(110, yy - 95, 860, 190, 20); x.fillStyle = 'rgba(20,4,40,.78)'; x.fill(); x.lineWidth = 4; x.strokeStyle = c; x.stroke();
+        text(String(Math.round(v * k)), 300, yy, { font: '120px Orbitron', color: c, glow: c });
+        text(l, 640, yy, { font: '44px Rajdhani', color: '#fff', align: 'center' });
+        x.restore();
+      });
+    } else if (sec(9, 9 + A.top.length * 2.2 || 9)) {  // meilleurs hits
+      const i = Math.floor((t - 9) / 2.2), lt = ((t - 9) % 2.2) / 2.2, h = A.top[i];
+      rays(C[h.tier], 0.35);
+      card(h, W / 2, 960, 560, lt);
+      text(L[h.tier] + (h.tier === 'god' ? ' !!!!' : ' !'), W / 2, 470, { font: '170px Bangers', color: '#fff', stroke: C[h.tier], sw: 10, glow: C[h.tier], rot: -0.05 });
+      text(h.name || '', W / 2, 1480, { font: '62px Rajdhani', color: '#fff', glow: C[h.tier], blur: 20 });
+      if (h.by) text('BOOSTER DE @' + h.by, W / 2, 1560, { font: '44px Rajdhani', color: '#ff7be6' });
+      text(`#${i + 1} / ${A.top.length}`, W / 2, 1650, { font: '34px Orbitron', color: '#b9a2d6' });
+    } else if (sec(9 + A.top.length * 2.2, DUR - 3.5)) {   // podium top tireurs
+      const t0 = 9 + A.top.length * 2.2, k = (t - t0);
+      text('TOP TIREURS', W / 2, 470, { font: '150px Bangers', color: '#fff', stroke: '#ff3fd0', sw: 10, glow: '#ff3fd0', rot: -0.04 });
+      const top = (d.rank || []).slice(0, 3), med = ['#ffd23a', '#e6e9f2', '#e09a5a'];
+      if (!top.length) text('PERSONNE… LA PROCHAINE FOIS !', W / 2, 960, { font: '56px Rajdhani', color: '#e9c7ff' });
+      [[1, 270, 1080], [0, 540, 960], [2, 810, 1160]].forEach(([idx, xx, yy]) => {
+        const p = top[idx]; if (!p) return; const ki = ease((k - (2 - idx) * 0.35) / 0.8);
+        const hh = 1700 - yy;
+        x.save(); x.globalAlpha = ki; x.translate(0, (1 - ki) * 400);
+        rrect(xx - 125, yy, 250, hh, 18); x.fillStyle = 'rgba(20,4,40,.85)'; x.fill(); x.lineWidth = 5; x.strokeStyle = med[idx]; x.stroke();
+        text(String(idx + 1), xx, yy + 90, { font: '120px Orbitron', color: med[idx], glow: med[idx] });
+        text(p.name.length > 12 ? p.name.slice(0, 11) + '…' : p.name, xx, yy - 60, { font: '46px Rajdhani', color: '#fff', glow: '#ff3fd0', blur: 14 });
+        text(p.score + (p.score > 1 ? ' pts' : ' pt'), xx, yy + 210, { font: '44px Orbitron', color: '#fff' });
+        text((p.boosters || 0) + ' boosters', xx, yy + 280, { font: '32px Rajdhani', color: '#e9c7ff' });
+        x.restore();
+      });
+    } else if (t >= DUR - 3.5) {                        // outro
+      const k = ease((t - (DUR - 3.5)) / 1);
+      if (A.emblem) { x.globalAlpha = k; x.drawImage(A.emblem, W / 2 - 200, 560, 400, 400); x.globalAlpha = 1; }
+      text('MERCI POUR LE LIVE !', W / 2, 1100, { font: '110px Bangers', color: '#fff', stroke: '#ff3fd0', sw: 8, glow: '#ff3fd0' });
+      text('ABONNE-TOI POUR LE PROCHAIN', W / 2, 1240, { font: '52px Rajdhani', color: '#ffd23a' });
+      text('LE LIVE SE TERMINE QUAND IL NE RESTE PLUS RIEN', W / 2, 1330, { font: '38px Rajdhani', color: '#e9c7ff' });
+    }
+    // barre de progression bas
+    x.fillStyle = 'rgba(255,255,255,.12)'; x.fillRect(80, 1830, W - 160, 8);
+    const gp = x.createLinearGradient(80, 0, W - 80, 0); gp.addColorStop(0, '#8b2cff'); gp.addColorStop(1, '#ff3fd0'); x.fillStyle = gp; x.fillRect(80, 1830, (W - 160) * Math.min(1, t / DUR), 8);
+  }
+
+  /* ---------------- lecture & enregistrement ---------------- */
+  async function prepare() { if (!data) useData(localData() || DEMO, localData() ? 'ce navigateur' : 'démo'); if (!assets) { status('Préparation des images…'); assets = await loadAssets(); } DUR = 9 + assets.top.length * 2.2 + 4.5 + 3.5; }
+  let playing = false;
+  async function play(onDone) {
+    await prepare(); playing = true; const t0 = performance.now();
+    (function loop() {
+      const t = (performance.now() - t0) / 1000;
+      if (t >= DUR || !playing) { playing = false; frame(Math.min(t, DUR - 0.01)); if (onDone) onDone(); return; }
+      frame(t); requestAnimationFrame(loop);
+    })();
+  }
+  async function record() {
+    await prepare();
+    const types = ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+    const mime = types.find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
+    if (!mime) { status('Enregistrement vidéo non supporté par ce navigateur (utilise Chrome).'); return; }
+    const rec = new MediaRecorder(cv.captureStream(FPS), { mimeType: mime, videoBitsPerSecond: 10e6 }), chunks = [];
+    rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+    rec.onstop = () => {
+      const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: mime.split(';')[0] });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = `z3-recap-${new Date().toISOString().slice(0, 10)}.${ext}`; document.body.appendChild(a); a.click();
+      status(`✔ Vidéo générée : ${a.download} (${(blob.size / 1e6).toFixed(1)} Mo)` + (ext === 'webm' ? ' — WebM : convertis en MP4 si ton réseau social le refuse.' : ''));
+      window.__z3video = { mime, size: blob.size };
+    };
+    status(`🎬 Enregistrement en cours… (${Math.round(DUR)} s)`);
+    rec.start(500);
+    play(() => setTimeout(() => rec.stop(), 300));
+  }
+  $('btnPlay').onclick = () => play();
+  $('btnRec').onclick = () => record();
+  window.Z3Video = { record, useData, demo: () => useData(DEMO, 'démo') };
+
+  // première image
+  (async () => { await prepare(); frame(1.4); if (Q.has('auto')) status('Mode auto : en attente de la fin du live…'); if (Q.has('demo')) { useData(DEMO, 'démo'); } })();
+  if (Q.has('auto') && Q.get('obspass') !== null) { $('pass').value = Q.get('obspass'); obsData().catch(() => {}); }
+})();
+</script>
+</body>
+</html>

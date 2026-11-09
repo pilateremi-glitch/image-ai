@@ -103,7 +103,7 @@
     const feed = zone && zone.querySelector('.feed');
     if (feed) {
       feed.insertAdjacentHTML('beforeend', `<div class="it" style="--c:${T.c}"><b>${T.t.split(' ').pop()}</b><span>${esc(e.name)}</span><i>${esc(amtTxt)}</i></div>`);
-      while (feed.children.length > 5) feed.firstChild.remove();
+      while (feed.children.length > 4) feed.firstChild.remove();
     }
     setTimeout(play, 5200);
   }

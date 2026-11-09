@@ -105,6 +105,16 @@
   </section>
 
   <section>
+    <h2>BOOSTERS DU CHAT · TOP TIREURS</h2>
+    <div class="row" id="buyerNow" style="font-size:16px">Booster en cours : <b id="curBuyer" style="color:var(--f)">—</b></div>
+    <div class="row"><input id="buyerName" placeholder="Pseudo du viewer" class="grow"><input id="buyerQty" type="number" min="1" max="36" value="1" style="width:56px" title="Nombre de boosters">
+      <button id="btnQueue">+ File</button><button id="btnOpenFor">Ouvrir pour</button></div>
+    <div class="row"><button id="btnNextBuyer" class="big go">⏭ BOOSTER SUIVANT</button></div>
+    <div class="mut" id="queueList">File vide. Les achats StreamElements/Streamlabs s'ajoutent tout seuls.</div>
+    <div class="mut" id="topList" style="margin-top:6px"></div>
+  </section>
+
+  <section>
     <h2>4 · DÉCLENCHEMENT MANUEL</h2>
     <div class="row"><input id="cardName" placeholder="Nom de la carte (optionnel)" class="grow"></div>
     <div class="tiers">
@@ -118,7 +128,7 @@
   </section>
 
   <section>
-    <h2>JOURNAL <a href="base.html" target="_blank" style="float:right;color:var(--f);font-size:12px">MASTER SET ›</a></h2>
+    <h2>JOURNAL <a href="base.html" target="_blank" style="float:right;color:var(--f);font-size:12px;margin-left:10px">MASTER SET ›</a><a href="recap-video.html" target="_blank" style="float:right;color:var(--f);font-size:12px">VIDÉO RÉCAP ›</a></h2>
     <ul id="log"></ul>
   </section>
 </main>
@@ -159,6 +169,19 @@
   /* ---------- envoi vers l'overlay ---------- */
   const bc = (() => { try { return new BroadcastChannel('z3'); } catch (e) { return null; } })();
   let obs = null;
+  /* état renvoyé par l'overlay (file d'attente, classement) */
+  function onState(m) {
+    if (!m || !m.z3 || m.kind !== 'state') return;
+    $('curBuyer').textContent = m.current ? '@' + m.current : '—';
+    $('queueList').textContent = m.queue && m.queue.length ? 'File : ' + m.queue.join(' → ') : 'File vide. Les achats StreamElements/Streamlabs s\'ajoutent tout seuls.';
+    $('topList').textContent = m.top && m.top.length ? 'Top : ' + m.top.slice(0, 5).map((p, i) => `${i + 1}. ${p.name} (${p.score} pts, ${p.boosters} boosters)`).join(' · ') : '';
+  }
+  if (bc) bc.onmessage = (e) => onState(e.data);
+  $('btnQueue').addEventListener('click', () => { const n = $('buyerName').value.trim(); if (n) send({ kind: 'cmd', cmd: 'addbooster', name: n, qty: +$('buyerQty').value || 1 }); $('buyerName').value = ''; });
+  $('btnOpenFor').addEventListener('click', () => { const n = $('buyerName').value.trim(); if (n) send({ kind: 'cmd', cmd: 'buyer', name: n }); $('buyerName').value = ''; });
+  $('btnNextBuyer').addEventListener('click', () => send({ kind: 'cmd', cmd: 'nextbuyer' }));
+  setTimeout(() => send({ kind: 'cmd', cmd: 'state' }), 600);
+
   function send(msg) {
     msg = Object.assign({ z3: 1, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7) }, msg);
     if (bc) bc.postMessage(msg);
@@ -176,6 +199,7 @@
     if (obs) obs.close();
     obs = new window.Z3OBS({ host: $('host').value, port: $('port').value, password: $('pass').value });
     obs.on('close', () => setState('DÉCONNECTÉ', 'err'));
+    obs.on('CustomEvent', onState);
     obs.on('open', () => setState('CONNECTÉ', 'on'));
     setState('CONNEXION…');
     try { await obs.connect(); setState('CONNECTÉ', 'on'); await listSources(); }

@@ -127,6 +127,9 @@
       $('recap').querySelectorAll('img').forEach((im) => { im.onerror = () => { if (im.dataset.alt) { im.src = im.dataset.alt; im.dataset.alt = ''; } else im.remove(); }; });
       $('recap').hidden = false;
       document.querySelector('.food').style.display = 'none';
+      const pl = Object.entries(r.players || {}).map(([n, p]) => ({ n, s: p.score || 0 })).filter((p) => p.s).sort((a, b) => b.s - a.s).slice(0, 3);
+      if (Q.has('demo')) pl.push({ n: 'KaizokuKing', s: 19 }, { n: 'SachaDu93', s: 12 }, { n: 'NamiDeals', s: 7 });
+      if (pl.length) $('rule').textContent = 'TOP TIREURS · ' + pl.map((p, i) => ['🥇', '🥈', '🥉'][i] + ' ' + p.n + ' ' + p.s + ' PTS').join('   ');
       $('sub').textContent = 'RÉCAP DU LIVE · ' + r.hits.filter((h) => h.tier !== 'god').length + ' HITS · À TRÈS VITE SUR Z3 LIVE';
     }
   }

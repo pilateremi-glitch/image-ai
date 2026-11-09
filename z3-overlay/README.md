@@ -191,6 +191,25 @@ Pendant le live, l'overlay garde le compte : cartes identifiées, nouvelles cart
 La scène **`scenes.html?mode=end`** affiche ce récap automatiquement (chiffres et galerie des meilleurs hits).
 Le récap repart à zéro quand l'overlay est lancé avec `&reset` ou `&newlive`. Aperçu : `scenes.html?mode=end&demo`.
 
+
+## 🎬 Vidéo récap 9:16 automatique (`recap-video.html`)
+
+À la fin du live, une vidéo verticale **1080×1920** prête pour TikTok, Reels et Shorts, générée directement dans le navigateur.
+Elle contient : intro « Récap du live », les chiffres (cartes, nouvelles au master set, hits, secrètes, god pack), les meilleurs hits (image de la carte, nom, « booster de @… »), le podium **Top tireurs** et un outro avec le partenaire.
+
+- Ouvre `recap-video.html` dans **Chrome** et récupère le récap depuis OBS : mot de passe WebSocket, overlay lancé avec `&obs&obspass=…`. Clique ensuite sur **🎬 Générer la vidéo** : le fichier MP4 se télécharge tout seul.
+- **Automatique :** `recap-video.html?auto&obspass=MOTDEPASSE` laissé ouvert attend que le chrono arrive à zéro, puis génère et télécharge la vidéo.
+- Les fonds viennent de `data/fonds.js`. Si tu ajoutes ou changes une image `preview/fond-*`, relance `node tools/build-fonds.mjs`.
+
+## 🏅 Top tireurs du chat (`src/tireurs.js`)
+
+Chaque booster acheté par un viewer lui est attribué, et les hits de **son** booster lui rapportent des points : **RARE 1 · HIT 3 · SECRÈTE 6 · GOD PACK 10**.
+
+- **File d'attente :** chaque achat StreamElements/Streamlabs ajoute un booster au nom de l'acheteur. Option `&boosterprice=6` pour compter `montant ÷ prix`. Tu peux aussi ajouter des boosters à la main dans le dock (pseudo + nombre).
+- **Dans le dock :** « ⏭ BOOSTER SUIVANT » passe au prochain booster de la file, « Ouvrir pour » ouvre directement pour un pseudo. Le booster en cours et le classement s'affichent dans le dock.
+- **Sur l'overlay :** panneau **TOP TIREURS** (top 5, « BOOSTER DE @… », file d'attente), avec la mention « BOOSTER DE @… » dans chaque alerte de hit. Touche `N` = booster suivant. `&notireurs` masque le panneau.
+- **Fin de live :** podium sur la scène « Merci » et dans la vidéo récap.
+
 ## Scènes « Bientôt / Pause / Fin » (`scenes.html`)
 
 | URL | Scène |
