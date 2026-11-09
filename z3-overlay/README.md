@@ -102,6 +102,40 @@ Dans **Interagir**, pendant l'ouverture d'un booster :
 - Compteur **HITS DU LIVE** affiché à l'écran + ajout dans le fil Alertes.
 - Script / dock : `Z3.hit('god', 'Luffy Gear 5')`. Démo : `&demohits`.
 
+
+## 🤖 Détection AUTOMATIQUE des hits (`detecteur.html`)
+
+Le détecteur regarde la **caméra qui filme les cartes**, repère chaque nouvelle carte posée, l'analyse et déclenche **seul** l'alerte RARE / HIT / SECRÈTE / GOD PACK (et FLOP en option) sur l'overlay. Les cartes communes sont ignorées.
+
+### Installation (une fois)
+
+1. **OBS › Outils › Paramètres du serveur WebSocket** : coche « Activer », note le mot de passe (port 4455).
+2. **OBS › Docks › Docks de navigateur personnalisés** : nom `Z3 Détecteur`, URL `file:///C:/chemin/vers/z3-overlay/detecteur.html`.
+   (Ça marche aussi dans un onglet Chrome sur le même PC.)
+3. Dans le dock : mot de passe → **Connecter** → choisis la source qui filme les cartes.
+4. **Glisse sur l'aperçu** pour encadrer l'endroit où tu montres les cartes.
+5. Calibrage : **A** avec la zone vide, puis **B** avec une carte commune posée dans le cadre.
+6. **▶ DÉMARRER LA DÉTECTION**. Montre les cartes une par une, environ 1 seconde immobiles dans le cadre.
+
+L'overlay reçoit les alertes tout seul (dock et sources dans le même OBS). Si besoin, ajoute `&obs&obspass=MOTDEPASSE` à l'URL de l'overlay pour passer par OBS WebSocket.
+
+### Les 3 modes
+
+| Mode | Comment ça décide | Coût |
+|---|---|---|
+| **Locale** | Analyse d'image : or/gold, holo arc-en-ciel, reflets du foil, illustration pleine carte, comparés à ta carte commune | Gratuit, hors ligne |
+| **Hybride** (recommandé) | L'analyse locale filtre ; dès qu'une carte brille, **Claude lit la carte** (nom, symbole de rareté, numéro hors set…) et tranche | Quelques appels par booster |
+| **IA seule** | Claude analyse chaque carte posée | 1 appel par carte |
+
+Le mode IA utilise le SDK officiel Anthropic (embarqué dans `vendor/`, aucune connexion CDN) et ta clé API, enregistrée uniquement sur ce PC.
+Modèle par défaut : Claude Opus 5.5 (le plus précis) ; Haiku 5.5 disponible pour réduire le coût.
+
+- **GOD PACK auto** : 3 hits dans le même booster → l'alerte GOD PACK remplace la 3ᵉ.
+- **FLOP auto** : un booster d'au moins 5 cartes sans hit (pause de 12 s = booster terminé) → alerte FLOP.
+- **Sensibilité** : à monter si des hits passent inaperçus, à baisser si des communes déclenchent.
+- Le dock sert aussi de **télécommande** : boutons RARE/HIT/SECRÈTE/GOD/FLOP (+ nom de carte), +5 min, −5 min, pause, fond suivant.
+- `detecteur.html?simu` : démonstration sans caméra (cartes simulées).
+
 ## Scènes « Bientôt / Pause / Fin » (`scenes.html`)
 
 | URL | Scène |
