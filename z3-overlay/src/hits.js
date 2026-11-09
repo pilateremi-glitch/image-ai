@@ -89,7 +89,7 @@
   const css2 = document.createElement('style');
   css2.textContent = `
   #hit .camwrap{position:absolute;animation:camout var(--ms) linear forwards}
-  #hit .camcov{position:absolute;inset:0;overflow:hidden;background:#0b0214;border-radius:10px;opacity:0;animation:camin .5s ease var(--trace) forwards}
+  #hit .camcov{position:absolute;inset:0;overflow:visible;background:transparent;opacity:0;animation:camin .5s ease var(--trace) forwards}
   #hit .camframe{position:absolute;inset:-9px;width:calc(100% + 18px);height:calc(100% + 18px);overflow:visible;pointer-events:none}
   #hit .camframe rect{fill:none;stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;animation:trace var(--trace) linear forwards}
   #hit .camframe rect.halo{stroke:var(--fg1);stroke-width:16;opacity:.45;filter:blur(7px)}
@@ -106,13 +106,14 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes pbout{to{transform:scale(1.8);opacity:0}}
   @keyframes camout{0%,93%{opacity:1}100%{opacity:0}}
-  #hit .camcov .bgb{position:absolute;inset:-30px;background:center/cover no-repeat;filter:blur(22px) brightness(.55) saturate(1.4)}
-  #hit .camcov img.cc{position:absolute;inset:6% 0 14%;margin:auto;height:80%;max-width:94%;object-fit:contain;filter:drop-shadow(0 0 18px var(--c1));animation:camcard 1.6s ease-in-out infinite alternate}
-  #hit .camcov .ct{position:absolute;left:0;right:0;top:4px;text-align:center;font-family:Bangers;font-size:var(--fs,40px);letter-spacing:2px;color:#fff;-webkit-text-stroke:2px var(--c1);text-shadow:0 0 14px var(--c1)}
-  #hit .camcov .cn{position:absolute;left:0;right:0;bottom:6px;text-align:center;font-family:Rajdhani;font-weight:700;font-size:calc(var(--fs,40px) * .5);color:#fff;text-shadow:0 0 10px var(--c1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+  #hit .camcov .bgb{display:none}
+  #hit .camcov img.cc{position:absolute;left:50%;top:50%;width:auto;height:auto;max-width:78%;max-height:70%;transform:translate(-50%,-50%);border-radius:4.5% / 3.2%;
+    outline:2px solid rgba(255,255,255,.85);outline-offset:-1px;box-shadow:0 0 0 4px var(--fg1,var(--c1)),0 0 24px var(--fg1,var(--c1)),0 0 48px var(--fg2,var(--c1));animation:camcard 1.6s ease-in-out infinite alternate}
+  #hit .camcov .ct{position:absolute;left:0;right:0;top:3%;filter:drop-shadow(0 2px 4px rgba(0,0,0,.9));text-align:center;font-family:Bangers;font-size:var(--fs,40px);letter-spacing:2px;color:#fff;-webkit-text-stroke:2px var(--c1);text-shadow:0 0 14px var(--c1)}
+  #hit .camcov .cn{position:absolute;left:0;right:0;bottom:3%;filter:drop-shadow(0 2px 3px rgba(0,0,0,.95));text-align:center;font-family:Rajdhani;font-weight:700;font-size:calc(var(--fs,40px) * .5);color:#fff;text-shadow:0 0 10px var(--c1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
   #hit .camcov .z3{position:absolute;inset:0;display:grid;place-items:center;font-family:Bangers;font-size:calc(var(--fs,40px) * 2.4);color:#fff;text-shadow:0 0 30px var(--c1)}
   @keyframes camin{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
-  @keyframes camcard{from{transform:scale(1) rotate(-1deg)}to{transform:scale(1.05) rotate(1deg)}}
+  @keyframes camcard{from{transform:translate(-50%,-50%) scale(1) rotate(-1deg)}to{transform:translate(-50%,-50%) scale(1.04) rotate(1deg)}}
   body.camonly #hit .dim, body.camonly #hit .speed, body.camonly #hit .glow, body.camonly #hit .ttl, body.camonly #hit .jp, body.camonly #hit .card, body.camonly #hit .sub{display:none}`;
   document.head.appendChild(css2);
   if (!centerOn) document.body.classList.add('camonly');
