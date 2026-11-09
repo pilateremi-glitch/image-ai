@@ -136,6 +136,33 @@ Modèle par défaut : Claude Opus 5.5 (le plus précis) ; Haiku 5.5 disponible p
 - Le dock sert aussi de **télécommande** : boutons RARE/HIT/SECRÈTE/GOD/FLOP (+ nom de carte), +5 min, −5 min, pause, fond suivant.
 - `detecteur.html?simu` : démonstration sans caméra (cartes simulées).
 
+
+## 📚 Base « master set » interne (`data/`, `base.html`)
+
+Une base complète, embarquée et **hors ligne**, de toutes les extensions :
+
+| Jeu | Contenu | Source |
+|---|---|---|
+| Pokémon international (FR/EN) | 202 extensions, de Set de Base à Règne Delta (nov. 2026) | TCGdex (MIT) |
+| Pokémon japonais | 176 extensions | TCGdex (MIT) |
+| One Piece Card Game (FR/EN) | 99 boosters / decks, parallèles et alt arts inclus | Punk Records (site officiel Bandai) |
+
+Pour chaque carte : extension, numéro, nom FR/EN (ou JP), rareté officielle, et **niveau d'alerte** (commune / RARE / HIT / SECRÈTE).
+Les numéros hors set (ex. 238/191), les ex / V / VMAX / VSTAR, les illustrations spéciales, gold, SEC, SP, Treasure, et les parallèles One Piece sont classés automatiquement.
+
+**Dans le détecteur** (modes IA et hybride), Claude lit le **code d'extension et le numéro** imprimés sur la carte. La carte est ensuite retrouvée dans la base, qui fait foi : rareté officielle, nom français, et ajout à ta collection.
+Le menu « extension ouverte » du dock aide l'identification quand le code est illisible.
+
+**`base.html` — suivi du master set** : progression par extension, filtres Hits & secrètes / Manquantes / Possédées, recherche dans toute la base, compteurs +/−, export/import JSON.
+Les cartes identifiées pendant le live y sont ajoutées automatiquement.
+Ouvre-la comme dock OBS pour partager la collection avec le détecteur : chaque navigateur garde sa propre copie.
+
+**Mettre la base à jour** (nouvelle extension) :
+```bash
+cd z3-overlay/tools && npm install && node build-db.mjs
+```
+Le script lit les fichiers de données comme du texte (sans exécuter de code) et régénère `data/db-pokemon.js` et `data/db-onepiece.js`.
+
 ## Scènes « Bientôt / Pause / Fin » (`scenes.html`)
 
 | URL | Scène |

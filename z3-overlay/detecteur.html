@@ -16,7 +16,8 @@
   header span { color: var(--mut); font-size: 12px; letter-spacing: 2px; }
   #state { margin-left: auto; font-size: 12px; letter-spacing: 1px; padding: 3px 8px; border: 1px solid var(--line); }
   #state.on { border-color: var(--ok); color: var(--ok); } #state.err { border-color: var(--bad); color: var(--bad); }
-  main { padding: 10px 12px 20px; display: grid; gap: 10px; }
+  main { padding: 10px 12px 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  section { min-width: 0; } select { max-width: 100%; text-overflow: ellipsis; }
   section { background: var(--panel); border: 1px solid var(--line); padding: 10px; }
   h2 { margin: 0 0 8px; font-size: 13px; letter-spacing: 3px; color: var(--f); }
   .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
@@ -91,6 +92,9 @@
         <select id="model"><option value="claude-opus-5-5">Opus 5.5 (précis)</option><option value="claude-haiku-5-5">Haiku 5.5 (éco)</option></select></div>
       <div class="note">L'IA lit la carte (nom, symbole de rareté, numéro) et décide. En <b>hybride</b>, elle n'est appelée que si l'analyse locale voit quelque chose de brillant → beaucoup moins d'appels. La clé reste sur ce PC.</div>
     </div>
+    <div class="row"><select id="game"><option value="pokemon">Pokémon</option><option value="onepiece">One Piece</option></select>
+      <select id="setSel" class="grow"><option value="">— extension ouverte (optionnel) —</option></select></div>
+    <div class="note" id="dbInfo"></div>
     <div class="row"><span>Sensibilité</span><input id="sens" type="range" min="0.6" max="1.6" step="0.05" value="1"><span id="sensV" style="width:36px">1.00</span></div>
     <div class="row">
       <label><input type="checkbox" id="optGod" checked> GOD PACK auto (3 hits dans le même booster)</label>
@@ -114,11 +118,14 @@
   </section>
 
   <section>
-    <h2>JOURNAL</h2>
+    <h2>JOURNAL <a href="base.html" target="_blank" style="float:right;color:var(--f);font-size:12px">MASTER SET ›</a></h2>
     <ul id="log"></ul>
   </section>
 </main>
 <script src="vendor/anthropic-sdk.js"></script>
+<script src="data/db-pokemon.js"></script>
+<script src="data/db-onepiece.js"></script>
+<script src="src/db.js"></script>
 <script src="src/obsws.js"></script>
 <script src="src/detect.js"></script>
 <script src="test/cards.js"></script>
@@ -244,9 +251,10 @@
   /* ---------- IA Claude ---------- */
   let client = null, clientKey = '';
   const SCHEMA = { type: 'object', additionalProperties: false,
-    required: ['carte_visible', 'jeu', 'nom', 'rarete_imprimee', 'niveau', 'confiance'],
+    required: ['carte_visible', 'jeu', 'nom', 'code_extension', 'numero', 'variante', 'rarete_imprimee', 'niveau', 'confiance'],
     properties: {
-      carte_visible: { type: 'boolean' }, jeu: { type: 'string' }, nom: { type: 'string' },
+      carte_visible: { type: 'boolean' }, jeu: { type: 'string', enum: ['pokemon', 'onepiece', 'autre'] }, nom: { type: 'string' },
+      code_extension: { type: 'string' }, numero: { type: 'string' }, variante: { type: 'string' },
       rarete_imprimee: { type: 'string' },
       niveau: { type: 'string', enum: ['aucune', 'commune', 'rare', 'ultra', 'secrete'] },
       confiance: { type: 'number' } } };
@@ -258,7 +266,11 @@ Classe-la dans "niveau" :
 - "rare" : rare holo ou rare simple brillante ;
 - "ultra" : ex / V / GX, double rare, ultra rare, full art, SR, art alternatif normal ;
 - "secrete" : secrète, numéro hors set, gold, hyper rare, SAR/SIR, illustration spéciale, SEC, manga/parallèle rare.
-Donne "nom" en français si possible. "confiance" entre 0 et 1.`;
+Lis aussi exactement ce qui est imprimé en bas de la carte :
+- "code_extension" : Pokémon = abréviation d'extension (ex. "ETD", "SSP", "MEW", "sv8") ; One Piece = code de booster (ex. "OP09") ; vide si illisible ;
+- "numero" : Pokémon = numéro complet (ex. "201/191", "TG05/TG30", "GG44/GG70") ; One Piece = identifiant (ex. "OP09-042", "ST15-002", "P-033") ; vide si illisible ;
+- "variante" : "normale", "reverse", "parallèle", "alt art", "manga", "gold"… ;
+Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
   async function askClaude(dataUrl) {
     const key = $('apiKey').value.trim();
     if (!key) throw new Error('clé API manquante');
@@ -283,6 +295,22 @@ Donne "nom" en français si possible. "confiance" entre 0 et 1.`;
     return JSON.parse(txt);
   }
   const AI_TIER = { rare: 'rare', ultra: 'ultra', secrete: 'secret' };
+
+  /* ---------- base master set ---------- */
+  function fillSets() {
+    if (!window.Z3Base) return;
+    const g = $('game').value, list = Z3Base.sets(g).slice().reverse();
+    $('setSel').innerHTML = '<option value="">— extension ouverte (optionnel) —</option>' + list.map((x) => {
+      const label = g === 'onepiece' ? (x.code ? '[' + x.code + '] ' : '') + (x.fr || x.en) : (x.region === 'jp' ? '🇯🇵 ' : '') + (x.fr || x.en || x.ja) + (x.code ? ' (' + x.code + ')' : '') + (x.date ? ' · ' + x.date.slice(0, 4) : '');
+      return `<option value="${x.i}">${label.replace(/</g, '&lt;')}</option>`; }).join('');
+    $('setSel').value = store.get('set-' + g, '');
+    const m = window.Z3DB || {};
+    $('dbInfo').textContent = 'Base master set : ' + (m.pokemon ? m.pokemon.sets.length + ' extensions Pokémon (' + m.pokemon.cards.length + ' cartes)' : '') + (m.onepiece ? ' · ' + m.onepiece.packs.length + ' boosters One Piece (' + m.onepiece.cards.length + ' cartes)' : '') + '. En mode IA, chaque carte lue est vérifiée dans la base (rareté officielle).';
+  }
+  $('game').value = store.get('game', 'pokemon');
+  $('game').addEventListener('change', () => { store.set('game', $('game').value); fillSets(); });
+  $('setSel').addEventListener('change', () => store.set('set-' + $('game').value, $('setSel').value));
+  fillSets();
 
   /* ---------- journal ---------- */
   const COL = { rare: '#7bd0ff', ultra: '#ffd23a', secret: '#ff3fd0', god: '#ffd23a', flop: '#9aa3b5' };
@@ -311,6 +339,14 @@ Donne "nom" en français si possible. "confiance" entre 0 et 1.`;
         const r = await askClaude(await hiResCrop());
         tier = r.carte_visible ? (AI_TIER[r.niveau] || null) : null; name = r.nom || '';
         how = 'IA ' + Math.round((r.confiance || 0) * 100) + '% · ' + (r.rarete_imprimee || '?');
+        // la base master set fait foi : rareté officielle + nom français
+        const hit = r.carte_visible && window.Z3Base && Z3Base.find({ jeu: r.jeu === 'autre' ? $('game').value : r.jeu, code: r.code_extension, numero: r.numero, nom: r.nom, variante: r.variante,
+          setHint: $('game').value === 'pokemon' ? $('setSel').value : '' });
+        if (hit && hit.confiance >= 0.6) {
+          tier = hit.tier; name = hit.nom + ' ' + hit.numero;
+          how = 'BASE ✓ ' + (hit.set.fr || hit.set.en || hit.set.ja || hit.set.code) + ' · ' + hit.rarete;
+          Z3Base.collection.add(hit.key);
+        }
       } catch (e) { how = 'IA indispo (' + e.message + ') → local'; }
     }
     if (tier) {

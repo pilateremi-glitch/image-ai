@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Z3 — Master Set</title>
+<style>
+  @font-face { font-family: 'Bangers'; src: url(fonts/bangers.ttf); }
+  @font-face { font-family: 'Rajdhani'; font-weight: 700; src: url(fonts/rajdhani-700.ttf); }
+  @font-face { font-family: 'Rajdhani'; font-weight: 600; src: url(fonts/rajdhani-600.ttf); }
+  :root { --bg: #0e0219; --panel: #1a0630; --line: #4a1d77; --f: #ff3fd0; --v: #b44dff; --txt: #f3e8ff; --mut: #b9a2d6;
+    --t0: #8a7aa3; --t1: #7bd0ff; --t2: #ffd23a; --t3: #ff3fd0; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--txt); font: 600 14px/1.35 Rajdhani, system-ui, sans-serif; display: flex; flex-direction: column; }
+  header { display: flex; gap: 12px; align-items: center; padding: 10px 16px; background: linear-gradient(90deg, #2a0748, #12031f); border-bottom: 2px solid var(--f); flex-wrap: wrap; }
+  header b { font-family: Bangers; font-size: 30px; padding-right: 6px; background: linear-gradient(180deg, #fff, #ff3fd0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  header .sub { color: var(--mut); font-size: 12px; letter-spacing: 2px; }
+  input, select, button { font: inherit; color: var(--txt); background: #0e0219; border: 1px solid var(--line); padding: 6px 10px; min-width: 0; }
+  button { cursor: pointer; background: #2a0b47; } button:hover { border-color: var(--f); }
+  button.on { background: linear-gradient(90deg, #ff3fd0, #8b2cff); border-color: transparent; }
+  .grow { flex: 1; }
+  .wrap { flex: 1; display: grid; grid-template-columns: minmax(260px, 340px) 1fr; min-height: 0; }
+  aside { border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+  aside .tools { padding: 10px; display: grid; gap: 6px; border-bottom: 1px solid var(--line); }
+  #sets { overflow: auto; flex: 1; }
+  .set { padding: 8px 10px; border-bottom: 1px solid #2a0b47; cursor: pointer; }
+  .set:hover, .set.sel { background: #24083d; }
+  .set .n { display: flex; justify-content: space-between; gap: 8px; }
+  .set .m { font-size: 12px; color: var(--mut); }
+  .pg { height: 5px; background: #0e0219; margin-top: 4px; position: relative; }
+  .pg i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #8b2cff, #ff3fd0); }
+  main { overflow: auto; padding: 14px 16px 30px; min-height: 0; }
+  .head h1 { margin: 0; font-family: Bangers; font-size: 38px; letter-spacing: 1px; font-weight: 400; }
+  .head .m { color: var(--mut); }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .stat { background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; min-width: 130px; }
+  .stat b { display: block; font-size: 24px; font-family: Rajdhani; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #2a0b47; }
+  th { color: var(--mut); font-size: 12px; letter-spacing: 2px; position: sticky; top: -14px; background: var(--bg); }
+  tr.own td:first-child { box-shadow: inset 4px 0 0 #3dff9a; }
+  .tier { display: inline-block; padding: 1px 8px; font-size: 12px; border: 1px solid; white-space: nowrap; }
+  .t0 { color: var(--t0); } .t1 { color: var(--t1); } .t2 { color: var(--t2); } .t3 { color: var(--t3); }
+  .qty { display: inline-flex; align-items: center; gap: 4px; } .qty button { padding: 0 8px; }
+  .qty b { min-width: 22px; text-align: center; }
+  .empty { color: var(--mut); padding: 40px; text-align: center; }
+  @media (max-width: 760px) { .wrap { grid-template-columns: 1fr; } aside { max-height: 40vh; border-right: 0; border-bottom: 1px solid var(--line); } }
+</style>
+</head>
+<body>
+<header><b>Z3 MASTER SET</b><span class="sub">TEAM Z3F4 × LE RAINTÉ DU TCG</span>
+  <input id="q" class="grow" placeholder="Rechercher une carte dans toute la base (nom, numéro…)" style="max-width:520px">
+  <button id="exp">Exporter</button><label><button id="impB">Importer</button><input id="imp" type="file" accept=".json" hidden></label>
+</header>
+<div class="wrap">
+  <aside>
+    <div class="tools">
+      <div style="display:flex;gap:6px"><button data-g="pokemon" class="grow on">Pokémon</button><button data-g="onepiece" class="grow">One Piece</button></div>
+      <div style="display:flex;gap:6px"><select id="reg" class="grow"><option value="int">International (FR/EN)</option><option value="jp">Japon</option><option value="">Tout</option></select></div>
+      <input id="fs" placeholder="Filtrer les extensions…">
+    </div>
+    <div id="sets"></div>
+  </aside>
+  <main id="main"><div class="empty">Choisis une extension à gauche, ou cherche une carte.</div></main>
+</div>
+<script src="data/db-pokemon.js"></script>
+<script src="data/db-onepiece.js"></script>
+<script src="src/db.js"></script>
+<script>
+(function () {
+  'use strict';
+  const B = window.Z3Base, $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const TL = ['Commune', 'Rare', 'HIT', 'Secrète'];
+  let game = 'pokemon', cur = null, filter = 'all', coll = B.collection.load();
+  const own = (k) => coll[k] || 0;
+  const setName = (s) => s.fr || s.en || s.ja || s.code || s.id;
+
+  function progress(g, s) {
+    const cards = B.cardsOf(g, s.i);
+    const have = cards.filter((c) => own(c.key)).length;
+    return { have, total: cards.length };
+  }
+  function renderSets() {
+    const reg = $('reg').value, f = B.norm($('fs').value);
+    $('reg').parentElement.style.display = game === 'pokemon' ? '' : 'none';
+    const list = B.sets(game).filter((s) => (game !== 'pokemon' || !reg || s.region === reg) && (!f || B.norm(setName(s) + (s.en || '') + (s.code || '')).includes(f))).reverse();
+    $('sets').innerHTML = list.map((s) => {
+      const p = progress(game, s), pc = p.total ? (100 * p.have / p.total) : 0;
+      const meta = game === 'pokemon' ? `${esc(s.serie)} · ${esc(s.code || s.id)} · ${(s.date || '').slice(0, 4)}` : esc(s.code || s.id);
+      return `<div class="set${cur && cur.i === s.i ? ' sel' : ''}" data-i="${s.i}"><div class="n"><span>${esc(setName(s))}</span><span>${p.have}/${p.total}</span></div>
+        <div class="m">${meta}</div><div class="pg"><i style="width:${pc.toFixed(1)}%"></i></div></div>`;
+    }).join('') || '<div class="empty">Aucune extension.</div>';
+  }
+  function row(c) {
+    return `<tr class="${own(c.key) ? 'own' : ''}"><td>${esc(c.numero)}${c.variante ? ' <span class="t0">' + esc(c.variante) + '</span>' : ''}</td><td>${esc(c.nom)}${c.nomEn && c.nomEn !== c.nom ? ' <span class="t0">' + esc(c.nomEn) + '</span>' : ''}</td>
+      <td><span class="tier t${c.niveau}">${esc(c.rarete)} · ${TL[c.niveau]}</span></td>
+      <td><span class="qty"><button data-k="${esc(c.key)}" data-d="-1">−</button><b>${own(c.key)}</b><button data-k="${esc(c.key)}" data-d="1">+</button></span></td></tr>`;
+  }
+  function renderSet() {
+    if (!cur) return;
+    const cards = B.cardsOf(game, cur.i);
+    const have = cards.filter((c) => own(c.key)).length, hits = cards.filter((c) => c.niveau >= 2), hitsHave = hits.filter((c) => own(c.key)).length;
+    const shown = cards.filter((c) => filter === 'all' || (filter === 'hits' && c.niveau >= 2) || (filter === 'miss' && !own(c.key)) || (filter === 'own' && own(c.key)));
+    $('main').innerHTML = `<div class="head"><h1>${esc(setName(cur))}</h1><div class="m">${esc(game === 'pokemon' ? cur.serie + ' · ' + (cur.en || '') + ' · code ' + (cur.code || '–') + (cur.codeFr ? ' / ' + cur.codeFr : '') + ' · ' + (cur.date || '') + ' · ' + cur.off + ' cartes officielles' : (cur.en || ''))}</div></div>
+      <div class="stats"><div class="stat">Master set<b>${have} / ${cards.length}</b></div><div class="stat">Progression<b>${cards.length ? Math.round(100 * have / cards.length) : 0}%</b></div>
+        <div class="stat">Hits &amp; secrètes<b>${hitsHave} / ${hits.length}</b></div><div class="stat">Manquantes<b>${cards.length - have}</b></div></div>
+      <div class="filters">${[['all', 'Toutes'], ['hits', 'Hits & secrètes'], ['miss', 'Manquantes'], ['own', 'Possédées']].map(([k, l]) => `<button data-f="${k}" class="${filter === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+      <table><thead><tr><th>N°</th><th>CARTE</th><th>RARETÉ</th><th>POSSÉDÉES</th></tr></thead><tbody>${shown.map(row).join('')}</tbody></table>`;
+  }
+  function search(q) {
+    const n = B.norm(q); if (n.length < 2) { cur ? renderSet() : ($('main').innerHTML = '<div class="empty">Choisis une extension à gauche, ou cherche une carte.</div>'); return; }
+    const out = [];
+    for (const g of ['pokemon', 'onepiece']) {
+      const D = window.Z3DB[g]; if (!D) continue;
+      for (const c of D.cards) {
+        const txt = g === 'pokemon' ? c[2] + ' ' + c[3] + ' ' + c[4] : c[0] + ' ' + c[2] + ' ' + c[3];
+        if (B.norm(txt).includes(n) || (g === 'pokemon' && c[1] === q.trim())) { out.push([g, c]); if (out.length >= 300) break; }
+      }
+    }
+    const rows = out.map(([g, c]) => {
+      const card = g === 'pokemon' ? B.cardsOf(g, c[0]).find((x) => x.numero.split('/')[0] === c[1]) : B.cardsOf(g, c[1]).find((x) => x.id === c[0]);
+      if (!card) return '';
+      return row(card).replace('<td>', `<td><span class="t0">${esc(setName(card.set))}</span><br>`);
+    }).join('');
+    $('main').innerHTML = `<div class="head"><h1>Recherche « ${esc(q)} »</h1><div class="m">${out.length >= 300 ? '300+ résultats (affine la recherche)' : out.length + ' résultat(s)'}</div></div>
+      <table><thead><tr><th>N°</th><th>CARTE</th><th>RARETÉ</th><th>POSSÉDÉES</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  document.querySelectorAll('[data-g]').forEach((b) => b.addEventListener('click', () => {
+    game = b.dataset.g; cur = null; document.querySelectorAll('[data-g]').forEach((x) => x.classList.toggle('on', x === b)); renderSets();
+    $('main').innerHTML = '<div class="empty">Choisis une extension.</div>';
+  }));
+  $('reg').addEventListener('change', renderSets);
+  $('fs').addEventListener('input', renderSets);
+  $('sets').addEventListener('click', (e) => { const el = e.target.closest('.set'); if (!el) return; cur = B.sets(game)[+el.dataset.i]; filter = 'all'; $('q').value = ''; renderSets(); renderSet(); });
+  $('main').addEventListener('click', (e) => {
+    const f = e.target.closest('[data-f]'); if (f) { filter = f.dataset.f; renderSet(); return; }
+    const q = e.target.closest('[data-k]'); if (q) { B.collection.add(q.dataset.k, +q.dataset.d); coll = B.collection.load(); $('q').value ? search($('q').value) : renderSet(); renderSets(); }
+  });
+  let t; $('q').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => search($('q').value), 200); });
+  $('exp').addEventListener('click', () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(B.collection.load(), null, 1)], { type: 'application/json' })); a.download = 'z3-collection.json'; a.click(); });
+  $('impB').addEventListener('click', () => $('imp').click());
+  $('imp').addEventListener('change', async () => { const f = $('imp').files[0]; if (!f) return; try { const o = JSON.parse(await f.text()); const c = B.collection.load(); Object.entries(o).forEach(([k, v]) => { c[k] = Math.max(c[k] || 0, +v || 0); }); B.collection.save(c); coll = c; renderSets(); renderSet(); } catch (e) { alert('Fichier invalide'); } });
+  window.addEventListener('storage', () => { coll = B.collection.load(); renderSets(); renderSet(); });
+  renderSets();
+})();
+</script>
+</body>
+</html>
