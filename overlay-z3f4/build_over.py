@@ -22,6 +22,18 @@ VARIANTS = [
    "Thème automatique selon le NOM de la scène OBS : « pokemon » -> Pokéball, « one piece » / « op » -> chapeau.\n"
    "Dans les propriétés de la source, mets « Accès à la page » sur\n"
    "« Accès en lecture aux informations de l'utilisateur ».", 'split'),
+  ('04 - SEPARATEUR POKEMON (Poke Ball, Super Ball, Hyper Ball, Master Ball, Honor Ball)', 'pokemonplus',
+   "Copie du séparateur 03, version 100 % POKÉMON.\n"
+   "À chaque passage, une balle différente tourne, s'ouvre et laisse apparaître le logo :\n"
+   "  Poké Ball -> Super Ball -> Hyper Ball -> Master Ball -> Honor Ball, puis on recommence.\n"
+   "Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».\n"
+   "S'adapte au format de ta scène OBS (vertical ou horizontal).", 'split'),
+  ('05 - SEPARATEUR ONE PIECE (Pirate, Mechant, Marine)', 'onepieceplus',
+   "Copie du séparateur 03, version 100 % ONE PIECE.\n"
+   "À chaque passage, un chapeau différent représente un camp, se retourne et le logo sort de l'intérieur :\n"
+   "  PIRATE (chapeau de paille) -> MÉCHANT (tricorne noir de capitaine à tête de mort) -> MARINE (casquette blanche et bleue à ancre).\n"
+   "Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».\n"
+   "S'adapte au format de ta scène OBS (vertical ou horizontal).", 'split'),
 ]
 COMMON = """
 INSTALLATION DANS OBS (2 minutes)
@@ -53,7 +65,9 @@ for name, theme, desc, *layout in VARIANTS:
 (OUT / 'LISEZ-MOI EN PREMIER.txt').write_text(
 "DOSSIER OVER - Overlays Z3F4 « Le Rainté du TCG »\n\n"
 "01 -> Live Pokémon uniquement\n02 -> Live One Piece uniquement\n"
-"03 -> Bande de séparation PORTRAIT / OPENING, s'adapte au format vertical ou horizontal de la scène OBS\n\n"
+"03 -> Bande de séparation PORTRAIT / OPENING, s'adapte au format vertical ou horizontal de la scène OBS\n"
+"04 -> Même séparateur, version POKÉMON avec Poké / Super / Hyper / Master / Honor Ball\n"
+"05 -> Même séparateur, version ONE PIECE avec Pirate / Méchant / Marine\n\n"
 "Ouvre le LISEZ-MOI.txt du dossier choisi pour l'installation dans OBS.\n", encoding='utf-8')
 z = ROOT / 'OVER.zip'
 with zipfile.ZipFile(z, 'w', zipfile.ZIP_DEFLATED) as zf:

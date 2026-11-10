@@ -60,6 +60,9 @@ if (Q.get('preview') === '1' || (!IN_OBS && Q.get('preview') !== '0')) document.
 const THEMES = {
   pokemon:  { label:'SOIREE POKEMON',   accent:'#ffcb05', ink:'#fff', seq:['ball'] },
   onepiece: { label:'SOIREE ONE PIECE', accent:'#e63946', ink:'#ffe08a', seq:['hat'] },
+  // Versions « collection » : une balle / un personnage différent à chaque passage
+  pokemonplus:  { label:'SOIREE POKEMON',   accent:'#ffcb05', ink:'#fff', seq:['ball:poke','ball:great','ball:ultra','ball:master','ball:premier'] },
+  onepieceplus: { label:'SOIREE ONE PIECE', accent:'#e63946', ink:'#ffe08a', seq:['hat:straw','hat:villain','hat:marine'] },
   auto:     { label:'Z3F4 LE RAINTE DU TCG', accent:'#ffcb05', ink:'#fff', seq:['ball','hat'] },
 };
 let theme = 'auto', sceneName = '(hors OBS)';
@@ -129,7 +132,7 @@ logo.onload = () => logoOk = true; logo.onerror = () => logoOk = false;
 logo.src = 'logo.png';
 
 // ---------- Rasteriseur pixel-art ----------
-const N = 48, K = 1.2, low = document.createElement('canvas'); low.width = low.height = N;
+const N = 64, K = 1.2, low = document.createElement('canvas'); low.width = low.height = N;
 const lc = low.getContext('2d'), idata = lc.createImageData(N, N);
 const cells = new Array(N * N);
 const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) ^ 0x5bd1e995; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
@@ -186,6 +189,41 @@ const tone = (arr, lv, x, y) => arr[clamp(Math.round(lv + BAYER[(y & 3) * 4 + (x
 const sphereI = (nx, ny) => { const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny)); return nx * LX + ny * LY + nz * LZ; };
 const weave = (x, y) => (((x + 2 * y) % 5 + 5) % 5 === 0 ? -0.8 : 0) + (((2 * x - y) % 7 + 7) % 7 === 0 ? 0.6 : 0);
 
+Object.assign(P, {
+  blue: pal(['#0d2a6b', '#1748a8', '#2a6fe0', '#5a98ff', '#a8ccff']),
+  purple: pal(['#2e0d4f', '#4f1a82', '#7430b8', '#9c58e0', '#cfa2ff']),
+  pink: pal(['#7a1248', '#b8226a', '#ec4b97', '#ff8cc2', '#ffc6e0']),
+  yellow: pal(['#7a5b00', '#b89200', '#f2c919', '#ffe45c', '#fff3b0']),
+  dark: pal(['#08080b', '#15151b', '#25252e', '#3d3d49', '#62626f']),
+  gold: pal(['#7a5410', '#b88a1e', '#e8b93a', '#ffdf7a']),
+  navy: pal(['#071733', '#0e2a5c', '#1a428a', '#3567b8', '#7da3e6']),
+  cap: pal(['#8d93a3', '#bfc5d1', '#e4e8f0', '#f7f8fb', '#ffffff']),
+});
+const bitmap = (rows, su, sv, cx, cy, cs) => {
+  const c = Math.floor((su - cx) / cs + rows[0].length / 2), r = Math.floor((sv - cy) / cs + rows.length / 2);
+  return r >= 0 && r < rows.length && c >= 0 && c < rows[0].length && rows[r][c] === '1';
+};
+const M_ROWS = ['10001', '11011', '10101', '10001', '10001'];
+// Haut de la balle selon le modèle : poke, great (Super Ball), ultra (Hyper Ball), master, premier (Honor Ball)
+function ballTop(su, sv, I, x, y) {
+  const lv = 2 + I * 2.6;
+  switch (variant) {
+    case 'great':
+      if ((Math.abs(su) - 6.8) ** 2 / 2.4 ** 2 + (sv + 6.8) ** 2 / 4.4 ** 2 <= 1) return tone(P.red, lv, x, y);
+      return tone(P.blue, lv, x, y);
+    case 'ultra':
+      if (Math.abs(su) > 2.4 && Math.abs(su) < 5.4 && sv < -2.2) return tone(P.yellow, lv, x, y);
+      return tone(P.dark, 1.6 + I * 2.4, x, y);
+    case 'master':
+      if (bitmap(M_ROWS, su, sv, 0, -7.6, 1.15)) return tone(P.wht, 3 + I, x, y);
+      if (Math.hypot(Math.abs(su) - 7.4, sv + 6.4) < 2.5) return tone(P.pink, lv, x, y);
+      return tone(P.purple, lv, x, y);
+    case 'premier':
+      return tone(P.wht, 2.1 + I * 2.4, x, y);
+    default:
+      return tone(P.red, lv, x, y);
+  }
+}
 // Pokéball
 const R = 13.6;
 function ballShell(su, sv, u, v, x, y, part, btnLit) {
@@ -201,8 +239,8 @@ function ballShell(su, sv, u, v, x, y, part, btnLit) {
     if (d < 3.4) return P.wht[1];
     if (d < 4.6) return tone(P.blk, 0.8 + I * 1.5, x, y);
   }
-  if (Math.abs(sv) < 1.45) return tone(P.blk, 0.7 + I * 1.8 + (sv < -0.8 ? 0.6 : 0), x, y);
-  if (sv < 0) return tone(P.red, 2 + I * 2.6 - (Math.abs(sv) < 2.4 ? 0.7 : 0), x, y);
+  if (Math.abs(sv) < 1.45) return variant === 'premier' ? tone(P.red, 1 + I * 2, x, y) : tone(P.blk, 0.7 + I * 1.8 + (sv < -0.8 ? 0.6 : 0), x, y);
+  if (sv < 0) return ballTop(su, sv, I - (Math.abs(sv) < 2.4 ? 0.27 : 0), x, y);
   return tone(P.wht, 2.1 + I * 2.4 - (Math.abs(sv) < 2.4 ? 0.7 : 0), x, y);
 }
 function drawBall(cx, cy, cell, s, angle, lid, dissolve, btnLit) {
@@ -275,6 +313,65 @@ function hatInside(u, v, x, y, glow) {
   const lv = 2.5 - v / 10 * 1.1 - u / 18 * 0.6 + (ring ? 0.55 : -0.45) + (r > 0.94 ? -0.8 : 0);
   return tone(P.straw, lv, x, y);
 }
+// Intérieur générique (vue retournée) : ouverture sombre + doublure + lumière
+function holeColor(u, v, x, y, glow, rx, ry, cyh, lining, pad) {
+  const ov = v - cyh, hole = (u / rx) ** 2 + (ov / ry) ** 2;
+  if (hole <= 1) {
+    if (glow > 0 && hole < glow * 0.95) return tone(P.glow, 3.2 - hole / Math.max(glow, .01) * 3, x, y);
+    return tone(P.hole, 2.6 - (ov + ry * 0.2) / (ry * 1.2) * 2.6, x, y);
+  }
+  if ((u / (rx + pad)) ** 2 + (ov / (ry + pad * 0.6)) ** 2 <= 1) return tone(lining, ov < 0 ? 3 : 1.4, x, y);
+  return null;
+}
+// Marine : casquette blanche, bandeau bleu marine, visière, ancre dorée
+const ANCHOR = ['00100', '01110', '00100', '10101', '01110'];
+function marineSide(u, v, x, y, face) {
+  const fu = u * face;
+  const top = Math.abs(u) <= 9 ? -2.5 - 3.2 * Math.sqrt(Math.max(0, 1 - (u / 9) ** 2)) : 99;
+  if (fu > 5 && fu < 16 && v >= 4.6 && v <= 4.6 + 2.2 * (1 - (fu - 5) / 13) + 0.6) // visière
+    return tone(P.navy, v < 5.4 ? 3 : 1.2, x, y);
+  if (Math.abs(u) <= 9 && v >= top && v <= 6) {
+    const I = sphereI(fu / 9.5, (v - 1) / 9);
+    if (v >= 2.2 && v <= 5.4) return tone(P.navy, 1.6 + I * 1.8, x, y);
+    if (v > 5.4) return tone(P.cap, 0.6 + I, x, y);
+    if (bitmap(ANCHOR, fu, v, -1, -1.6, 0.95)) return tone(P.gold, 2 + I * 1.4, x, y);
+    return tone(P.cap, 2.1 + I * 2.2, x, y);
+  }
+  return null;
+}
+function marineInside(u, v, x, y, glow) {
+  const h = holeColor(u, v, x, y, glow, 7.6, 4.6, -1.2, P.navy, 1.8);
+  if (h) return h;
+  if ((u / 11) ** 2 + ((v + 1.2) / 7) ** 2 <= 1) return tone(P.cap, 2.4 - v / 7 + (v < -4 ? 0.8 : 0), x, y);
+  if (v > 2 && (u / 10) ** 2 + ((v - 4) / 6) ** 2 <= 1) return tone(P.navy, 2.2 - (v - 4) / 3, x, y); // visière
+  return null;
+}
+// Méchant : tricorne noir de capitaine, galon doré, tête de mort
+const SKULL = ['01110', '11111', '10101', '11111', '01010'];
+function villainSide(u, v, x, y, face) {
+  const au = Math.abs(u), fu = u * face;
+  if (au > 16.5) return null;
+  const topBrim = -2.5 - 4.5 * (au / 16.5) ** 1.4;
+  const topCrown = au < 8.5 ? -9 + 6.5 * (u / 8.5) ** 2 : 99;
+  const top = Math.min(topBrim, topCrown), bot = 6.5 - 6 * (au / 16.5) ** 1.6;
+  if (v < top || v > bot) return null;
+  const I = sphereI(fu / 17, (v - 1) / 11);
+  if (au > 6 && v - topBrim < 1.3 && v >= topBrim) return tone(P.gold, 1.8 + I * 2, x, y); // galon
+  if (bot - v < 1.2) return tone(P.gold, 1.2 + I * 1.6, x, y);
+  if (bitmap(SKULL, u, v, 0, 0.2, 1.45)) return tone(P.wht, 2.6 + I, x, y);
+  return tone(P.dark, 1.8 + I * 2.6 + weave(x, y) * 0.3, x, y);
+}
+function villainInside(u, v, x, y, glow) {
+  // triangle arrondi vu de dessous
+  const A = [-17, -7.5], B = [17, -7.5], C = [0, 10.5];
+  const edge = (p, q) => ((q[0] - p[0]) * (v - p[1]) - (q[1] - p[1]) * (u - p[0])) / Math.hypot(q[0] - p[0], q[1] - p[1]);
+  const d = Math.min(edge(A, B), edge(B, C), edge(C, A));
+  if (d < 0) return null;
+  const h = holeColor(u, v, x, y, glow, 7.8, 4.8, -1.4, P.red, 1.8);
+  if (h) return h;
+  if (d < 1.3) return tone(P.gold, 2.4 - v / 10, x, y);
+  return tone(P.dark, 2 - v / 9 + weave(x, y) * 0.3, x, y);
+}
 function drawHat(cx, cy, cell, s, yaw, flip, dissolve, glow) {
   // flip : 0..1 (0 = vue de côté, 1 = retourné, on voit dedans)
   const sy = Math.cos(Math.PI * flip);
@@ -282,6 +379,8 @@ function drawHat(cx, cy, cell, s, yaw, flip, dissolve, glow) {
   const c = Math.cos(yaw), ax = Math.max(0.06, Math.abs(c)), face = c >= 0 ? 1 : -1;
   const src = raster((u, v, x, y) => {
     const uu = u / ax, vv = v / ay;
+    if (variant === 'marine') return inside ? marineInside(uu, vv, x, y, glow) : marineSide(uu, vv, x, y, face);
+    if (variant === 'villain') return inside ? villainInside(uu, vv, x, y, glow) : villainSide(uu, vv, x, y, face);
     return inside ? hatInside(uu, vv, x, y, glow) : hatSide(uu, vv, x, y, face);
   }, dissolve);
   blit(src, cx, cy, cell * s);
@@ -464,10 +563,10 @@ const eoBounce = x => { const n = 7.5625, d = 2.75; if (x < 1 / d) return n * x 
 // ---------- Séquenceur ----------
 const T_REVEAL = 4.2, T_EXIT = 0.9, T_GAP = 0.35;
 const cycleLen = () => T_REVEAL + HOLD + T_EXIT + T_GAP;
-let seqIndex = -1, kind = 'ball', t0 = 0, fired = {};
+let seqIndex = -1, kind = 'ball', variant = '', t0 = 0, fired = {};
 function nextCycle(now) {
   const seq = THEMES[theme].seq; seqIndex = (seqIndex + 1) % seq.length;
-  kind = seq[seqIndex]; t0 = now; fired = {};
+  [kind, variant = ''] = seq[seqIndex].split(':'); t0 = now; fired = {};
 }
 const once = k => fired[k] ? false : (fired[k] = true);
 
@@ -553,12 +652,12 @@ function frame(nowMs) {
   if (LIVE) drawLive(now);
 
   if (document.body.classList.contains('preview')) {
-    dbg.textContent = `OBS détecté : ${IN_OBS ? 'oui' : 'non (aperçu)'}\nTwitch : ${TWITCH || '—'} · ${twitchStatus}\nCatégorie : ${twitchGame}\nScène : ${sceneName}\nThème : ${theme}${FORCED !== 'auto' ? ' (forcé)' : ''}\nLogo : ${logoOk ? 'OK' : 'ERREUR logo.png'}\nAnim : ${kind}  t=${t.toFixed(1)}s\nFPS : ${fps.toFixed(0)}`;
+    dbg.textContent = `OBS détecté : ${IN_OBS ? 'oui' : 'non (aperçu)'}\nTwitch : ${TWITCH || '—'} · ${twitchStatus}\nCatégorie : ${twitchGame}\nScène : ${sceneName}\nThème : ${theme}${FORCED !== 'auto' ? ' (forcé)' : ''}\nLogo : ${logoOk ? 'OK' : 'ERREUR logo.png'}\nAnim : ${kind}${variant ? ':' + variant : ''}  t=${t.toFixed(1)}s\nFPS : ${fps.toFixed(0)}`;
   }
   requestAnimationFrame(frame);
 }
 const dbg = document.getElementById('dbg');
-window.__overlay = { setTheme, detect, pollTwitch, get state() { return { theme, kind, logoOk, fps, sceneName }; } };
+window.__overlay = { setTheme, detect, pollTwitch, get state() { return { theme, kind, variant, logoOk, fps, sceneName }; } };
 setTheme(FORCED !== 'auto' ? FORCED : 'auto');
 hookObs();
 pollTwitch(); if (TWITCH) setInterval(pollTwitch, POLL);
