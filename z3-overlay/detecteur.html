@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Z3 — Détecteur de HITS</title>
+<style>
+  @font-face { font-family: 'Bangers'; src: url(fonts/bangers.ttf); }
+  @font-face { font-family: 'Rajdhani'; font-weight: 700; src: url(fonts/rajdhani-700.ttf); }
+  @font-face { font-family: 'Rajdhani'; font-weight: 600; src: url(fonts/rajdhani-600.ttf); }
+  :root { --bg: #0e0219; --panel: #1a0630; --line: #4a1d77; --f: #ff3fd0; --v: #b44dff; --txt: #f3e8ff; --mut: #b9a2d6; --ok: #3dff9a; --warn: #ffd23a; --bad: #ff5a7a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--txt); font: 600 14px/1.35 Rajdhani, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: linear-gradient(90deg, #2a0748, #12031f); border-bottom: 2px solid var(--f); }
+  header b { font-family: Bangers; font-size: 26px; letter-spacing: 1px; background: linear-gradient(180deg, #fff, #ff3fd0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  header span { color: var(--mut); font-size: 12px; letter-spacing: 2px; }
+  #state { margin-left: auto; font-size: 12px; letter-spacing: 1px; padding: 3px 8px; border: 1px solid var(--line); }
+  #state.on { border-color: var(--ok); color: var(--ok); } #state.err { border-color: var(--bad); color: var(--bad); }
+  main { padding: 10px 12px 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  section { min-width: 0; } select { max-width: 100%; text-overflow: ellipsis; }
+  section { background: var(--panel); border: 1px solid var(--line); padding: 10px; }
+  h2 { margin: 0 0 8px; font-size: 13px; letter-spacing: 3px; color: var(--f); }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; }
+  input, select, button { font: inherit; color: var(--txt); background: #0e0219; border: 1px solid var(--line); padding: 5px 8px; min-width: 0; }
+  input[type=range] { padding: 0; flex: 1; accent-color: var(--f); }
+  button { cursor: pointer; background: #2a0b47; letter-spacing: 1px; }
+  button:hover { border-color: var(--f); }
+  button.big { flex: 1; padding: 8px; font-size: 15px; }
+  button.go { background: linear-gradient(90deg, #ff3fd0, #8b2cff); border: 0; font-weight: 700; }
+  button.stop { background: #5a0f2a; border-color: var(--bad); }
+  .grow { flex: 1; }
+  .mut { color: var(--mut); font-size: 12px; }
+  #view { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; cursor: crosshair; user-select: none; }
+  #view canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .meters { display: grid; grid-template-columns: 92px 1fr 46px; gap: 3px 8px; align-items: center; font-size: 12px; margin-top: 8px; }
+  .bar { height: 8px; background: #0e0219; border: 1px solid var(--line); position: relative; overflow: hidden; }
+  .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, #8b2cff, #ff3fd0); width: 0; transition: width .15s; }
+  .bar.score i { background: linear-gradient(90deg, #3dff9a, #ffd23a, #ff3fd0); }
+  .tiers { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .tiers button { padding: 8px 2px; font-weight: 700; }
+  .t-rare { border-color: #7bd0ff !important; color: #7bd0ff; } .t-ultra { border-color: #ffd23a !important; color: #ffd23a; }
+  .t-secret { border-color: #ff3fd0 !important; color: #ff7be6; } .t-god { border-color: #ffd23a !important; background: linear-gradient(90deg, #4a2a00, #4a0040) !important; }
+  .t-flop { color: #9aa3b5; }
+  #log { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 300px; overflow: auto; }
+  #log li { display: flex; gap: 8px; align-items: center; background: #0e0219; border-left: 4px solid var(--line); padding: 4px; }
+  #log img { width: 40px; height: 56px; object-fit: cover; }
+  #log .t { font-weight: 700; letter-spacing: 1px; } #log .s { font-size: 12px; color: var(--mut); }
+  .step { display: inline-grid; place-items: center; width: 20px; height: 20px; background: var(--f); color: #12031f; font-weight: 700; margin-right: 4px; }
+  .note { font-size: 12px; color: var(--mut); border-left: 3px solid var(--v); padding-left: 8px; margin-top: 6px; }
+  .hide { display: none !important; }
+</style>
+</head>
+<body>
+<header><b>Z3 DÉTECTEUR</b><span>HITS AUTOMATIQUES</span><div id="state">HORS LIGNE</div></header>
+<main>
+  <section id="secConn">
+    <h2>1 · CONNEXION OBS</h2>
+    <div class="row"><input id="host" value="127.0.0.1" style="width:110px" title="Adresse"><input id="port" value="4455" style="width:64px" title="Port">
+      <input id="pass" type="password" placeholder="Mot de passe WebSocket" class="grow"><button id="btnConn">Connecter</button></div>
+    <div class="row"><select id="src" class="grow"><option value="">— source caméra cartes —</option></select><button id="btnSrc" title="Rafraîchir">↻</button></div>
+    <div class="note">OBS › Outils › Paramètres du serveur WebSocket › Activer. Choisis la source qui filme les cartes.</div>
+  </section>
+
+  <section>
+    <h2>2 · ZONE &amp; CALIBRAGE</h2>
+    <div id="view"><canvas id="cv" width="640" height="360"></canvas><canvas id="ov" width="640" height="360"></canvas></div>
+    <div class="mut" style="margin-top:4px">Glisse sur l'image pour encadrer l'endroit où tu montres les cartes.</div>
+    <div class="row" style="margin-top:6px">
+      <button id="calBg" class="grow"><span class="step">A</span>Zone vide</button>
+      <button id="calCommon" class="grow"><span class="step">B</span>Carte commune</button>
+    </div>
+    <div class="meters">
+      <span>Présence</span><div class="bar"><i id="mPres"></i></div><span id="vPres">–</span>
+      <span>Mouvement</span><div class="bar"><i id="mMot"></i></div><span id="vMot">–</span>
+      <span>Or / gold</span><div class="bar"><i id="mGold"></i></div><span id="vGold">–</span>
+      <span>Holo / arc-en-ciel</span><div class="bar"><i id="mRb"></i></div><span id="vRb">–</span>
+      <span>Reflets</span><div class="bar"><i id="mSp"></i></div><span id="vSp">–</span>
+      <span>Full art</span><div class="bar"><i id="mFa"></i></div><span id="vFa">–</span>
+      <span><b>SCORE</b></span><div class="bar score"><i id="mScore"></i></div><span id="vScore">–</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>3 · DÉTECTION</h2>
+    <div class="row">
+      <label><input type="radio" name="mode" value="local" checked> Locale</label>
+      <label><input type="radio" name="mode" value="hybrid"> Hybride (recommandé)</label>
+      <label><input type="radio" name="mode" value="ai"> IA seule</label>
+    </div>
+    <div id="aiBox" class="hide">
+      <div class="row"><input id="apiKey" type="password" placeholder="Clé API Claude (sk-ant-…)" class="grow">
+        <select id="model"><option value="claude-opus-5-5">Opus 5.5 (précis)</option><option value="claude-haiku-5-5">Haiku 5.5 (éco)</option></select></div>
+      <div class="note">L'IA lit la carte (nom, symbole de rareté, numéro) et décide. En <b>hybride</b>, elle n'est appelée que si l'analyse locale voit quelque chose de brillant → beaucoup moins d'appels. La clé reste sur ce PC.</div>
+    </div>
+    <div class="row"><select id="game"><option value="pokemon">Pokémon</option><option value="onepiece">One Piece</option></select>
+      <select id="setSel" class="grow"><option value="">— extension ouverte (optionnel) —</option></select></div>
+    <div class="note" id="dbInfo"></div>
+    <div class="row"><span>Sensibilité</span><input id="sens" type="range" min="0.6" max="1.6" step="0.05" value="1"><span id="sensV" style="width:36px">1.00</span></div>
+    <div class="row">
+      <label><input type="checkbox" id="optGod" checked> GOD PACK auto (3 hits dans le même booster)</label>
+      <label><input type="checkbox" id="optFlop"> FLOP auto (booster sans hit)</label>
+    </div>
+    <div class="row"><button id="btnRun" class="big go">▶ DÉMARRER LA DÉTECTION</button></div>
+    <div class="mut" id="runInfo"></div>
+  </section>
+
+  <section>
+    <h2>PRODUITS OUVERTS</h2>
+    <div class="tiers" id="prodBtns" style="grid-template-columns:repeat(3,1fr)"></div>
+    <div class="row" style="margin-top:6px"><input id="prodCfg" class="grow" title="Produit=nombre de boosters, séparés par des virgules"><button id="prodUndo" title="Annuler le dernier">↶</button></div>
+    <div class="mut" id="prodInfo">Clique sur le produit que tu ouvres : il est compté dans le récap avec ses boosters.</div>
+  </section>
+
+  <section>
+    <h2>BOOSTERS DU CHAT · TOP TIREURS</h2>
+    <div class="row" id="buyerNow" style="font-size:16px">Booster en cours : <b id="curBuyer" style="color:var(--f)">—</b></div>
+    <div class="row"><input id="buyerName" placeholder="Pseudo du viewer" class="grow"><input id="buyerQty" type="number" min="1" max="36" value="1" style="width:56px" title="Nombre de boosters">
+      <button id="btnQueue">+ File</button><button id="btnOpenFor">Ouvrir pour</button></div>
+    <div class="row"><button id="btnNextBuyer" class="big go">⏭ BOOSTER SUIVANT</button></div>
+    <div class="mut" id="queueList">File vide. Les achats StreamElements/Streamlabs s'ajoutent tout seuls.</div>
+    <div class="mut" id="topList" style="margin-top:6px"></div>
+  </section>
+
+  <section>
+    <h2>4 · DÉCLENCHEMENT MANUEL</h2>
+    <div class="row"><input id="cardName" placeholder="Nom de la carte (optionnel)" class="grow"></div>
+    <div class="tiers">
+      <button class="t-rare" data-t="rare">RARE</button><button class="t-ultra" data-t="ultra">HIT</button>
+      <button class="t-secret" data-t="secret">SECRÈTE</button><button class="t-god" data-t="god">GOD</button><button class="t-flop" data-t="flop">FLOP</button>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <button data-cmd="add" data-sec="300">+5 min</button><button data-cmd="add" data-sec="-300">−5 min</button>
+      <button data-cmd="pause">Pause</button><button data-cmd="resume">Reprendre</button><button data-cmd="nextbg">Fond suivant</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>JOURNAL <a href="base.html" target="_blank" style="float:right;color:var(--f);font-size:12px;margin-left:10px">MASTER SET ›</a><a href="recap-video.html" target="_blank" style="float:right;color:var(--f);font-size:12px">VIDÉO RÉCAP ›</a></h2>
+    <ul id="log"></ul>
+  </section>
+</main>
+<script src="vendor/anthropic-sdk.js"></script>
+<script src="data/db-pokemon.js"></script>
+<script src="data/db-onepiece.js"></script>
+<script src="src/db.js"></script>
+<script src="src/phash.js"></script>
+<!-- empreintes visuelles (générées sur ton PC par tools/build-prints.mjs ; absentes = reconnaissance visuelle désactivée) -->
+<script src="data/print-pokemon.js" onerror="void 0"></script>
+<script src="data/print-onepiece.js" onerror="void 0"></script>
+<script src="src/obsws.js"></script>
+<script src="src/detect.js"></script>
+<script src="test/cards.js"></script>
+<script>
+(function () {
+  'use strict';
+  const Q = new URLSearchParams(location.search);
+  const SIMU = Q.has('simu');
+  const $ = (id) => document.getElementById(id);
+  const D = window.Z3Detect;
+  const store = { get(k, d) { try { const v = localStorage.getItem('z3det-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+                  set(k, v) { try { localStorage.setItem('z3det-' + k, JSON.stringify(v)); } catch (e) { /* rien */ } } };
+
+  /* ---------- réglages mémorisés ---------- */
+  ['host', 'port', 'pass', 'apiKey', 'model', 'sens'].forEach((k) => { const v = store.get(k, null); if (v !== null) $(k).value = v; $(k).addEventListener('change', () => store.set(k, $(k).value)); });
+  let zone = store.get('zone', { x: 0.375, y: 0.11, w: 0.25, h: 0.62 });
+  let common = store.get('common', null);
+  let bgThumb = store.get('bg', null);
+  const mode = () => document.querySelector('input[name=mode]:checked').value;
+  document.querySelectorAll('input[name=mode]').forEach((r) => { if (r.value === store.get('mode', 'local')) r.checked = true;
+    r.addEventListener('change', () => { store.set('mode', mode()); $('aiBox').classList.toggle('hide', mode() === 'local'); }); });
+  $('aiBox').classList.toggle('hide', mode() === 'local');
+  $('sens').addEventListener('input', () => { $('sensV').textContent = (+$('sens').value).toFixed(2); });
+  $('sensV').textContent = (+$('sens').value).toFixed(2);
+  ['optGod', 'optFlop'].forEach((k) => { $(k).checked = store.get(k, $(k).checked); $(k).addEventListener('change', () => store.set(k, $(k).checked)); });
+
+  /* ---------- envoi vers l'overlay ---------- */
+  const bc = (() => { try { return new BroadcastChannel('z3'); } catch (e) { return null; } })();
+  let obs = null;
+  /* produits ouverts (ETB, UPC, Tripack…) */
+  const PROD_DEF = 'Booster=1, Tripack=3, Coffret=4, ETB=9, UPC=16, Display=36';
+  let lastProd = null;
+  function prods() { return ($('prodCfg').value || PROD_DEF).split(',').map((p) => p.split('=').map((x) => x.trim())).filter((p) => p[0]).map(([n, b]) => ({ n, b: Math.max(0, +b || 1) })); }
+  function drawProds() { $('prodBtns').innerHTML = prods().map((p) => `<button data-prod="${p.n.replace(/"/g, '')}" data-b="${p.b}">${p.n.replace(/</g, '&lt;')}<br><small class="mut">${p.b} booster${p.b > 1 ? 's' : ''}</small></button>`).join(''); }
+  $('prodCfg').value = store.get('prods', PROD_DEF);
+  $('prodCfg').addEventListener('change', () => { store.set('prods', $('prodCfg').value); drawProds(); });
+  $('prodBtns').addEventListener('click', (e) => { const b = e.target.closest('[data-prod]'); if (!b) return; newPack(); lastProd = { item: b.dataset.prod, boosters: +b.dataset.b }; send({ kind: 'cmd', cmd: 'item', item: lastProd.item, boosters: lastProd.boosters }); });
+  $('prodUndo').addEventListener('click', () => { if (lastProd) send({ kind: 'cmd', cmd: 'itemundo', item: lastProd.item, boosters: lastProd.boosters }); lastProd = null; });
+  drawProds();
+
+  /* état renvoyé par l'overlay (file d'attente, classement) */
+  function onState(m) {
+    if (!m || !m.z3 || m.kind !== 'state') return;
+    $('curBuyer').textContent = m.current ? '@' + m.current : '—';
+    if (m.items) $('prodInfo').textContent = 'Ce live : ' + (Object.entries(m.items).map(([k, v]) => v + ' × ' + k).join(' · ') || 'rien encore') + ' — ' + (m.boosters || 0) + ' boosters · ' + (m.cards || 0) + ' cartes vues';
+    $('queueList').textContent = m.queue && m.queue.length ? 'File : ' + m.queue.join(' → ') : 'File vide. Les achats StreamElements/Streamlabs s\'ajoutent tout seuls.';
+    $('topList').textContent = m.top && m.top.length ? 'Top : ' + m.top.slice(0, 5).map((p, i) => `${i + 1}. ${p.name} (${p.score} pts, ${p.boosters} boosters)`).join(' · ') : '';
+  }
+  if (bc) bc.onmessage = (e) => onState(e.data);
+  $('btnQueue').addEventListener('click', () => { const n = $('buyerName').value.trim(); if (n) send({ kind: 'cmd', cmd: 'addbooster', name: n, qty: +$('buyerQty').value || 1 }); $('buyerName').value = ''; });
+  $('btnOpenFor').addEventListener('click', () => { const n = $('buyerName').value.trim(); if (n) { newPack(); send({ kind: 'cmd', cmd: 'buyer', name: n }); } $('buyerName').value = ''; });
+  const newPack = () => { if (typeof det !== 'undefined') det.pack = { cards: 0, hits: 0, last: 0, god: false }; };   // le GOD PACK auto ne compte que dans un même booster
+  $('btnNextBuyer').addEventListener('click', () => { newPack(); send({ kind: 'cmd', cmd: 'nextbuyer' }); });
+  setTimeout(() => send({ kind: 'cmd', cmd: 'state' }), 600);
+
+  function send(msg) {
+    msg = Object.assign({ z3: 1, id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7) }, msg);
+    if (bc) bc.postMessage(msg);
+    if (obs && obs.ready) obs.broadcast(msg).catch(() => {});
+  }
+  document.querySelectorAll('.tiers button[data-t]').forEach((b) => b.addEventListener('click', () => {   // seulement RARE/HIT/SECRÈTE/GOD/FLOP
+    send({ kind: 'hit', tier: b.dataset.t, name: $('cardName').value.trim() });
+    addLog({ tier: b.dataset.t, name: $('cardName').value.trim(), how: 'manuel' });
+  }));
+  document.querySelectorAll('[data-cmd]').forEach((b) => b.addEventListener('click', () => send({ kind: 'cmd', cmd: b.dataset.cmd, sec: +b.dataset.sec || 0 })));
+
+  /* ---------- connexion OBS ---------- */
+  function setState(t, cls) { $('state').textContent = t; $('state').className = cls || ''; }
+  async function connect() {
+    if (obs) obs.close();
+    obs = new window.Z3OBS({ host: $('host').value, port: $('port').value, password: $('pass').value });
+    obs.on('close', () => setState('DÉCONNECTÉ', 'err'));
+    obs.on('CustomEvent', onState);
+    obs.on('open', () => setState('CONNECTÉ', 'on'));
+    setState('CONNEXION…');
+    try { await obs.connect(); setState('CONNECTÉ', 'on'); await listSources(); }
+    catch (e) { setState(e.message.toUpperCase(), 'err'); }
+  }
+  async function listSources() {
+    if (!obs || !obs.ready) return;
+    const { inputs } = await obs.call('GetInputList');
+    const cur = store.get('src', '');
+    $('src').innerHTML = '<option value="">— source caméra cartes —</option>' + inputs.map((i) => `<option ${i.inputName === cur ? 'selected' : ''}>${i.inputName.replace(/</g, '&lt;')}</option>`).join('');
+  }
+  $('btnConn').addEventListener('click', connect);
+  $('btnSrc').addEventListener('click', listSources);
+  $('src').addEventListener('change', () => store.set('src', $('src').value));
+
+  /* ---------- image : OBS ou simulation ---------- */
+  const cv = $('cv'), cx = cv.getContext('2d', { willReadFrequently: true });
+  const ov = $('ov'), ox = ov.getContext('2d');
+  const zc = document.createElement('canvas'); zc.width = 120; zc.height = 168;
+  const zx = zc.getContext('2d', { willReadFrequently: true });
+  const img = new Image();
+  function loadImg(src) { return new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = src; }); }
+  // simulation : table + cartes qui défilent (pour tester sans caméra)
+  const SIMSEQ = ['', 'pk_common', 'pk_common', '', 'pk_holo', '', 'op_common', '', 'pk_fullart', '', 'op_common', '', 'pk_gold', '', '', '', '', ''];
+  let simT0 = Date.now();
+  function simFrame() {
+    const t = (Date.now() - simT0) / 1000, slot = Math.floor(t / 1.6) % SIMSEQ.length, ph = (t / 1.6) % 1, type = SIMSEQ[slot];
+    window.Z3Test.table(cx);
+    if (type) {
+      cx.save(); const slide = ph < 0.25 ? (0.25 - ph) * 900 : 0; cx.translate(slide, 0);
+      window.Z3Test.card(cx, type, 11 + slot); cx.restore();
+    }
+    return true;
+  }
+  async function grab(width) {
+    if (SIMU) return simFrame();
+    const src = $('src').value; if (!obs || !obs.ready || !src) return false;
+    const r = await obs.call('GetSourceScreenshot', { sourceName: src, imageFormat: 'jpg', imageWidth: width || 640, imageCompressionQuality: 65 });
+    await loadImg(r.imageData);
+    cx.drawImage(img, 0, 0, cv.width, cv.height);
+    return true;
+  }
+  function zoneRect(W, H) { return { x: zone.x * W, y: zone.y * H, w: zone.w * W, h: zone.h * H }; }
+  function cropZone() { const z = zoneRect(cv.width, cv.height); zx.drawImage(cv, z.x, z.y, z.w, z.h, 0, 0, zc.width, zc.height); return zx.getImageData(0, 0, zc.width, zc.height); }
+  async function hiResCrop() {               // image nette de la carte pour l'IA
+    const c = document.createElement('canvas');
+    if (!SIMU && obs && obs.ready) {
+      const r = await obs.call('GetSourceScreenshot', { sourceName: $('src').value, imageFormat: 'jpg', imageWidth: 1920, imageCompressionQuality: 90 });
+      await loadImg(r.imageData);
+      const z = zoneRect(img.naturalWidth, img.naturalHeight), k = Math.min(1, 900 / Math.max(z.w, z.h));
+      c.width = z.w * k; c.height = z.h * k; c.getContext('2d').drawImage(img, z.x, z.y, z.w, z.h, 0, 0, c.width, c.height);
+    } else { const z = zoneRect(cv.width, cv.height); c.width = z.w * 3; c.height = z.h * 3; c.getContext('2d').drawImage(cv, z.x, z.y, z.w, z.h, 0, 0, c.width, c.height); }
+    return c.toDataURL('image/jpeg', 0.88);
+  }
+  function drawOverlay(color) {
+    ox.clearRect(0, 0, ov.width, ov.height);
+    const z = zoneRect(ov.width, ov.height);
+    ox.fillStyle = 'rgba(0,0,0,.45)'; ox.fillRect(0, 0, ov.width, ov.height); ox.clearRect(z.x, z.y, z.w, z.h);
+    ox.strokeStyle = color || '#ff3fd0'; ox.lineWidth = 3; ox.strokeRect(z.x, z.y, z.w, z.h);
+  }
+  // sélection de zone à la souris
+  let drag = null;
+  const pt = (e) => { const r = ov.getBoundingClientRect(); return { x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) }; };
+  ov.addEventListener('pointerdown', (e) => { drag = pt(e); ov.setPointerCapture(e.pointerId); });
+  ov.addEventListener('pointermove', (e) => { if (!drag) return; const p = pt(e);
+    zone = { x: Math.min(drag.x, p.x), y: Math.min(drag.y, p.y), w: Math.abs(p.x - drag.x), h: Math.abs(p.y - drag.y) }; drawOverlay(); });
+  ov.addEventListener('pointerup', () => { drag = null; if (zone.w < 0.03 || zone.h < 0.03) zone = store.get('zone', zone); store.set('zone', zone); });
+
+  /* ---------- calibrage ---------- */
+  let lastF = null;
+  /* reconnaissance visuelle : découpe précise de la carte (différence avec la zone vide) */
+  const VW = 240, VH = 336;
+  const vc = document.createElement('canvas'); vc.width = VW; vc.height = VH;
+  const vx = vc.getContext('2d', { willReadFrequently: true });
+  let bgFull = null;
+  function zoneFull() { const z = zoneRect(cv.width, cv.height); vx.drawImage(cv, z.x, z.y, z.w, z.h, 0, 0, VW, VH); return vx.getImageData(0, 0, VW, VH); }
+  function cardCrop() {
+    const im = zoneFull();
+    if (!bgFull) return { data: im.data, w: VW, h: VH };
+    const d = im.data, b = bgFull, rows = new Uint16Array(VH), cols = new Uint16Array(VW);
+    for (let y = 0; y < VH; y++) for (let x = 0; x < VW; x++) {
+      const i = (y * VW + x) * 4;
+      if (Math.abs(d[i] - b[i]) + Math.abs(d[i + 1] - b[i + 1]) + Math.abs(d[i + 2] - b[i + 2]) > 60) { rows[y]++; cols[x]++; }
+    }
+    const span = (arr, n, min) => { let a = 0, z = n - 1; while (a < n && arr[a] < min) a++; while (z > a && arr[z] < min) z--; return [a, z]; };
+    const [y0, y1] = span(rows, VH, VW * 0.25), [x0, x1] = span(cols, VW, VH * 0.25);
+    if (y1 - y0 < VH * 0.3 || x1 - x0 < VW * 0.3) return { data: d, w: VW, h: VH };
+    const w = x1 - x0 + 1, h = y1 - y0 + 1, out = new Uint8ClampedArray(w * h * 4);
+    for (let y = 0; y < h; y++) out.set(d.subarray(((y0 + y) * VW + x0) * 4, ((y0 + y) * VW + x1 + 1) * 4), y * w * 4);
+    return { data: out, w, h, box: [x0, y0, w, h] };
+  }
+  const PRINTS = {};
+  function prints(game) {
+    if (PRINTS[game]) return PRINTS[game];
+    const raw = (window.Z3PRINTS || {})[game]; if (!raw) return null;
+    const idx = {}; for (const k in raw) { const v = raw[k]; idx[k] = { f: v.slice(0, 16), a: v.slice(16, 32), c: [parseInt(v.slice(32, 34), 16), parseInt(v.slice(34, 36), 16), parseInt(v.slice(36, 38), 16)] }; }
+    return (PRINTS[game] = idx);
+  }
+  function recognize() {
+    const game = $('game').value, idx = prints(game); if (!idx) return null;
+    let keys = null;
+    if ($('setSel').value !== '') {
+      const st = Z3Base.sets(game)[+$('setSel').value];
+      keys = Z3Base.cardsOf(game, st.i).map((c) => c.key).filter((k) => idx[k]);
+    }
+    const c = cardCrop(), p = window.Z3Print.cardPrint(c.data, c.w, c.h);
+    const m = window.Z3Print.match(p, idx, keys);
+    if (!m) return null;
+    const ok = m.d <= 30 && m.marge >= 5;
+    return Object.assign(m, { ok, card: ok ? Z3Base.byKey(m.key) : null });
+  }
+  $('calBg').addEventListener('click', () => { if (!lastF) return; bgThumb = Array.from(lastF.thumb); store.set('bg', bgThumb); det.setBackground({ thumb: bgThumb }); bgFull = zoneFull().data.slice(); flash($('calBg')); });
+  $('calCommon').addEventListener('click', () => { if (!lastF) return; common = { gold: lastF.gold, rainbow: lastF.rainbow, sparkle: lastF.sparkle, lowerSat: lastF.lowerSat }; store.set('common', common); flash($('calCommon')); });
+  function flash(b) { b.style.borderColor = '#3dff9a'; b.querySelector('.step').textContent = '✔'; }
+  if (common) flash($('calCommon'));
+  if (bgThumb) flash($('calBg'));
+
+  /* ---------- IA Claude ---------- */
+  let client = null, clientKey = '';
+  const SCHEMA = { type: 'object', additionalProperties: false,
+    required: ['carte_visible', 'jeu', 'nom', 'code_extension', 'numero', 'variante', 'rarete_imprimee', 'niveau', 'confiance'],
+    properties: {
+      carte_visible: { type: 'boolean' }, jeu: { type: 'string', enum: ['pokemon', 'onepiece', 'autre'] }, nom: { type: 'string' },
+      code_extension: { type: 'string' }, numero: { type: 'string' }, variante: { type: 'string' },
+      rarete_imprimee: { type: 'string' },
+      niveau: { type: 'string', enum: ['aucune', 'commune', 'rare', 'ultra', 'secrete'] },
+      confiance: { type: 'number' } } };
+  const PROMPT = `Photo prise par la caméra d'un live d'ouverture de boosters (cartes Pokémon, One Piece Card Game, ou autre TCG).
+Identifie la carte montrée : jeu, nom, rareté imprimée (symbole ou code : ●◆★, C/UC/R/SR/SEC/L/SP, RR/AR/SAR/IR/SIR/UR/HR, numéro de carte supérieur à la taille du set = secrète, carte dorée, alternate art…).
+Classe-la dans "niveau" :
+- "aucune" : pas de carte lisible ;
+- "commune" : commune, peu commune, ou rare non holo / énergie / dresseur basique ;
+- "rare" : rare holo ou rare simple brillante ;
+- "ultra" : ex / V / GX, double rare, ultra rare, full art, SR, art alternatif normal ;
+- "secrete" : secrète, numéro hors set, gold, hyper rare, SAR/SIR, illustration spéciale, SEC, manga/parallèle rare.
+Lis aussi exactement ce qui est imprimé en bas de la carte :
+- "code_extension" : Pokémon = abréviation d'extension (ex. "ETD", "SSP", "MEW", "sv8") ; One Piece = code de booster (ex. "OP09") ; vide si illisible ;
+- "numero" : Pokémon = numéro complet (ex. "201/191", "TG05/TG30", "GG44/GG70") ; One Piece = identifiant (ex. "OP09-042", "ST15-002", "P-033") ; vide si illisible ;
+- "variante" : "normale", "reverse", "parallèle", "alt art", "manga", "gold"… ;
+Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
+  async function askClaude(dataUrl) {
+    const key = $('apiKey').value.trim();
+    if (!key) throw new Error('clé API manquante');
+    if (!client || clientKey !== key) {
+      const Anthropic = window.AnthropicSDK && window.AnthropicSDK.default;   // SDK officiel, embarqué dans vendor/
+      if (!Anthropic) throw new Error('SDK Claude non chargé');
+      client = new Anthropic({ apiKey: key, dangerouslyAllowBrowser: true }); clientKey = key;
+    }
+    const model = $('model').value;
+    const req = {
+      model, max_tokens: 2000,
+      output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
+      messages: [{ role: 'user', content: [
+        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: dataUrl.split(',')[1] } },
+        { type: 'text', text: PROMPT }] }],
+    };
+    const r = model === 'claude-opus-5-5'
+      ? await client.beta.messages.create(Object.assign(req, { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' }))
+      : await client.messages.create(req);
+    if (r.stop_reason === 'refusal') throw new Error('refus du modèle');
+    const txt = (r.content.find((b) => b.type === 'text') || {}).text || '{}';
+    return JSON.parse(txt);
+  }
+  const AI_TIER = { rare: 'rare', ultra: 'ultra', secrete: 'secret' };
+
+  /* ---------- base master set ---------- */
+  function fillSets() {
+    if (!window.Z3Base) return;
+    const g = $('game').value, list = Z3Base.sets(g).slice().reverse();
+    $('setSel').innerHTML = '<option value="">— extension ouverte (optionnel) —</option>' + list.map((x) => {
+      const label = g === 'onepiece' ? (x.code ? '[' + x.code + '] ' : '') + (x.fr || x.en) : (x.region === 'jp' ? '🇯🇵 ' : '') + (x.fr || x.en || x.ja) + (x.code ? ' (' + x.code + ')' : '') + (x.date ? ' · ' + x.date.slice(0, 4) : '');
+      return `<option value="${x.i}">${label.replace(/</g, '&lt;')}</option>`; }).join('');
+    $('setSel').value = store.get('set-' + g, '');
+    const m = window.Z3DB || {};
+    $('dbInfo').textContent = 'Base master set : ' + (m.pokemon ? m.pokemon.sets.length + ' extensions Pokémon (' + m.pokemon.cards.length + ' cartes)' : '') + (m.onepiece ? ' · ' + m.onepiece.packs.length + ' boosters One Piece (' + m.onepiece.cards.length + ' cartes)' : '') + '. ' + (window.Z3PRINTS ? 'Reconnaissance visuelle : ' + Object.entries(window.Z3PRINTS).map(([g, v]) => Object.keys(v).length + ' empreintes ' + (g === 'pokemon' ? 'Pokémon' : 'One Piece')).join(', ') + '.' : 'Reconnaissance visuelle : lance tools/build-prints.mjs pour l\'activer.');
+  }
+  $('game').value = Q.get('game') || store.get('game', 'pokemon');   // ?game=pokemon|onepiece
+  $('game').addEventListener('change', () => { store.set('game', $('game').value); fillSets(); });
+  $('setSel').addEventListener('change', () => store.set('set-' + $('game').value, $('setSel').value));
+  fillSets();
+  if (Q.get('set')) {                         // ?set=me06 : extension ouverte présélectionnée
+    const st = Z3Base.sets($('game').value).find((x) => x.id === Q.get('set') && (x.region || 'int') === (Q.get('region') || x.region || 'int'));
+    if (st) { $('setSel').value = String(st.i); store.set('set-' + $('game').value, $('setSel').value); }
+  }
+
+  /* ---------- journal ---------- */
+  const COL = { rare: '#7bd0ff', ultra: '#ffd23a', secret: '#ff3fd0', god: '#ffd23a', flop: '#9aa3b5' };
+  const LBL = { rare: 'RARE', ultra: 'HIT', secret: 'SECRÈTE', god: 'GOD PACK', flop: 'FLOP' };
+  function addLog(o) {
+    const li = document.createElement('li');
+    li.style.borderLeftColor = COL[o.tier] || '#4a1d77';
+    li.innerHTML = (o.thumb ? `<img src="${o.thumb}">` : '') + `<div><div class="t"></div><div class="s"></div></div>`;
+    li.querySelector('.t').textContent = (o.tier ? LBL[o.tier] : 'commune') + (o.name ? ' · ' + o.name : '');
+    li.querySelector('.s').textContent = new Date().toLocaleTimeString() + ' · ' + (o.how || '') + (o.score !== undefined ? ' · score ' + o.score.toFixed(2) : '');
+    $('log').prepend(li); while ($('log').children.length > 40) $('log').lastChild.remove();
+  }
+
+  /* ---------- boucle de détection ---------- */
+  const det = new D.Z3Detector();
+  if (bgThumb) det.setBackground({ thumb: bgThumb });
+  let running = false, busy = false;
+  const setBar = (id, v, txt) => { $('m' + id).style.width = Math.max(0, Math.min(100, v * 100)) + '%'; $('v' + id).textContent = txt; };
+  async function onCard(f, sc) {
+    const sens = +$('sens').value, m = mode();
+    const thumb = zc.toDataURL('image/jpeg', 0.7);
+    let tier = D.tierFromScore(sc.total, sens), name = '', how = 'local', card = null;
+    // 1) reconnaissance visuelle locale (empreintes) : gratuite, instantanée
+    const rec = recognize();
+    if (rec && rec.ok) { card = rec.card; how = `VISUEL ✓ (écart ${rec.d.toFixed(0)})`; }
+    // 2) IA si besoin (mode IA, ou hybride quand la carte brille et n'a pas été reconnue)
+    else if (m === 'ai' || (m === 'hybrid' && sc.total >= 0.7 / sens)) {
+      how = 'IA';
+      try {
+        const r = await askClaude(await hiResCrop());
+        tier = r.carte_visible ? (AI_TIER[r.niveau] || null) : null; name = r.nom || '';
+        how = 'IA ' + Math.round((r.confiance || 0) * 100) + '% · ' + (r.rarete_imprimee || '?');
+        // la base master set fait foi : rareté officielle + nom français
+        const hit = r.carte_visible && window.Z3Base && Z3Base.find({ jeu: r.jeu === 'autre' ? $('game').value : r.jeu, code: r.code_extension, numero: r.numero, nom: r.nom, variante: r.variante,
+          setHint: $('game').value === 'pokemon' ? $('setSel').value : '' });
+        if (hit && hit.confiance >= 0.6) { card = hit; how = 'IA + BASE ✓'; }
+      } catch (e) { how = 'IA indispo (' + e.message + ') → local'; }
+    }
+    let isNew = false;
+    if (card) {
+      tier = card.tier; name = card.nom + ' ' + card.numero;
+      how += ' · ' + (card.set.fr || card.set.en || card.set.ja || card.set.code) + ' · ' + card.rarete;
+      isNew = Z3Base.collection.add(card.key) === 1;
+    }
+    // chaque carte compte dans le récap (rareté officielle, sinon estimée)
+    send({ kind: 'card', key: card ? card.key : '', name, tier, newCard: isNew, rarete: card ? card.rarete : ({ rare: 'Rare', ultra: 'Ultra Rare', secret: 'Secret Rare' }[tier] || 'Common') });
+    if (tier) {
+      // GOD PACK auto : 3 vrais hits (HIT ou SECRÈTE, pas les simples RARE) dans le même booster
+      const n = tier === 'ultra' || tier === 'secret' ? det.registerHit() : 0;
+      if ($('optGod').checked && n === 3) tier = 'god';
+      const crop = cardCrop(), sc2 = document.createElement('canvas'); sc2.width = crop.w; sc2.height = crop.h;
+      sc2.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(crop.data), crop.w, crop.h), 0, 0);
+      send({ kind: 'hit', tier, name, key: card ? card.key : '', img: card ? card.img : '', snap: sc2.toDataURL('image/jpeg', 0.85),
+        num: card ? card.numero : '', rar: card ? card.rarete : '', serie: card ? (card.set.fr || card.set.en || card.set.ja || card.set.code) : '' });
+    }
+    addLog({ tier, name, how, score: sc.total, thumb });
+  }
+  async function loop() {
+    if (!busy) {
+      busy = true;
+      try {
+        if (await grab()) {
+          const f = D.features(cropZone()); lastF = f;
+          const sc = D.score(f, common), now = Date.now();
+          const st = det.push(f, now);
+          drawOverlay(st.card ? '#3dff9a' : null);
+          setBar('Pres', st.presence / 60, st.presence === 255 ? 'calib. A' : st.presence.toFixed(0));
+          setBar('Mot', st.motion / 30, st.motion === 255 ? '–' : st.motion.toFixed(0));
+          setBar('Gold', f.gold / 0.5, (f.gold * 100).toFixed(0) + '%');
+          setBar('Rb', f.rainbow, (f.rainbow * 100).toFixed(0) + '%');
+          setBar('Sp', f.sparkle / 0.06, (f.sparkle * 100).toFixed(1) + '%');
+          setBar('Fa', f.lowerSat, (f.lowerSat * 100).toFixed(0) + '%');
+          setBar('Score', sc.total / 4.5, sc.total.toFixed(2));
+          if (running) {
+            if (st.card) onCard(f, sc);
+            if (st.packEnd) { if ($('optFlop').checked && st.packEnd.cards >= 5 && !st.packEnd.hits) { send({ kind: 'hit', tier: 'flop' }); addLog({ tier: 'flop', how: st.packEnd.cards + ' cartes sans hit' }); } }
+          }
+        }
+      } catch (e) { $('runInfo').textContent = 'Erreur : ' + e.message; }
+      busy = false;
+    }
+    setTimeout(loop, 220);
+  }
+  $('btnRun').addEventListener('click', () => {
+    running = !running;
+    $('btnRun').textContent = running ? '■ ARRÊTER LA DÉTECTION' : '▶ DÉMARRER LA DÉTECTION';
+    $('btnRun').className = 'big ' + (running ? 'stop' : 'go');
+    $('runInfo').textContent = running ? (bgThumb ? 'Détection active : montre les cartes une par une dans le cadre, 1 seconde immobile.' : '⚠ Fais d\'abord le calibrage A (zone vide).') : '';
+  });
+
+  if (Q.get('obspass') !== null) { $('pass').value = Q.get('obspass'); store.set('pass', $('pass').value); }   // ?obspass=… : connexion automatique
+  if (Q.get('obssrc')) store.set('src', Q.get('obssrc'));
+  if (SIMU) { setState('SIMULATION', 'on'); $('secConn').classList.add('hide'); }
+  else if ($('pass').value || store.get('autoconn', false)) connect();
+  drawOverlay(); loop();
+  window.Z3Dock = { start: () => { if (!running) $('btnRun').click(); }, calibrate: (w) => $(w === 'bg' ? 'calBg' : 'calCommon').click(), send };
+})();
+</script>
+</body>
+</html>

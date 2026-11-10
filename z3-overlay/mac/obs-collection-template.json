@@ -1,0 +1,598 @@
+{
+ "name": "Z3 LIVE Pokémon",
+ "current_scene": "⏳ Bientôt",
+ "current_program_scene": "⏳ Bientôt",
+ "scene_order": [
+  {
+   "name": "⏳ Bientôt"
+  },
+  {
+   "name": "🔴 LIVE Pokémon"
+  },
+  {
+   "name": "☕ Pause"
+  },
+  {
+   "name": "🏆 Fin du live"
+  }
+ ],
+ "sources": [
+  {
+   "id": "browser_source",
+   "versioned_id": "browser_source",
+   "name": "Z3 · Bientôt",
+   "uuid": "18570649-97e0-4c5c-9088-1431470e4f6a",
+   "settings": {
+    "url": "__BASE__/scenes.html?mode=soon&in=10m&obs&obspass=__PW__",
+    "is_local_file": false,
+    "width": 1920,
+    "height": 1080,
+    "fps_custom": true,
+    "fps": 60,
+    "reroute_audio": false,
+    "restart_when_active": false,
+    "shutdown": false,
+    "css": "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }"
+   },
+   "mixers": 255,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5,
+   "push-to-mute": false,
+   "push-to-talk": false
+  },
+  {
+   "id": "browser_source",
+   "versioned_id": "browser_source",
+   "name": "Z3 · Pause",
+   "uuid": "fc89d745-eeae-4ddc-97f7-fbeb0dd59718",
+   "settings": {
+    "url": "__BASE__/scenes.html?mode=pause&in=5m&obs&obspass=__PW__",
+    "is_local_file": false,
+    "width": 1920,
+    "height": 1080,
+    "fps_custom": true,
+    "fps": 60,
+    "reroute_audio": false,
+    "restart_when_active": false,
+    "shutdown": false,
+    "css": "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }"
+   },
+   "mixers": 255,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5,
+   "push-to-mute": false,
+   "push-to-talk": false
+  },
+  {
+   "id": "browser_source",
+   "versioned_id": "browser_source",
+   "name": "Z3 · Fin du live",
+   "uuid": "f627b19b-cc8e-4a48-a6cb-23d4e379db5b",
+   "settings": {
+    "url": "__BASE__/scenes.html?mode=end&obs&obspass=__PW__",
+    "is_local_file": false,
+    "width": 1920,
+    "height": 1080,
+    "fps_custom": true,
+    "fps": 60,
+    "reroute_audio": false,
+    "restart_when_active": false,
+    "shutdown": false,
+    "css": "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }"
+   },
+   "mixers": 255,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5,
+   "push-to-mute": false,
+   "push-to-talk": false
+  },
+  {
+   "id": "browser_source",
+   "versioned_id": "browser_source",
+   "name": "Z3 · Overlay complet",
+   "uuid": "324753b3-edf3-48f2-9589-6824eaba38a3",
+   "settings": {
+    "url": "__BASE__/overlay.html?duration=3h&obs&obspass=__PW__",
+    "is_local_file": false,
+    "width": 1920,
+    "height": 1080,
+    "fps_custom": true,
+    "fps": 60,
+    "reroute_audio": true,
+    "restart_when_active": false,
+    "shutdown": false,
+    "css": "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }"
+   },
+   "mixers": 255,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5,
+   "push-to-mute": false,
+   "push-to-talk": false
+  },
+  {
+   "id": "browser_source",
+   "versioned_id": "browser_source",
+   "name": "Z3 · Hits (invisible)",
+   "uuid": "3119466c-c753-4500-989b-ac8ce9c6c71a",
+   "settings": {
+    "url": "__BASE__/overlay.html?hitonly&cam=1456,112,436,247&obs&obspass=__PW__",
+    "is_local_file": false,
+    "width": 1920,
+    "height": 1080,
+    "fps_custom": true,
+    "fps": 60,
+    "reroute_audio": true,
+    "restart_when_active": false,
+    "shutdown": false,
+    "css": "body { background-color: rgba(0, 0, 0, 0); margin: 0px auto; overflow: hidden; }"
+   },
+   "mixers": 255,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5,
+   "push-to-mute": false,
+   "push-to-talk": false
+  },
+  {
+   "id": "av_capture_input_v2",
+   "versioned_id": "av_capture_input_v2",
+   "name": "Cam cartes",
+   "uuid": "dbc0c236-de21-49d1-a0bf-74595e78d3f7",
+   "settings": {},
+   "mixers": 255,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5
+  },
+  {
+   "id": "av_capture_input_v2",
+   "versioned_id": "av_capture_input_v2",
+   "name": "Ma cam",
+   "uuid": "d2fcff3c-ef7d-4bfd-8911-38971c2d5aeb",
+   "settings": {},
+   "mixers": 255,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5
+  },
+  {
+   "id": "scene",
+   "versioned_id": "scene",
+   "name": "⏳ Bientôt",
+   "uuid": "4bcb88f6-35f4-449c-8c86-e30943e26af1",
+   "settings": {
+    "id_counter": 1,
+    "custom_size": false,
+    "items": [
+     {
+      "name": "Z3 · Bientôt",
+      "source_uuid": "18570649-97e0-4c5c-9088-1431470e4f6a",
+      "visible": true,
+      "locked": false,
+      "rot": 0.0,
+      "pos": {
+       "x": 0,
+       "y": 0
+      },
+      "scale": {
+       "x": 1.0,
+       "y": 1.0
+      },
+      "align": 5,
+      "bounds_type": 0,
+      "bounds_align": 0,
+      "bounds": {
+       "x": 0.0,
+       "y": 0.0
+      },
+      "crop_left": 0,
+      "crop_top": 0,
+      "crop_right": 0,
+      "crop_bottom": 0,
+      "id": 1,
+      "group_item_backup": false,
+      "scale_filter": "disable",
+      "blend_method": "default",
+      "blend_type": "normal",
+      "show_transition": {
+       "duration": 0
+      },
+      "hide_transition": {
+       "duration": 0
+      },
+      "private_settings": {}
+     }
+    ]
+   },
+   "mixers": 0,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5
+  },
+  {
+   "id": "scene",
+   "versioned_id": "scene",
+   "name": "🔴 LIVE Pokémon",
+   "uuid": "2775bfb8-8c4a-40c7-9552-499f177cafaa",
+   "settings": {
+    "id_counter": 4,
+    "custom_size": false,
+    "items": [
+     {
+      "name": "Cam cartes",
+      "source_uuid": "dbc0c236-de21-49d1-a0bf-74595e78d3f7",
+      "visible": true,
+      "locked": false,
+      "rot": 0.0,
+      "pos": {
+       "x": 0,
+       "y": 0
+      },
+      "scale": {
+       "x": 1.0,
+       "y": 1.0
+      },
+      "align": 5,
+      "bounds_type": 2,
+      "bounds_align": 0,
+      "bounds": {
+       "x": 1920,
+       "y": 1080
+      },
+      "crop_left": 0,
+      "crop_top": 0,
+      "crop_right": 0,
+      "crop_bottom": 0,
+      "id": 1,
+      "group_item_backup": false,
+      "scale_filter": "disable",
+      "blend_method": "default",
+      "blend_type": "normal",
+      "show_transition": {
+       "duration": 0
+      },
+      "hide_transition": {
+       "duration": 0
+      },
+      "private_settings": {}
+     },
+     {
+      "name": "Ma cam",
+      "source_uuid": "d2fcff3c-ef7d-4bfd-8911-38971c2d5aeb",
+      "visible": true,
+      "locked": false,
+      "rot": 0.0,
+      "pos": {
+       "x": 1456,
+       "y": 112
+      },
+      "scale": {
+       "x": 1.0,
+       "y": 1.0
+      },
+      "align": 5,
+      "bounds_type": 2,
+      "bounds_align": 0,
+      "bounds": {
+       "x": 436,
+       "y": 247
+      },
+      "crop_left": 0,
+      "crop_top": 0,
+      "crop_right": 0,
+      "crop_bottom": 0,
+      "id": 2,
+      "group_item_backup": false,
+      "scale_filter": "disable",
+      "blend_method": "default",
+      "blend_type": "normal",
+      "show_transition": {
+       "duration": 0
+      },
+      "hide_transition": {
+       "duration": 0
+      },
+      "private_settings": {}
+     },
+     {
+      "name": "Z3 · Overlay complet",
+      "source_uuid": "324753b3-edf3-48f2-9589-6824eaba38a3",
+      "visible": true,
+      "locked": false,
+      "rot": 0.0,
+      "pos": {
+       "x": 0,
+       "y": 0
+      },
+      "scale": {
+       "x": 1.0,
+       "y": 1.0
+      },
+      "align": 5,
+      "bounds_type": 0,
+      "bounds_align": 0,
+      "bounds": {
+       "x": 0.0,
+       "y": 0.0
+      },
+      "crop_left": 0,
+      "crop_top": 0,
+      "crop_right": 0,
+      "crop_bottom": 0,
+      "id": 3,
+      "group_item_backup": false,
+      "scale_filter": "disable",
+      "blend_method": "default",
+      "blend_type": "normal",
+      "show_transition": {
+       "duration": 0
+      },
+      "hide_transition": {
+       "duration": 0
+      },
+      "private_settings": {}
+     },
+     {
+      "name": "Z3 · Hits (invisible)",
+      "source_uuid": "3119466c-c753-4500-989b-ac8ce9c6c71a",
+      "visible": true,
+      "locked": false,
+      "rot": 0.0,
+      "pos": {
+       "x": 0,
+       "y": 0
+      },
+      "scale": {
+       "x": 1.0,
+       "y": 1.0
+      },
+      "align": 5,
+      "bounds_type": 0,
+      "bounds_align": 0,
+      "bounds": {
+       "x": 0.0,
+       "y": 0.0
+      },
+      "crop_left": 0,
+      "crop_top": 0,
+      "crop_right": 0,
+      "crop_bottom": 0,
+      "id": 4,
+      "group_item_backup": false,
+      "scale_filter": "disable",
+      "blend_method": "default",
+      "blend_type": "normal",
+      "show_transition": {
+       "duration": 0
+      },
+      "hide_transition": {
+       "duration": 0
+      },
+      "private_settings": {}
+     }
+    ]
+   },
+   "mixers": 0,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5
+  },
+  {
+   "id": "scene",
+   "versioned_id": "scene",
+   "name": "☕ Pause",
+   "uuid": "3b0ee1bc-6d47-409a-8393-f93d2732e5ae",
+   "settings": {
+    "id_counter": 1,
+    "custom_size": false,
+    "items": [
+     {
+      "name": "Z3 · Pause",
+      "source_uuid": "fc89d745-eeae-4ddc-97f7-fbeb0dd59718",
+      "visible": true,
+      "locked": false,
+      "rot": 0.0,
+      "pos": {
+       "x": 0,
+       "y": 0
+      },
+      "scale": {
+       "x": 1.0,
+       "y": 1.0
+      },
+      "align": 5,
+      "bounds_type": 0,
+      "bounds_align": 0,
+      "bounds": {
+       "x": 0.0,
+       "y": 0.0
+      },
+      "crop_left": 0,
+      "crop_top": 0,
+      "crop_right": 0,
+      "crop_bottom": 0,
+      "id": 1,
+      "group_item_backup": false,
+      "scale_filter": "disable",
+      "blend_method": "default",
+      "blend_type": "normal",
+      "show_transition": {
+       "duration": 0
+      },
+      "hide_transition": {
+       "duration": 0
+      },
+      "private_settings": {}
+     }
+    ]
+   },
+   "mixers": 0,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5
+  },
+  {
+   "id": "scene",
+   "versioned_id": "scene",
+   "name": "🏆 Fin du live",
+   "uuid": "e0ccc8b9-6274-4a49-bddf-8f69664f1c83",
+   "settings": {
+    "id_counter": 1,
+    "custom_size": false,
+    "items": [
+     {
+      "name": "Z3 · Fin du live",
+      "source_uuid": "f627b19b-cc8e-4a48-a6cb-23d4e379db5b",
+      "visible": true,
+      "locked": false,
+      "rot": 0.0,
+      "pos": {
+       "x": 0,
+       "y": 0
+      },
+      "scale": {
+       "x": 1.0,
+       "y": 1.0
+      },
+      "align": 5,
+      "bounds_type": 0,
+      "bounds_align": 0,
+      "bounds": {
+       "x": 0.0,
+       "y": 0.0
+      },
+      "crop_left": 0,
+      "crop_top": 0,
+      "crop_right": 0,
+      "crop_bottom": 0,
+      "id": 1,
+      "group_item_backup": false,
+      "scale_filter": "disable",
+      "blend_method": "default",
+      "blend_type": "normal",
+      "show_transition": {
+       "duration": 0
+      },
+      "hide_transition": {
+       "duration": 0
+      },
+      "private_settings": {}
+     }
+    ]
+   },
+   "mixers": 0,
+   "volume": 1.0,
+   "enabled": true,
+   "flags": 0,
+   "muted": false,
+   "sync": 0,
+   "monitoring_type": 0,
+   "private_settings": {},
+   "hotkeys": {},
+   "deinterlace_mode": 0,
+   "deinterlace_field_order": 0,
+   "balance": 0.5
+  }
+ ],
+ "groups": [],
+ "quick_transitions": [
+  {
+   "name": "Fondu",
+   "duration": 300,
+   "hotkeys": [],
+   "id": 1,
+   "fade_to_black": false
+  }
+ ],
+ "transitions": [],
+ "saved_projectors": [],
+ "current_transition": "Fondu",
+ "transition_duration": 300,
+ "preview_locked": false,
+ "scaling_enabled": false,
+ "modules": {}
+}

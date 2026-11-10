@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<style>
+  body { width: 340px; margin: 0; background: #0e0219; color: #f3e8ff; font: 600 13px/1.35 system-ui, sans-serif; }
+  header { padding: 10px 12px; background: linear-gradient(90deg, #2a0748, #12031f); border-bottom: 2px solid #ff3fd0; font-size: 16px; font-weight: 800; }
+  header span { color: #ff7be6; }
+  section { padding: 10px 12px; border-bottom: 1px solid #2a0b47; display: grid; gap: 6px; }
+  h3 { margin: 0; font-size: 11px; letter-spacing: 2px; color: #ff3fd0; }
+  .row { display: flex; gap: 6px; }
+  input, button { font: inherit; color: #f3e8ff; background: #12031f; border: 1px solid #4a1d77; padding: 6px 8px; min-width: 0; border-radius: 4px; }
+  button { cursor: pointer; background: #2a0b47; } button:hover { border-color: #ff3fd0; }
+  button.go { background: linear-gradient(90deg, #ff3fd0, #8b2cff); border: 0; }
+  .grow { flex: 1; }
+  .mut { color: #b9a2d6; font-size: 12px; }
+  #log div { padding: 3px 0; border-bottom: 1px dashed #2a0b47; font-size: 12px; }
+  .ok { color: #3dff9a; } .ko { color: #ff5a7a; }
+</style>
+</head>
+<body>
+<header>Z3 · <span>Acheteurs du live</span></header>
+<section>
+  <h3>1 · OBS WEBSOCKET</h3>
+  <div class="row"><input id="host" value="127.0.0.1" style="width:96px"><input id="port" value="4455" style="width:56px"><input id="pass" type="password" placeholder="Mot de passe" class="grow"></div>
+  <div class="row"><button id="save" class="grow">Enregistrer &amp; tester</button><span id="obsState" class="mut"></span></div>
+</section>
+<section>
+  <h3>2 · CETTE PAGE VENDEUR</h3>
+  <div class="mut" id="site"></div>
+  <button id="pickName" class="go">🎯 Apprendre : cliquer sur un PSEUDO d'acheteur</button>
+  <button id="pickQty">🎯 (Optionnel) cliquer sur la QUANTITÉ / l'article</button>
+  <div class="row"><button id="toggle" class="grow">Pause</button><button id="forget" class="grow">Oublier ce site</button></div>
+  <div class="mut" id="preview"></div>
+</section>
+<section>
+  <h3>3 · TEST &amp; JOURNAL</h3>
+  <div class="row"><input id="testName" value="TestZ3" class="grow"><button id="test">Envoyer un achat test</button></div>
+  <div id="log"></div>
+</section>
+<script src="popup.js"></script>
+</body>
+</html>

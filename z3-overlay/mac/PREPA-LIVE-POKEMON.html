@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prépa live Pokémon — Z3 LIVE</title>
+<style>
+  @font-face { font-family: 'Bangers'; src: url(../fonts/bangers.ttf); }
+  @font-face { font-family: 'Rajdhani'; font-weight: 700; src: url(../fonts/rajdhani-700.ttf); }
+  @font-face { font-family: 'Rajdhani'; font-weight: 600; src: url(../fonts/rajdhani-600.ttf); }
+  :root { --bg: #0e0219; --panel: #1a0630; --line: #4a1d77; --f: #ff3fd0; --v: #b44dff; --txt: #f3e8ff; --mut: #b9a2d6; --ok: #3dff9a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--txt); font: 600 16px/1.45 Rajdhani, system-ui, sans-serif; }
+  header { display: flex; align-items: center; gap: 18px; padding: 18px 24px; background: linear-gradient(90deg, #2a0748, #12031f); border-bottom: 3px solid var(--f); }
+  header img { height: 90px; filter: drop-shadow(0 0 12px rgba(255,63,208,.6)); }
+  h1 { margin: 0; font-family: Bangers; font-size: 44px; letter-spacing: 1px; font-weight: 400; background: linear-gradient(180deg, #fff, #ff3fd0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  header p { margin: 2px 0 0; color: var(--mut); letter-spacing: 2px; }
+  main { max-width: 980px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 14px; }
+  .step { background: var(--panel); border: 1px solid var(--line); padding: 14px 16px; display: grid; grid-template-columns: 36px 1fr; gap: 6px 14px; }
+  .step.done { border-color: var(--ok); opacity: .75; }
+  .step input[type=checkbox] { width: 26px; height: 26px; accent-color: var(--ok); margin-top: 4px; }
+  .step h2 { margin: 0; font-size: 21px; letter-spacing: 1px; }
+  .step .body { grid-column: 2; color: #e9dcff; }
+  .step ol, .step ul { margin: 6px 0 0; padding-left: 20px; }
+  code, .url { font-family: ui-monospace, Menlo, monospace; font-size: 13px; background: #0b0214; border: 1px solid var(--line); padding: 1px 6px; border-radius: 4px; }
+  .url { display: flex; gap: 8px; align-items: center; margin: 6px 0; padding: 6px 8px; word-break: break-all; }
+  .url span { flex: 1; }
+  button { font: inherit; color: #fff; background: linear-gradient(90deg, #ff3fd0, #8b2cff); border: 0; padding: 5px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+  .pw { font-size: 22px; color: var(--ok); }
+  .tag { display: inline-block; padding: 1px 8px; border: 1px solid var(--f); color: #ff9be8; font-size: 13px; margin-right: 6px; }
+  a { color: #ff9be8; }
+  .warn { border-left: 3px solid #ffd23a; padding-left: 10px; color: #ffe9a8; }
+</style>
+</head>
+<body>
+<header><img src="../preview/logo-rainte.png" alt=""><div><h1>PRÉPA LIVE POKÉMON</h1><p>Z3 LIVE · TEAM Z3F4 × LE RAINTÉ DU TCG · Mac + OBS</p></div></header>
+<main id="m"></main>
+<script src="ma-config.js"></script>
+<script>
+(function () {
+  'use strict';
+  const C = window.Z3CONF || {}, PW = C.pw || 'TON_MOT_DE_PASSE';
+  const BASE = C.base || location.href.replace(/\/mac\/[^/]*$/, '');
+  const u = (p) => BASE + '/' + p;
+  const url = (p) => `<div class="url"><span>${u(p).replace(/&/g, '&amp;')}</span><button data-c="${u(p).replace(/"/g, '&quot;')}">Copier</button></div>`;
+  const steps = [
+    ['Installation faite', `Le dossier est sur ton Bureau (<code>Z3-LIVE</code>), le WebSocket d'OBS est activé et la collection de scènes est ajoutée.<br>
+      Mot de passe OBS WebSocket : <span class="pw">${PW}</span><br>${C.pw ? '' : '<span class="warn">Lance d\'abord <code>mac/INSTALLER-Z3-LIVE.command</code> (clic droit › Ouvrir la 1re fois).</span>'}`],
+    ['Ouvrir OBS sur la collection « Z3 LIVE Pokémon »', `<ol><li>Ouvre OBS.</li><li>Menu <b>Collection de scènes</b> › <b>Z3 LIVE Pokémon</b>.</li>
+      <li>Tu as 4 scènes : ⏳ Bientôt · 🔴 LIVE Pokémon · ☕ Pause · 🏆 Fin du live.</li></ol>`],
+    ['Brancher tes 2 caméras', `Dans la scène <b>🔴 LIVE Pokémon</b> :<ul>
+      <li>Double-clic sur <b>Ma cam</b> › choisis ta webcam (elle est déjà placée dans le cadre néon en haut à droite).</li>
+      <li>Double-clic sur <b>Cam cartes</b> › choisis la caméra qui filme les cartes (plein écran, sous l'overlay).</li>
+      <li>macOS demande l'accès à la caméra : <b>Autoriser</b> (Réglages Système › Confidentialité › Caméra › OBS).</li></ul>
+      <span class="tag">Astuce</span>Si tu déplaces « Ma cam », dis-moi sa position (clic droit › Transformer › Modifier) pour caler la carte des hits dessus.`],
+    ['Ajouter le dock « Z3 Détecteur » dans OBS', `<ol><li>OBS › <b>Docks</b> › <b>Docks de navigateur personnalisés…</b></li>
+      <li>Nom : <code>Z3 Détecteur</code> — URL (déjà copiée dans ton presse-papiers par l'installateur) :</li></ol>${url(`detecteur.html?game=pokemon&set=me06&obspass=${PW}&obssrc=Cam%20cartes`)}
+      Ajoute aussi (optionnel) <code>Z3 Master Set</code> : ${url('base.html')}`],
+    ['Régler la détection (2 minutes)', `Dans le dock Z3 Détecteur :<ol>
+      <li>Il se connecte tout seul (« CONNECTÉ » en vert) et prend la source <b>Cam cartes</b>.</li>
+      <li>Choisis l'<b>extension que tu ouvres</b> dans la liste (Règne Delta est présélectionnée) — <b>3 350 cartes Pokémon depuis 2024</b> sont reconnues à la caméra, sans IA.</li>
+      <li>Glisse sur l'aperçu pour encadrer l'endroit où tu montres les cartes.</li>
+      <li><b>A · Zone vide</b> (rien dans le cadre), puis <b>B · Carte commune</b> (une commune posée).</li>
+      <li><b>▶ Démarrer la détection</b>. Teste avec une carte : le journal doit afficher « VISUEL ✓ ».</li></ol>`],
+    ['Extension Chrome « Acheteurs du live » (Voggt / Whatnot)', `<ol><li>Chrome › <code>chrome://extensions</code> › active le <b>Mode développeur</b>.</li>
+      <li><b>Charger l'extension non empaquetée</b> › choisis <code>Bureau/Z3-LIVE/extension-chrome</code>.</li>
+      <li>Icône de l'extension › mot de passe <span class="pw">${PW}</span> › <b>Enregistrer &amp; tester</b> (« ✔ connecté »).</li>
+      <li>Ouvre ta page vendeur › <b>🎯 Apprendre</b> › clique un pseudo d'acheteur (puis 🎯 Quantité).</li></ol>`],
+    ['Vidéo récap automatique', `Ouvre dans Chrome et laisse l'onglet ouvert pendant le live — à la fin du chrono, la vidéo 9:16 se télécharge toute seule :${url(`recap-video.html?auto&obspass=${PW}`)}`],
+    ['Test général (avant d\'aller en live)', `<ol><li>Scène 🔴 LIVE : dans OBS, clic droit sur <b>Z3 · Overlay complet</b> › <b>Interagir</b> › touche <code>8</code> : une alerte SECRÈTE doit s'afficher <i>et</i> la carte doit apparaître sur ta cam (Hyper Ball).</li>
+      <li>Montre une vraie carte rare à la Cam cartes : alerte automatique.</li>
+      <li>Extension : « Envoyer un achat test » → il apparaît dans la file TOP TIREURS.</li>
+      <li>Dans le dock : clique sur le produit ouvert (ETB, UPC, Tripack…) puis « ⏭ Booster suivant ».</li>
+      <li>Audio : Mixeur OBS › les sources Z3 ont le son des captures (« Contrôler l'audio via OBS » est déjà activé).</li></ol>`],
+    ['Pendant le live', `<ul><li>Démarre sur <b>⏳ Bientôt</b> (compte à rebours 10 min), puis passe sur <b>🔴 LIVE Pokémon</b>.</li>
+      <li>Chrono : <b>3 h</b> par défaut. Dans « Interagir » : <code>Espace</code> pause, <code>↑</code> +5 min, <code>↓</code> −5 min (ou les boutons du dock).</li>
+      <li>Chaque produit ouvert : bouton dans le dock. Chaque nouveau booster : « ⏭ Booster suivant ».</li>
+      <li>Fin : scène <b>🏆 Fin du live</b> (récap + ton logo, en boucle) — la vidéo récap se télécharge dans Chrome.</li></ul>`],
+  ];
+  let done = {}; try { done = JSON.parse(localStorage.getItem('z3-prepa') || '{}'); } catch (e) { done = {}; }
+  document.getElementById('m').innerHTML = steps.map(([t, b], i) => `<section class="step${done[i] ? ' done' : ''}"><input type="checkbox" data-i="${i}" ${done[i] ? 'checked' : ''}><h2>${i + 1}. ${t}</h2><div class="body">${b}</div></section>`).join('');
+  document.addEventListener('change', (e) => { const i = e.target.dataset.i; if (i === undefined) return; done[i] = e.target.checked; e.target.closest('.step').classList.toggle('done', e.target.checked); try { localStorage.setItem('z3-prepa', JSON.stringify(done)); } catch (err) { /* rien */ } });
+  document.addEventListener('click', (e) => { const b = e.target.closest('[data-c]'); if (!b) return; navigator.clipboard.writeText(b.dataset.c).then(() => { b.textContent = '✔ Copié'; setTimeout(() => { b.textContent = 'Copier'; }, 1500); }); });
+})();
+</script>
+</body>
+</html>
