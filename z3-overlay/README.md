@@ -199,7 +199,7 @@ Elle contient : intro « Récap du live », les chiffres (cartes, nouvelles au m
 
 - Ouvre `recap-video.html` dans **Chrome** et récupère le récap depuis OBS : mot de passe WebSocket, overlay lancé avec `&obs&obspass=…`. Clique ensuite sur **🎬 Générer la vidéo** : le fichier MP4 se télécharge tout seul.
 - **Automatique :** `recap-video.html?auto&obspass=MOTDEPASSE` laissé ouvert attend que le chrono arrive à zéro, puis génère et télécharge la vidéo.
-- **Musique** : un morceau original de style anime (128 BPM), composé par synthèse avec `tools/build-music.mjs` (aucun extrait, **libre de droits**) et calé sur la vidéo : intro, montée, drop au moment des hits, puis fondu de sortie.
+- **Musique** : un morceau original **épique façon opening de shōnen** (160 BPM, ré mineur, guitare saturée, taiko, chœurs, cuivres), composé par synthèse avec `tools/build-music.mjs` (aucun extrait, **libre de droits**) et calé sur la vidéo : intro, montée, drop au moment des hits, puis fondu de sortie.
   Il est intégré automatiquement à la vidéo générée. `?nomusic` le désactive. Pour le modifier, édite le script puis lance `node tools/build-music.mjs`, encode en Opus et régénère `data/musique-recap.js` (commandes dans le script).
 - Les fonds viennent de `data/fonds.js`. Si tu ajoutes ou changes une image `preview/fond-*`, relance `node tools/build-fonds.mjs`.
 
