@@ -127,13 +127,13 @@ logo.onload = () => logoOk = true; logo.onerror = () => logoOk = false;
 logo.src = 'logo.png';
 
 // ---------- Rasteriseur pixel-art ----------
-const N = 40, low = document.createElement('canvas'); low.width = low.height = N;
+const N = 48, K = 1.2, low = document.createElement('canvas'); low.width = low.height = N;
 const lc = low.getContext('2d'), idata = lc.createImageData(N, N);
 const cells = new Array(N * N);
 const hash = (x, y) => { let h = (x * 374761393 + y * 668265263) ^ 0x5bd1e995; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; };
 function raster(fn, dissolve = 0) {
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-    let c = fn(x - N / 2 + 0.5, y - N / 2 + 0.5, x, y);
+    let c = fn((x - N / 2 + 0.5) / K, (y - N / 2 + 0.5) / K, x, y);
     if (c && dissolve > 0 && hash(x, y) < dissolve) c = null;
     cells[y * N + x] = c;
   }
@@ -166,66 +166,112 @@ const C = {
 };
 const rot = (x, y, a) => [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)];
 
+// ---------- Sprites v2 : relief éclairé, tramage, détails ----------
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => v / 16 - 0.47);
+const LX = -0.55, LY = -0.65, LZ = 0.53; // lumière en haut à gauche
+const pal = a => a.map(rgb);
+const P = {
+  red: pal(['#6e0b10', '#a8141b', '#d9222a', '#f2474d', '#ff8a8c']),
+  wht: pal(['#7f8696', '#b4bac7', '#dde1ea', '#f6f7fb', '#ffffff']),
+  blk: pal(['#0e0e10', '#1d1d22', '#34343c', '#54545e']),
+  btnOn: pal(['#b3141a', '#ff3b3b', '#ff8a8a', '#ffe0e0']),
+  straw: pal(['#6b4512', '#9c6a20', '#cf9634', '#efbf55', '#ffe08f', '#fff3c4']),
+  band: pal(['#5e0d0d', '#9a1818', '#cf2626', '#f0473c', '#ff8a70']),
+  hole: pal(['#1a0f06', '#2e1c0c', '#4a2f14', '#6b4720']),
+  glow: pal(['#ffd36b', '#ffe9a8', '#fffbe8', '#ffffff']),
+};
+const tone = (arr, lv, x, y) => arr[clamp(Math.round(lv + BAYER[(y & 3) * 4 + (x & 3)] * 0.9), 0, arr.length - 1)];
+const sphereI = (nx, ny) => { const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny)); return nx * LX + ny * LY + nz * LZ; };
+const weave = (x, y) => (((x + 2 * y) % 5 + 5) % 5 === 0 ? -0.8 : 0) + (((2 * x - y) % 7 + 7) % 7 === 0 ? 0.6 : 0);
+
 // Pokéball
-const R = 13.5;
-function ballShell(su, sv, u, v, part, btnLit) {
+const R = 13.6;
+function ballShell(su, sv, u, v, x, y, part, btnLit) {
   const d = Math.hypot(su, sv);
   if (d > R) return null;
   if (part === 'top' && sv > 0.2) return null;
   if (part === 'bot' && sv < -0.2) return null;
-  if (d < 2.6 && part !== 'top') return btnLit ? C.btnOn : C.btn;
-  if (d < 4.3 && part !== 'top') return C.black;
-  if (Math.abs(sv) < 1.3) return C.black;
-  const rim = d > R - 2.2 && (u + v) > 2;
-  if (sv < 0) {
-    if (Math.hypot(u + 5.5, v + 6.5) < 2.2) return C.white;
-    return rim ? C.redD : (Math.hypot(u + 4, v + 4) < 6 ? C.redL : C.red);
+  const I = sphereI(u / R, v / R);                  // éclairage fixe (écran) pendant que la balle tourne
+  if (I > 0.9 && d > 2 && sv < -1.6) return P.wht[4]; // reflet spéculaire
+  if (part !== 'top') {
+    if (d < 1.4) return btnLit ? P.btnOn[3] : P.wht[4];
+    if (d < 2.7) return btnLit ? tone(P.btnOn, 1.2 + I * 1.6, x, y) : tone(P.wht, 2 + I * 1.8, x, y);
+    if (d < 3.4) return P.wht[1];
+    if (d < 4.6) return tone(P.blk, 0.8 + I * 1.5, x, y);
   }
-  return rim ? C.grey : C.white;
+  if (Math.abs(sv) < 1.45) return tone(P.blk, 0.7 + I * 1.8 + (sv < -0.8 ? 0.6 : 0), x, y);
+  if (sv < 0) return tone(P.red, 2 + I * 2.6 - (Math.abs(sv) < 2.4 ? 0.7 : 0), x, y);
+  return tone(P.wht, 2.1 + I * 2.4 - (Math.abs(sv) < 2.4 ? 0.7 : 0), x, y);
 }
 function drawBall(cx, cy, cell, s, angle, lid, dissolve, btnLit) {
-  const hx = R, hy = 0;
-  const src = raster((u, v) => {
+  const hx = R, hy = 0, open = Math.min(1, Math.abs(lid) / 1.25);
+  const src = raster((u, v, x, y) => {
     const [ru, rv] = rot(u, v, -angle);
-    let c = ballShell(ru, rv, u, v, lid ? 'bot' : 'all', btnLit);
+    let c = ballShell(ru, rv, u, v, x, y, lid ? 'bot' : 'all', btnLit);
     if (c) return c;
     if (lid) {
       const [lu, lv] = rot(ru - hx, rv - hy, -lid);
-      c = ballShell(lu + hx, lv + hy, u, v, 'top', btnLit);
+      c = ballShell(lu + hx, lv + hy, u, v, x, y, 'top', btnLit);
+      if (c) return c;
+      // lumière qui jaillit de l'intérieur
+      if (Math.hypot(ru, rv) < R && rv < 0.5) {
+        const k = 1 - Math.hypot(ru * 0.8, rv + 1) / R;
+        return tone(P.glow, 0.6 + k * 4 * open, x, y);
+      }
     }
-    return c;
+    return null;
   }, dissolve);
-  blit(src, cx, cy, cell * s, 1, 1);
+  if (btnLit && dissolve < 1) {
+    const r = cell * s * 9, g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    g.addColorStop(0, 'rgba(255,80,80,.45)'); g.addColorStop(1, 'rgba(255,80,80,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+  }
+  blit(src, cx, cy, cell * s);
 }
 
 // Chapeau de paille
+function frayed(e, x, y, lim = 1.16) { return e > 1 && e <= lim && hash(x * 7 + 3, y * 5 + 1) < 0.42; }
 function hatSide(u, v, x, y, face) {
-  const dith = ((x * 3 + y * 5) % 7) === 0;
-  const brim = (u / 17) ** 2 + ((v - 6) / 3.6) ** 2 <= 1;
-  const crown = v <= 6 && (u / 9.5) ** 2 + ((v - 6) / 12.5) ** 2 <= 1;
-  if (brim && v > 6) return (v > 8 ? C.strawD : (u * face > 6 ? C.strawD : C.straw));
-  if (crown) {
-    if (v > 1.5 && v < 4.8) return u * face > 5 ? C.bandD : C.band;
-    if (u * face < -4 && v < -1) return dith ? C.straw : C.strawL;
-    if (u * face > 5) return dith ? C.strawDD : C.strawD;
-    return dith ? C.strawD : C.straw;
+  const eTop = (u / 17) ** 2 + ((v - 6) / 3.6) ** 2;
+  const eUnder = (u / 17) ** 2 + ((v - 7.3) / 3.6) ** 2;
+  const crownE = (u / 9.6) ** 2 + ((v - 6) / 12.6) ** 2;
+  const fu = u * face;
+  // calotte (demi-ellipsoïde) devant la moitié arrière du bord
+  if (v <= 6 && crownE <= 1) {
+    const I = sphereI(fu / 9.6, (v - 6) / 12.6);
+    if (v > 1.0 && v < 5.0) { // ruban rouge
+      if (v < 1.9) return tone(P.band, 3 + I, x, y);
+      if (v > 4.2) return tone(P.band, 0.6 + I, x, y);
+      return tone(P.band, 1.8 + I * 1.8, x, y);
+    }
+    if (v >= 5.0) return tone(P.straw, 0.8 + I, x, y);       // ombre du bord sur la calotte
+    return tone(P.straw, 2.3 + I * 2.4 + weave(x, y), x, y);
   }
-  if (brim) return u * face > 8 ? C.strawD : (dith ? C.strawD : C.strawL);
+  if (eTop <= 1 || (v > 6 && frayed(eTop, x, y))) {          // dessus du bord
+    const lv = 2.6 - fu / 17 * 1.4 - (v - 6) / 3.6 * 0.5 + (v < 6 ? 0.4 : 0);
+    return tone(P.straw, lv + weave(x, y) * 0.8, x, y);
+  }
+  if (eUnder <= 1 || (v > 7 && frayed(eUnder, x, y))) return tone(P.straw, 0.9 - fu / 17 * 0.6 + weave(x, y) * 0.5, x, y); // dessous
+  if (v < 6 && frayed(eTop, x, y)) return tone(P.straw, 2.6, x, y);
   return null;
 }
 function hatInside(u, v, x, y, glow) {
-  const dith = ((x * 3 + y * 5) % 7) === 0;
-  const outer = (u / 18) ** 2 + (v / 10) ** 2 <= 1;
-  if (!outer) return null;
-  const ou = u, ov = v + 0.5;
-  const hole = (ou / 9.6) ** 2 + (ov / 5.4) ** 2;
+  const e = (u / 18) ** 2 + (v / 10) ** 2;
+  if (e > 1 && !frayed(e, x, y, 1.14)) return null;
+  const ov = v + 0.5;
+  const hole = (u / 9.6) ** 2 + (ov / 5.4) ** 2;
   if (hole <= 1) {
-    if (glow > 0 && hole < glow * 0.9) return hole < glow * 0.45 ? C.white : C.glow;
-    return ov > 2.5 ? C.in2 : ov > -0.5 ? C.in1 : C.in0;
+    if (glow > 0 && hole < glow * 0.95) return tone(P.glow, 3.2 - hole / Math.max(glow, .01) * 3, x, y);
+    if (ov < -1.2) return tone(P.straw, 1.4 + weave(x, y) - (ov + 5.4) * -0.1, x, y); // paroi du fond éclairée
+    return tone(P.hole, 2.6 - (ov + 1.2) / 6.6 * 2.6, x, y);
   }
-  if ((ou / 11.2) ** 2 + (ov / 6.8) ** 2 <= 1) return ov > 1 ? C.band : C.bandD;
-  if (v > 5 || u > 12) return dith ? C.strawDD : C.strawD;
-  return dith ? C.strawD : (v < -5 ? C.strawL : C.straw);
+  const bandE = (u / 11.3) ** 2 + (ov / 6.9) ** 2;
+  if (bandE <= 1) return tone(P.band, ov < 0 ? 3 : 1.4 + (ov > 4 ? -0.8 : 0), x, y);
+  // bord vu de dessus : tressage en spirale + lumière
+  const r = Math.sqrt(e), a = Math.atan2(v / 10, u / 18) / (Math.PI * 2);
+  const ring = Math.floor(r * 10 + a * 2) % 2;
+  const lv = 2.5 - v / 10 * 1.1 - u / 18 * 0.6 + (ring ? 0.55 : -0.45) + (r > 0.94 ? -0.8 : 0);
+  return tone(P.straw, lv, x, y);
 }
 function drawHat(cx, cy, cell, s, yaw, flip, dissolve, glow) {
   // flip : 0..1 (0 = vue de côté, 1 = retourné, on voit dedans)
@@ -416,7 +462,7 @@ function frame(nowMs) {
     const hudH = document.body.classList.contains('nohud') ? 0 : H * 0.16;
     S = Math.min(W, H - hudH) * SCALE; cx = W / 2; cy = (H - hudH) / 2;
   }
-  const cell = Math.max(2, Math.round(S / 64));
+  const cell = Math.max(2, Math.round(S / 76.8));
   const logoW = S * 0.98;
   const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#ffcb05';
 
@@ -442,9 +488,9 @@ function frame(nowMs) {
     if (t < 0.5) { s = eoBack(seg(t, 0, 0.5)); ang = -2 * (1 - seg(t, 0, .5)); }
     else if (t < 2.3) { const k = seg(t, 0.5, 2.3); ang = eio(k) * Math.PI * 6; y = cy - Math.abs(Math.sin(k * Math.PI * 3)) * cell * 5; }
     else if (t < 2.9) { const k = seg(t, 2.3, 2.9); ang = Math.sin(k * Math.PI * 6) * 0.35 * (1 - k * 0.5); lit = (k * 6 | 0) % 2 === 0; }
-    else if (t < 3.3) { const k = seg(t, 2.9, 3.3); lid = -1.25 * eoBack(k); lit = true;
+    else if (t < 3.3) { const k = seg(t, 2.9, 3.3); lid = 1.25 * eoBack(k); lit = true;
       if (once('open')) burst(cx, cy, 70, cell, ['#ffffff', '#ff5252', '#ffcb05', '#3b6fd8']); }
-    else if (t < T_REVEAL) { const k = seg(t, 3.3, T_REVEAL); lid = -1.25; dis = k; s = 1 - 0.4 * k; y = cy + k * cell * 6; }
+    else if (t < T_REVEAL) { const k = seg(t, 3.3, T_REVEAL); lid = 1.25; dis = k; s = 1 - 0.4 * k; y = cy + k * cell * 6; }
     else dis = 1;
     if (t >= 2.9 && t < 3.6) { // flash
       const k = seg(t, 2.9, 3.6); const r = S * 0.7 * eio(k);
