@@ -69,11 +69,22 @@ for name, theme, desc, *layout in VARIANTS:
     (d / 'LISEZ-MOI.txt').write_text(desc + '\n' + COMMON, encoding='utf-8')
 (OUT / 'LISEZ-MOI EN PREMIER.txt').write_text(
 "DOSSIER OVER - Overlays Z3F4 « Le Rainté du TCG »\n\n"
+"00 -> INSTALLER DANS OBS : double-clic, suis les 4 étapes. Ajoute les overlays 04 (Pokémon) et 05 (One Piece)\n"
+"      dans ta scène OBS, avec des boutons pour les afficher ou les masquer.\n\n"
 "01 -> Live Pokémon uniquement\n02 -> Live One Piece uniquement\n"
 "03 -> Bande de séparation PORTRAIT / OPENING, s'adapte au format vertical ou horizontal de la scène OBS\n"
 "04 -> Même séparateur, version POKÉMON avec Poké / Super / Hyper / Master / Honor Ball\n"
 "05 -> Même séparateur, version ONE PIECE avec 12 personnages (Luffy, Zoro, Ace, Law, Barbe Noire, Marine...)\n\n"
 "Ouvre le LISEZ-MOI.txt du dossier choisi pour l'installation dans OBS.\n", encoding='utf-8')
+# Installateur OBS (WebSocket) : ajoute 04 et 05 dans une scène, avec boutons afficher / masquer
+import json, re
+inst = (SRC / 'installer-obs.html').read_text(encoding='utf-8')
+dirs = {v[0][:2]: v[0] for v in VARIANTS}
+ovs = [{'name': 'Z3F4 Pokemon', 'dir': dirs['04'], 'theme': 'pk', 'visible': True},
+       {'name': 'Z3F4 One Piece', 'dir': dirs['05'], 'theme': 'op', 'visible': False}]
+inst, n = re.subn(r'/\*OVERLAYS\*/.*?/\*END\*/', lambda m: json.dumps(ovs, ensure_ascii=False), inst, flags=re.S)
+assert n == 1
+(OUT / '00 - INSTALLER DANS OBS (double-clic).html').write_text(inst, encoding='utf-8')
 z = ROOT / 'OVER.zip'
 with zipfile.ZipFile(z, 'w', zipfile.ZIP_DEFLATED) as zf:
     for f in sorted(OUT.rglob('*')):
