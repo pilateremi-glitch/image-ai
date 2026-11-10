@@ -1,0 +1,16 @@
+Thème One Piece fixe : le chapeau de paille tourne, se retourne et le logo sort de l'intérieur.
+
+INSTALLATION DANS OBS (2 minutes)
+1. Sources -> + -> Navigateur -> nomme-la « Overlay Z3F4 ».
+2. Coche « Fichier local » -> Parcourir -> choisis le fichier index.html de CE dossier.
+3. Largeur 1920, Hauteur 1080.
+4. Coche « Actualiser le navigateur quand la scène devient active ».
+5. OK. Le fond est transparent, l'heure s'affiche en bas.
+
+CHECK-LIST AVANT LE LIVE
+[ ] Double-clic sur index.html : en haut à gauche -> « Logo : OK » et « FPS : 60 ».
+[ ] Dans OBS : fond transparent (pas de fond bleu foncé).
+[ ] L'heure affichée = l'heure de ton PC.
+[ ] Le bandeau affiche le bon thème (Soirée Pokémon / Soirée One Piece).
+
+NE PAS séparer index.html et logo.png : ils doivent rester dans le même dossier.
