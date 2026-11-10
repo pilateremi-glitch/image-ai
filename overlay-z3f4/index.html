@@ -62,7 +62,7 @@ const THEMES = {
   onepiece: { label:'SOIREE ONE PIECE', accent:'#e63946', ink:'#ffe08a', seq:['hat'] },
   // Versions « collection » : une balle / un personnage différent à chaque passage
   pokemonplus:  { label:'SOIREE POKEMON',   accent:'#ffcb05', ink:'#fff', seq:['ball:poke','ball:great','ball:ultra','ball:master','ball:premier'] },
-  onepieceplus: { label:'SOIREE ONE PIECE', accent:'#e63946', ink:'#ffe08a', seq:['hat:straw','hat:villain','hat:marine'] },
+  onepieceplus: { label:'SOIREE ONE PIECE', accent:'#e63946', ink:'#ffe08a', seq:['hat:straw','hat:villain','hat:marine','hat:zoro','hat:doflamingo','hat:chopper','hat:mihawk','hat:ace','hat:kuma','hat:brook','hat:law','hat:sabo'] },
   auto:     { label:'Z3F4 LE RAINTE DU TCG', accent:'#ffcb05', ink:'#fff', seq:['ball','hat'] },
 };
 let theme = 'auto', sceneName = '(hors OBS)';
@@ -244,20 +244,34 @@ function ballShell(su, sv, u, v, x, y, part, btnLit) {
   return tone(P.wht, 2.1 + I * 2.4 - (Math.abs(sv) < 2.4 ? 0.7 : 0), x, y);
 }
 function drawBall(cx, cy, cell, s, angle, lid, dissolve, btnLit) {
-  const hx = R, hy = 0, open = Math.min(1, Math.abs(lid) / 1.25);
+  // lid = angle d'ouverture : le couvercle bascule vers l'ARRIÈRE autour d'une charnière située au dos de la balle
+  const th = Math.max(0, lid), c = Math.cos(th), sn = Math.sin(th), open = Math.min(1, th / 1.25);
   const src = raster((u, v, x, y) => {
     const [ru, rv] = rot(u, v, -angle);
-    let c = ballShell(ru, rv, u, v, x, y, lid ? 'bot' : 'all', btnLit);
-    if (c) return c;
-    if (lid) {
-      const [lu, lv] = rot(ru - hx, rv - hy, -lid);
-      c = ballShell(lu + hx, lv + hy, u, v, x, y, 'top', btnLit);
-      if (c) return c;
-      // lumière qui jaillit de l'intérieur
+    let col = ballShell(ru, rv, u, v, x, y, th > 0.001 ? 'bot' : 'all', btnLit);
+    if (col) return col;
+    if (th > 0.001) {
+      const disc = R * R * c * c - ru * ru - rv * rv - 2 * R * rv * sn;
+      if (disc >= 0) {
+        const sq = Math.sqrt(disc);
+        for (const [a, outer] of [[R * c + sq, true], [R * c - sq, false]]) {
+          const yl = rv * c + a * sn, zl = -rv * sn + a * c - R; // point dans le repère du couvercle
+          if (yl > 0.2) continue;
+          if (outer) {
+            const nx = ru / R, ny = (yl * c - zl * sn) / R;      // normale remise dans le repère écran (éclairage)
+            return ballShell(ru, yl, nx * R, ny * R, x, y, 'top', btnLit);
+          }
+          if (yl > -1.6) return tone(P.blk, 1.5, x, y);                     // tranche du couvercle
+          return tone(P.glow, 0.4 + (1 + yl / R) * 2.6 * open, x, y);     // intérieur illuminé
+        }
+      }
+      // lumière qui jaillit de l'ouverture
       if (Math.hypot(ru, rv) < R && rv < 0.5) {
         const k = 1 - Math.hypot(ru * 0.8, rv + 1) / R;
         return tone(P.glow, 0.6 + k * 4 * open, x, y);
       }
+      if (rv < 0 && rv > -R * 2.2 * open && Math.abs(ru) < R * (0.75 + 0.25 * -rv / R) && hash(x, y + Math.floor(performance.now() / 90)) < 0.18 * open)
+        return P.glow[2 + (hash(y, x) < .5 ? 1 : 0)]; // étincelles du faisceau
     }
     return null;
   }, dissolve);
@@ -372,6 +386,181 @@ function villainInside(u, v, x, y, glow) {
   if (d < 1.3) return tone(P.gold, 2.4 - v / 10, x, y);
   return tone(P.dark, 2 - v / 9 + weave(x, y) * 0.3, x, y);
 }
+// ---------- One Piece : couvre-chefs / objets emblématiques des personnages ----------
+Object.assign(P, {
+  orange: pal(['#6b2a05', '#a8470c', '#e06d16', '#ff9a3c', '#ffc98a']),
+  brown: pal(['#2a170a', '#4a2a12', '#6e421d', '#94622f', '#c08a52']),
+  green: pal(['#0b1f12', '#14361f', '#1f5230', '#2f7445', '#5aa06c']),
+  pinkH: pal(['#6e1240', '#a51f62', '#d93a88', '#f26aa8', '#ffb0d2']),
+  fur: pal(['#9aa0ad', '#c9ced8', '#e9ecf2', '#f8f9fc', '#ffffff']),
+  cream: pal(['#a08a62', '#cdb68a', '#efe0bd', '#fff6e0', '#ffffff']),
+  lens: pal(['#5c0a3a', '#9b155f', '#e0308a', '#ff7ac0', '#ffd0ea']),
+  cyan: pal(['#0b3a4a', '#13667e', '#22a3c2', '#6fd6ee', '#c8f4ff']),
+});
+const OP_NAMES = { straw: 'LUFFY', zoro: 'ZORO', chopper: 'CHOPPER', brook: 'BROOK', ace: 'ACE', sabo: 'SABO', law: 'LAW',
+  mihawk: 'MIHAWK', kuma: 'KUMA', doflamingo: 'DOFLAMINGO', villain: 'BARBE NOIRE', marine: 'MARINE' };
+const POKE_NAMES = { poke: 'POKE BALL', great: 'SUPER BALL', ultra: 'HYPER BALL', master: 'MASTER BALL', premier: 'HONOR BALL' };
+const itemName = () => (kind === 'hat' ? OP_NAMES : POKE_NAMES)[variant] || '';
+const ell = (u, v, cx, cy, rx, ry) => ((u - cx) / rx) ** 2 + ((v - cy) / ry) ** 2;
+const shade = (palA, u, v, rx, ry, cy, face, x, y, base = 2.2, k = 2.4) => tone(palA, base + sphereI(u * face / rx, (v - cy) / ry) * k + weave(x, y) * 0.25, x, y);
+// Haut-de-forme générique (Chopper, Brook, Sabo)
+function topHat(u, v, x, y, face, o) {
+  const fu = u * face;
+  if (v >= o.top && v <= 3.6 && Math.abs(u) <= o.w + (v < o.top + 1.5 ? 0.6 : 0)) {
+    if (o.deco) { const d = o.deco(u, v, fu, x, y); if (d) return d; }
+    if (v >= 0.6 && v <= 3.2) return tone(o.band, 1.6 + sphereI(fu / (o.w + 1), 0) * 2, x, y);
+    return tone(o.pal, 2.1 + sphereI(fu / (o.w + 1.5), (v - o.top) / 30) * 2.4 - (fu > o.w - 1.6 ? 0.8 : 0), x, y);
+  }
+  const e = ell(u, v, 0, 4.4, o.brim, 2.4);
+  if (e <= 1) return tone(o.pal, v < 4.4 ? 2.6 - fu / o.brim : 1.1 - fu / o.brim * 0.5, x, y);
+  return null;
+}
+function insideGeneric(u, v, x, y, glow, o) {
+  const h = holeColor(u, v, x, y, glow, o.hrx, o.hry, -1, o.lining, o.pad || 1.6);
+  if (h) return h;
+  const e = ell(u, v, 0, -0.6, o.rx, o.ry);
+  if (e <= 1 || (o.fray && frayed(e, x, y, 1.14))) {
+    if (o.rimFn) { const r = o.rimFn(u, v, x, y, e); if (r) return r; }
+    return tone(o.rim, 2.4 - v / o.ry * 1.1 - u / o.rx * 0.5 + (e > 0.86 ? -0.7 : 0) + weave(x, y) * 0.3, x, y);
+  }
+  return o.extra ? o.extra(u, v, x, y) : null;
+}
+function lawSpot(u, v) { // grosses taches noires sur la fourrure
+  const cx = Math.floor((u + 40) / 3.6), cy = Math.floor((v + 40) / 3.2);
+  if (hash(cx * 3 + 1, cy * 5 + 2) > 0.45) return false;
+  return Math.hypot(u + 40 - (cx + 0.5) * 3.6, v + 40 - (cy + 0.5) * 3.2) < 1.15;
+}
+const OP = {
+  // ZORO : bandana noir-vert noué, pans qui flottent derrière
+  zoro: {
+    side(u, v, x, y, face) {
+      const fu = u * face;
+      if (v <= 5 && ell(u, v, 0, 5, 9.6, 9) <= 1) {
+        if (Math.abs(v - 2.4 - fu * 0.08) < 0.5) return tone(P.green, 0.8, x, y); // pli
+        return shade(P.green, u, v, 9.6, 9, 5, face, x, y, 1.9, 2.2);
+      }
+      const t = -fu - 7.5; // pans du nœud derrière
+      if (t > 0 && t < 8.5 && (Math.abs(v - (2.5 + t * 0.45)) < 1.4 - t * 0.08 || Math.abs(v - (3.6 + t * 0.95)) < 1.2 - t * 0.07)) return tone(P.green, 1.6 + (t < 1.6 ? 1 : 0), x, y);
+      return null;
+    },
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 10.8, ry: 7, hrx: 9, hry: 5.4, rim: P.green, lining: P.green, pad: 0.8,
+      extra: (u, v, x, y) => (u < -9 && u > -17 && Math.abs(v - 4 - (u + 9) * -0.3) < 1.3 ? tone(P.green, 1.6, x, y) : null) }),
+  },
+  // CHOPPER : haut-de-forme rose avec la croix blanche
+  chopper: {
+    side: (u, v, x, y, face) => topHat(u, v, x, y, face, { top: -8.5, w: 7.2, brim: 11.5, pal: P.pinkH, band: P.pinkH,
+      deco: (u, v) => (v > -6.8 && v < -0.2 && Math.abs(u) < 4.6 && (Math.abs(u - (v + 3.5) * 0.85) < 0.95 || Math.abs(u + (v + 3.5) * 0.85) < 0.95)) ? tone(P.wht, 3, x, y) : null }),
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 12, ry: 7.2, hrx: 7, hry: 4.3, rim: P.pinkH, lining: P.pinkH }),
+  },
+  // BROOK : haut-de-forme noir sur une grosse coupe afro
+  brook: {
+    side(u, v, x, y, face) {
+      const hat = topHat(u, v, x, y, face, { top: -10.5, w: 6.6, brim: 10.5, pal: P.dark, band: P.red });
+      if (hat) return hat;
+      const e = ell(u, v, 0, 7.2, 15.5, 7.6);
+      if (v > 3 && (e <= 1 || frayed(e, x, y, 1.18))) return tone(P.brown, 0.4 + (hash(x * 3, y * 7) < .3 ? 1 : 0) + (v < 6 ? 0.6 : 0), x, y);
+      return null;
+    },
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 11, ry: 6.8, hrx: 6.6, hry: 4.1, rim: P.dark, lining: P.red,
+      extra: (u, v, x, y) => { const e = ell(u, v, 0, 0, 16.5, 9.5); return e <= 1 || frayed(e, x, y, 1.15) ? tone(P.brown, 0.5 + (hash(x * 3, y * 7) < .3 ? 1 : 0), x, y) : null; } }),
+  },
+  // SABO : haut-de-forme bleu avec lunettes d'aviateur
+  sabo: {
+    side: (u, v, x, y, face) => topHat(u, v, x, y, face, { top: -10, w: 7, brim: 11.5, pal: P.navy, band: P.brown,
+      deco: (u, v, fu) => {
+        for (const gx of [-3.1, 3.1]) { const d = Math.hypot(fu - gx, v - 1.8); if (d < 1.4) return tone(P.cyan, 3 - d, x, y); if (d < 2.3) return tone(P.gold, 2.2, x, y); }
+        return null;
+      } }),
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 12, ry: 7.2, hrx: 7.2, hry: 4.4, rim: P.navy, lining: P.brown }),
+  },
+  // ACE : chapeau de cow-boy orange, bords relevés, perles rouges et deux badges (sourire / triste)
+  ace: {
+    side(u, v, x, y, face) {
+      const fu = u * face, au = Math.abs(u);
+      if (v <= 3.6 && ell(u, v, 0, 3.6, 8.4, 11) <= 1) {
+        if (v < -5.5 && au < 1.4) return tone(P.orange, 0.9, x, y);            // creux sur le dessus
+        for (const [bx, pp] of [[-3.4, P.yellow], [3.4, P.blue]]) {
+          const d = Math.hypot(fu - bx, v + 0.6);
+          if (d < 1.9) return (d < 0.7 && v > -0.6) ? P.blk[0] : tone(pp, 3 - d * 0.6, x, y); // badges
+        }
+        if (v > 1.2 && v < 3.4) return ((Math.floor((u + 20) * 1.1) % 2) && v > 1.6 && v < 3) ? tone(P.red, 3, x, y) : tone(P.brown, 1.6, x, y);
+        return shade(P.orange, u, v, 8.4, 11, 3.6, face, x, y);
+      }
+      const curl = 4.6 - 5.2 * (au / 17) ** 2.6;
+      if (au <= 17 && v >= curl - 1.5 && v <= curl + 1.5 + (au < 8 ? 0.6 : 0)) return tone(P.orange, v < curl ? 3 - fu / 17 : 1.2 - fu / 17 * 0.6, x, y);
+      return null;
+    },
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 17, ry: 8.5, hrx: 8, hry: 5, rim: P.orange, lining: P.brown,
+      rimFn: (u, v, x, y, e) => e > 0.75 ? tone(P.orange, 3.4 - v / 9, x, y) : null }),
+  },
+  // LAW : bonnet en fourrure blanche à taches
+  law: {
+    side(u, v, x, y, face) {
+      const spot = lawSpot(u, v);
+      const eb = ell(u, v, 0, 4.4, 11.6, 2.6);
+      if (v > 2 && (eb <= 1 || frayed(eb, x, y, 1.25))) return spot ? tone(P.dark, 2, x, y) : tone(P.fur, 2.4 + (hash(x, y) < .3 ? -1 : 0) - u * face / 12, x, y); // bord en fourrure
+      if (v <= 4 && ell(u, v, 0, 4, 10, 11) <= 1) return lawSpot(u + 1.5, v + 1) ? tone(P.dark, 2.2, x, y) : shade(P.fur, u, v, 10, 11, 4, face, x, y, 2.3, 2);
+      return null;
+    },
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 12.5, ry: 7.6, hrx: 8.6, hry: 5.2, rim: P.fur, lining: P.fur, fray: true,
+      rimFn: (u, v, x, y) => lawSpot(u, v) ? tone(P.dark, 2, x, y) : null }),
+  },
+  // MIHAWK : grand chapeau noir à large bord + plume
+  mihawk: {
+    side(u, v, x, y, face) {
+      const fu = u * face, au = Math.abs(u);
+      for (let i = 0; i <= 14; i++) { // plume
+        const t = i / 14, px = -4.5 - 9 * t, py = 1.2 - 12 * t + 7 * t * t, r = 1.9 - 1.1 * t;
+        if (Math.hypot(fu - px, v - py) < r) return tone(P.cream, 2.6 - t * 1.2 + (hash(x, y) < .25 ? -1 : 0), x, y);
+      }
+      if (v <= 3.6 && ell(u, v, 0, 3.6, 7.4, 8) <= 1) {
+        if (v > 1 && v < 3.4) return tone(P.red, 1.2, x, y);
+        return shade(P.dark, u, v, 7.4, 8, 3.6, face, x, y, 2, 2.4);
+      }
+      const mid = 4.4 + 2.2 * (au / 17.5) ** 2;
+      if (au <= 17.5 && Math.abs(v - mid) <= 1.1) return tone(P.dark, v < mid ? 2.8 - fu / 17 : 1.1, x, y);
+      return null;
+    },
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 17.5, ry: 9.5, hrx: 7, hry: 4.4, rim: P.dark, lining: P.red,
+      extra: (u, v, x, y) => (u < -12 && u > -19 && Math.abs(v + 6 + (u + 12) * 0.9) < 1.2 ? tone(P.cream, 2.6, x, y) : null) }),
+  },
+  // KUMA : bonnet rond à oreilles d'ours
+  kuma: {
+    side(u, v, x, y, face) {
+      for (const ex of [-6.2, 6.2]) {
+        const d = Math.hypot(u - ex, v + 6.8);
+        if (d < 1.4) return tone(P.cream, 1.6, x, y);
+        if (d < 3) return tone(P.brown, 2.4 - (u * face > 0 ? 0.6 : 0), x, y);
+      }
+      if (v > 2.2 && v <= 5 && Math.abs(u) <= 10.2) return tone(P.brown, 1.4 + sphereI(u * face / 11, 0) * 1.6, x, y);
+      if (v <= 3 && ell(u, v, 0, 3, 10, 10.4) <= 1) {
+        if ((Math.floor((u + 20) / 3) + Math.floor((v + 20) / 3)) % 3 === 0 && hash(Math.floor(u / 3) + 9, Math.floor(v / 3) + 9) < .5) return tone(P.brown, 1.6, x, y);
+        return shade(P.cream, u, v, 10, 10.4, 3, face, x, y, 1.6, 2);
+      }
+      return null;
+    },
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 11.4, ry: 7, hrx: 9, hry: 5.4, rim: P.brown, lining: P.cream, pad: 1 }),
+  },
+  // DOFLAMINGO : lunettes de soleil roses
+  doflamingo: {
+    side(u, v, x, y, face) { return shades(u, v, x, y, face, 0); },
+    inside(u, v, x, y, g) { return shades(u, v, x, y, 1, g); },
+  },
+};
+function shades(u, v, x, y, face, glow) {
+  for (const lx of [-6, 6]) {
+    const e = ell(u, v, lx, 0.5, 5.4, 3.6 - (v > 0.5 ? 0 : 0.6));
+    if (e <= 1) {
+      if (glow > 0 && e < glow) return tone(P.glow, 3 - e * 2, x, y);
+      if (v < -0.6 && (u - lx) * face < -0.5 && (u - lx) * face > -3.2) return P.lens[4];  // reflet
+      return tone(P.lens, 2.6 - (v - 0.5) / 3.6 * 1.2, x, y);
+    }
+    if (e <= 1.35) return tone(P.dark, 2.5, x, y);                                       // monture
+  }
+  if (Math.abs(u) < 1.4 && Math.abs(v + 1) < 0.7) return tone(P.dark, 2.5, x, y);        // pont
+  if (Math.abs(u) > 11 && Math.abs(u) < 16 && Math.abs(v + 1 - (Math.abs(u) - 11) * 0.12) < 0.6) return tone(P.dark, 2, x, y); // branches
+  return null;
+}
 function drawHat(cx, cy, cell, s, yaw, flip, dissolve, glow) {
   // flip : 0..1 (0 = vue de côté, 1 = retourné, on voit dedans)
   const sy = Math.cos(Math.PI * flip);
@@ -379,6 +568,7 @@ function drawHat(cx, cy, cell, s, yaw, flip, dissolve, glow) {
   const c = Math.cos(yaw), ax = Math.max(0.06, Math.abs(c)), face = c >= 0 ? 1 : -1;
   const src = raster((u, v, x, y) => {
     const uu = u / ax, vv = v / ay;
+    if (OP[variant]) return inside ? OP[variant].inside(uu, vv, x, y, glow) : OP[variant].side(uu, vv, x, y, face);
     if (variant === 'marine') return inside ? marineInside(uu, vv, x, y, glow) : marineSide(uu, vv, x, y, face);
     if (variant === 'villain') return inside ? villainInside(uu, vv, x, y, glow) : villainSide(uu, vv, x, y, face);
     return inside ? hatInside(uu, vv, x, y, glow) : hatSide(uu, vv, x, y, face);
@@ -486,7 +676,7 @@ function fitFont(lines, maxW, maxH) {
 function pixText(lines, x, y, size, color, align = 'center') {
   ctx.font = `${size}px ${PIX}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
   const lh = size * 1.5, y0 = y - (lines.length - 1) * lh / 2, sh = Math.max(2, Math.round(size / 8));
-  lines.forEach((l, i) => { ctx.fillStyle = '#000'; ctx.fillText(l, x + sh, y0 + i * lh + sh); ctx.fillStyle = color; ctx.fillText(l, x, y0 + i * lh); });
+  lines.forEach((l, i) => { ctx.fillStyle = '#000'; ctx.fillText(l, x + sh, y0 + i * lh + sh); ctx.fillStyle = Array.isArray(color) ? (color[i] || color[color.length - 1]) : color; ctx.fillText(l, x, y0 + i * lh); });
 }
 function tag(text, x, y, size, accent, anchor) {
   ctx.font = `${size}px ${PIX}`;
@@ -501,19 +691,22 @@ function drawSplitText(g, cx, cy, S, cell, accent) {
   const time = p(d.getHours()) + (d.getSeconds() % 2 || SHOW_SEC ? ':' : ' ') + p(d.getMinutes()) + (SHOW_SEC ? ':' + p(d.getSeconds()) : '');
   const words = THEMES[theme].label.split(/\s+/);
   const lbl = words.length > 2 ? [words[0], words.slice(1).join(' ')] : words;
+  const nm = theme.endsWith('plus') ? itemName() : '';
   const ink = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '#fff';
   const free = S * Math.max(0.3, 0.49 * LOGO_K) + cell * 2, inner = g.T * 0.7;
   if (g.vert) {
     const sideW = cx - free - cell * 3;
     if (sideW > g.T * 0.6) {
-      pixText(lbl, (cx - free) / 2, cy, fitFont(lbl, sideW * 0.9, inner), accent);
+      const L = nm ? [...lbl, nm] : lbl, fs = fitFont(L, sideW * 0.9, inner);
+      pixText(L, (cx - free) / 2, cy, fs, nm ? [accent, accent, ink] : accent);
       pixText([time], cx + free + (W - cx - free) / 2, cy, fitFont([time], sideW * 0.9, inner * 0.8), ink);
     }
   } else {
     const sideH = cy - free - cell * 3;
     if (sideH > g.T * 0.6) {
       const big = inner * 1.4;
-      pixText(words, cx, (cy - free) / 2, fitFont(words, inner * 1.1, big * words.length / 2), accent);
+      const L = nm ? [...words, '', ...nm.split(' ')] : words;
+      pixText(L, cx, (cy - free) / 2, fitFont(L, inner * 1.1, big * L.length / 2), L.map((_, i) => i < words.length ? accent : ink));
       pixText([time], cx, cy + free + (H - cy - free) / 2, fitFont([time], inner * 1.1, big * 0.6), ink);
     }
   }
@@ -657,7 +850,7 @@ function frame(nowMs) {
   requestAnimationFrame(frame);
 }
 const dbg = document.getElementById('dbg');
-window.__overlay = { setTheme, detect, pollTwitch, get state() { return { theme, kind, variant, logoOk, fps, sceneName }; } };
+window.__overlay = { setTheme, detect, pollTwitch, get state() { return { theme, kind, variant, name: itemName(), logoOk, fps, sceneName }; } };
 setTheme(FORCED !== 'auto' ? FORCED : 'auto');
 hookObs();
 pollTwitch(); if (TWITCH) setInterval(pollTwitch, POLL);

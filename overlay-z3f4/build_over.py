@@ -26,12 +26,17 @@ VARIANTS = [
    "Copie du séparateur 03, version 100 % POKÉMON.\n"
    "À chaque passage, une balle différente tourne, s'ouvre et laisse apparaître le logo :\n"
    "  Poké Ball -> Super Ball -> Hyper Ball -> Master Ball -> Honor Ball, puis on recommence.\n"
+   "Le couvercle s'ouvre d'avant en arrière et le nom de la balle s'affiche dans la bande.\n"
    "Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».\n"
    "S'adapte au format de ta scène OBS (vertical ou horizontal).", 'split'),
-  ('05 - SEPARATEUR ONE PIECE (Pirate, Mechant, Marine)', 'onepieceplus',
+  ('05 - SEPARATEUR ONE PIECE (12 personnages - pirates, mechants, marine)', 'onepieceplus',
    "Copie du séparateur 03, version 100 % ONE PIECE.\n"
-   "À chaque passage, un chapeau différent représente un camp, se retourne et le logo sort de l'intérieur :\n"
-   "  PIRATE (chapeau de paille) -> MÉCHANT (tricorne noir de capitaine à tête de mort) -> MARINE (casquette blanche et bleue à ancre).\n"
+   "À chaque passage, l'objet emblématique d'un personnage tourne, se retourne et le logo sort de l'intérieur.\n"
+   "Le nom du personnage s'affiche dans la bande. Ordre (bons / méchants / Marine mélangés) :\n"
+   "  LUFFY (chapeau de paille) - BARBE NOIRE (tricorne tête de mort) - MARINE (casquette à ancre)\n"
+   "  ZORO (bandana) - DOFLAMINGO (lunettes roses) - CHOPPER (haut-de-forme rose à croix)\n"
+   "  MIHAWK (chapeau à plume) - ACE (chapeau de cow-boy à badges) - KUMA (bonnet à oreilles d'ours)\n"
+   "  BROOK (haut-de-forme + afro) - LAW (bonnet en fourrure tachetée) - SABO (haut-de-forme bleu à lunettes)\n"
    "Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».\n"
    "S'adapte au format de ta scène OBS (vertical ou horizontal).", 'split'),
 ]
@@ -67,7 +72,7 @@ for name, theme, desc, *layout in VARIANTS:
 "01 -> Live Pokémon uniquement\n02 -> Live One Piece uniquement\n"
 "03 -> Bande de séparation PORTRAIT / OPENING, s'adapte au format vertical ou horizontal de la scène OBS\n"
 "04 -> Même séparateur, version POKÉMON avec Poké / Super / Hyper / Master / Honor Ball\n"
-"05 -> Même séparateur, version ONE PIECE avec Pirate / Méchant / Marine\n\n"
+"05 -> Même séparateur, version ONE PIECE avec 12 personnages (Luffy, Zoro, Ace, Law, Barbe Noire, Marine...)\n\n"
 "Ouvre le LISEZ-MOI.txt du dossier choisi pour l'installation dans OBS.\n", encoding='utf-8')
 z = ROOT / 'OVER.zip'
 with zipfile.ZipFile(z, 'w', zipfile.ZIP_DEFLATED) as zf:
