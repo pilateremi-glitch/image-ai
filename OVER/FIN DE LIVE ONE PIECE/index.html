@@ -164,7 +164,9 @@ function raster(fn, dissolve = 0) {
   lc.putImageData(idata, 0, 0);
   return low;
 }
+let CAPTURE = null; // si défini, garde une copie du sprite (cache du défilé de fin)
 function blit(src, cx, cy, cell, sx = 1, sy = 1) {
+  if (CAPTURE) { const c = CAPTURE.getContext('2d'); c.clearRect(0, 0, N, N); c.drawImage(src, 0, 0); }
   ctx.imageSmoothingEnabled = false;
   const w = N * cell * sx, h = N * cell * sy;
   ctx.drawImage(src, Math.round(cx - w / 2), Math.round(cy - h / 2), Math.round(w), Math.round(h));
@@ -818,7 +820,7 @@ function drawSplitText(g, cx, cy, S, cell, accent) {
 const noAcc = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
 const END_MSG1 = noAcc(Q.get('msg1') || "MERCI D'ETRE VENU !");
 const END_MSG2 = noAcc(Q.get('msg2') || 'RENDEZ-VOUS AU PROCHAIN LIVE');
-let endStart = null; const stars = [];
+let endStart = null; const stars = [], endCache = [];
 function drawEnd(now) {
   if (endStart === null) endStart = now;
   const te = now - endStart, vert = H >= W, m = Math.min(W, H);
@@ -866,8 +868,15 @@ function drawEnd(now) {
     if (x < -sp || x > W + sp) continue;
     kind = kd; variant = vr || '';
     const bob = Math.sin(now * 3 + j) * q * 2, y = L.parade + bob;
-    if (kd === 'hat') drawHat(x, y, Math.round(cellP * 1.3), 1, Math.sin(now * 1.8 + j) * 0.55, 0, 0, 0);
-    else drawBall(x, y, cellP, 1, Math.sin(now * 2.2 + j) * 0.45, 0, 0, false);
+    const cs = kd === 'hat' ? Math.round(cellP * 1.3) : cellP;
+    const ch = endCache[j] || (endCache[j] = { c: Object.assign(document.createElement('canvas'), { width: N, height: N }), t: -1, v: '' });
+    if (now - ch.t < 1 / 24 && ch.v === items[j % n]) blit(ch.c, x, y, cs);      // sprite en cache : redessiné 24 fois / s
+    else {
+      CAPTURE = ch.c; ch.t = now; ch.v = items[j % n];
+      if (kd === 'hat') drawHat(x, y, cs, 1, Math.sin(now * 1.8 + j) * 0.55, 0, 0, 0);
+      else drawBall(x, y, cs, 1, Math.sin(now * 2.2 + j) * 0.45, 0, 0, false);
+      CAPTURE = null;
+    }
     pixText([itemName()], x, L.parade + size * 0.62, ns, '#fff');
   }
   kind = saveK; variant = saveV;
