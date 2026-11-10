@@ -76,3 +76,9 @@ Page locale qui se connecte au serveur WebSocket intégré à OBS (28+) :
 3. « Z3F4 Pokemon » (OVERLAY POKEMON) est ajouté visible, « Z3F4 One Piece » (OVERLAY ONE PIECE) masqué, au-dessus des caméras,
    à la taille de la scène. Les boutons Afficher / Masquer de la page (ou l'œil dans OBS) basculent la visibilité.
 Relancer l'installation met à jour les sources sans créer de doublon.
+
+## Écran de fin de live (`?layout=end`)
+Plein écran (non transparent) : « FIN DU LIVE », logo animé, messages (`&msg1=` / `&msg2=`), défilé des balles ou des
+personnages, heure (`&clock=0` pour la masquer). Dossiers `OVER/FIN DE LIVE ONE PIECE` et `OVER/FIN DE LIVE POKEMON`,
+chacun avec une vidéo `fin-de-live.mp4` (1080x1920, 20 s, sans heure) générée depuis `overlay-z3f4/videos/`.
+L'installateur ajoute aussi ces deux écrans et propose les boutons « Fin de live One Piece / Pokémon ».

@@ -23,6 +23,14 @@ VARIANTS = [
    "  BROOK (haut-de-forme + afro) - LAW (bonnet en fourrure tachetée) - SABO (haut-de-forme bleu à lunettes)\n"
    "Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».\n"
    "S'adapte au format de ta scène OBS (vertical ou horizontal).", 'split'),
+  ('FIN DE LIVE ONE PIECE', 'onepieceplus',
+   "Écran de FIN DE LIVE One Piece (plein écran, pas transparent) :\n"
+   "« FIN DU LIVE », logo animé, « MERCI D'ETRE VENU ! / RENDEZ-VOUS AU PROCHAIN LIVE »,\n"
+   "défilé des 14 personnages et heure. Vidéo prête : fin-de-live.mp4 (1080x1920).\n"
+   "Messages modifiables : ajoute ?msg1=...&msg2=... à l'adresse de la source.", 'end'),
+  ('FIN DE LIVE POKEMON', 'pokemonplus',
+   "Écran de FIN DE LIVE Pokémon (plein écran, pas transparent) :\n"
+   "« FIN DU LIVE », logo animé, messages, défilé des 5 balles et heure. Vidéo prête : fin-de-live.mp4 (1080x1920).", 'end'),
 ]
 COMMON = """
 INSTALLATION DANS OBS (2 minutes)
@@ -50,18 +58,27 @@ for name, theme, desc, *layout in VARIANTS:
         assert pre in page
     (d / 'index.html').write_text(page, encoding='utf-8')
     shutil.copy(SRC / 'logo.png', d / 'logo.png')
-    (d / 'LISEZ-MOI.txt').write_text(desc + '\n' + COMMON, encoding='utf-8')
+    common = COMMON
+    if layout and layout[0] == 'end':
+        common = common.replace("5. OK. Le fond est transparent, l'heure s'affiche en bas.", "5. OK. C'est un écran plein (pas transparent) : il recouvre les caméras.").replace("[ ] Dans OBS : fond transparent (pas de fond bleu foncé).\n", "").replace("[ ] Le bandeau affiche le bon thème (Soirée Pokémon / Soirée One Piece).", "[ ] « FIN DU LIVE » et le défilé s'affichent.")
+    (d / 'LISEZ-MOI.txt').write_text(desc + '\n' + common, encoding='utf-8')
 (OUT / 'LISEZ-MOI EN PREMIER.txt').write_text(
 "DOSSIER OVER - Overlays Z3F4 « Le Rainté du TCG »\n\n"
 "OVERLAY POKEMON   -> soirées Pokémon : Poké / Super / Hyper / Master / Honor Ball qui s'ouvrent sur le logo\n"
-"OVERLAY ONE PIECE -> soirées One Piece : 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)\n\n"
+"OVERLAY ONE PIECE -> soirées One Piece : 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)\n"
+"FIN DE LIVE ONE PIECE / FIN DE LIVE POKEMON -> écran de fin (page animée + vidéo fin-de-live.mp4)\n\n"
 "INSTALLER DANS OBS (double-clic) -> ajoute les 2 overlays dans ta scène OBS,\n"
 "avec des boutons pour afficher / masquer chacun.\n", encoding='utf-8')
 # Installateur OBS (WebSocket) : ajoute 04 et 05 dans une scène, avec boutons afficher / masquer
 import json, re
 inst = (SRC / 'installer-obs.html').read_text(encoding='utf-8')
-ovs = [{'name': 'Z3F4 Pokemon', 'dir': 'OVERLAY POKEMON', 'theme': 'pk', 'visible': True},
-       {'name': 'Z3F4 One Piece', 'dir': 'OVERLAY ONE PIECE', 'theme': 'op', 'visible': False}]
+ovs = [{'name': 'Z3F4 Pokemon', 'dir': 'OVERLAY POKEMON', 'theme': 'pk', 'role': 'live', 'visible': True},
+       {'name': 'Z3F4 One Piece', 'dir': 'OVERLAY ONE PIECE', 'theme': 'op', 'role': 'live', 'visible': False},
+       {'name': 'Z3F4 Fin de live One Piece', 'dir': 'FIN DE LIVE ONE PIECE', 'theme': 'op', 'role': 'end', 'visible': False},
+       {'name': 'Z3F4 Fin de live Pokemon', 'dir': 'FIN DE LIVE POKEMON', 'theme': 'pk', 'role': 'end', 'visible': False}]
+for f in ('FIN DE LIVE ONE PIECE', 'FIN DE LIVE POKEMON'):
+    v = SRC / 'videos' / (f.replace(' ', '-').lower() + '.mp4')
+    if v.exists(): shutil.copy(v, OUT / f / 'fin-de-live.mp4')
 inst, n = re.subn(r'/\*OVERLAYS\*/.*?/\*END\*/', lambda m: json.dumps(ovs, ensure_ascii=False), inst, flags=re.S)
 assert n == 1
 (OUT / 'INSTALLER DANS OBS (double-clic).html').write_text(inst, encoding='utf-8')

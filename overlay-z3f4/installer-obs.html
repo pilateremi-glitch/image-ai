@@ -28,6 +28,7 @@
   button.sec { background:var(--ink); }
   button.live { font-size:14px; padding:18px 16px; }
   button.live.op { background:var(--red); color:#fff; }
+  button.live.end { background:#0f1530; color:var(--ink); box-shadow:4px 4px 0 #000, inset 0 0 0 2px var(--line); }
   #status { font:12px/1.6 var(--pix); padding:10px 12px; border:2px solid var(--line); }
   #status.ok { color:var(--ok); border-color:var(--ok); } #status.err { color:var(--err); border-color:var(--err); }
   .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; }
@@ -80,9 +81,13 @@
       <button id="live-op" class="live op" type="button" disabled>☠ Live One Piece</button>
       <button id="live-pk" class="live pk" type="button" disabled>◓ Live Pokémon</button>
     </div>
-    <p class="mute">Un seul clic : installe les 2 overlays dans la scène (sans doublon), affiche celui du live et masque l'autre.</p>
+    <div class="row">
+      <button id="end-op" class="live end" type="button" disabled>🏁 Fin de live One Piece</button>
+      <button id="end-pk" class="live end" type="button" disabled>🏁 Fin de live Pokémon</button>
+    </div>
+    <p class="mute">Un seul clic : installe tout dans la scène (sans doublon), affiche l'élément choisi et masque les autres. En fin de live, l'écran de fin recouvre les caméras.</p>
     <button id="install" class="sec" type="button" disabled>Installer seulement (sans changer l'affichage)</button>
-    <p class="mute">Les sources sont ajoutées au-dessus de tes caméras et à la taille de ta scène. « Z3F4 Pokemon » est visible et « Z3F4 One Piece » est masqué. Tu peux relancer l'installation sans risque : rien n'est créé en double.</p>
+    <p class="mute">4 sources sont ajoutées au-dessus de tes caméras, à la taille de ta scène : les 2 overlays de live et les 2 écrans de fin. Tu peux relancer sans risque : rien n'est créé en double.</p>
   </section>
 
   <section>
@@ -100,7 +105,7 @@
 (() => {
 'use strict';
 // Rempli au moment de la génération du dossier OVER
-const OVERLAYS = /*OVERLAYS*/[{ name: 'Z3F4 Pokemon', dir: '04', theme: 'pk', visible: true }, { name: 'Z3F4 One Piece', dir: '05', theme: 'op', visible: false }]/*END*/;
+const OVERLAYS = /*OVERLAYS*/[{ name: 'Z3F4 Pokemon', dir: 'OVERLAY POKEMON', theme: 'pk', role: 'live', visible: true }, { name: 'Z3F4 One Piece', dir: 'OVERLAY ONE PIECE', theme: 'op', role: 'live', visible: false }]/*END*/;
 
 const $ = id => document.getElementById(id);
 const logEl = $('log');
@@ -204,15 +209,15 @@ async function findItem(sceneName, sourceName) {
   return (r.sceneItems || []).find(i => i.sourceName === sourceName) || null;
 }
 
-const actionBtns = () => ['install', 'live-op', 'live-pk'].map($);
-async function goLive(theme) {
+const actionBtns = () => ['install', 'live-op', 'live-pk', 'end-op', 'end-pk'].map($);
+async function goLive(theme, role = 'live') {
   const sceneName = $('scene').value;
   if (!(await install())) return;
   for (const o of OVERLAYS) {
     const it = await findItem(sceneName, o.name);
-    if (it) await call('SetSceneItemEnabled', { sceneName, sceneItemId: it.sceneItemId, sceneItemEnabled: o.theme === theme });
+    if (it) await call('SetSceneItemEnabled', { sceneName, sceneItemId: it.sceneItemId, sceneItemEnabled: o.theme === theme && (o.role || 'live') === role });
   }
-  const shown = OVERLAYS.find(o => o.theme === theme).name;
+  const shown = OVERLAYS.find(o => o.theme === theme && (o.role || 'live') === role).name;
   status(`Prêt pour le live : « ${shown} » affiché dans « ${sceneName} » ✔`, 'ok'); log(`Live prêt : ${shown} affiché, l'autre masqué`);
   await refresh();
 }
@@ -273,6 +278,8 @@ $('connect').onclick = connect;
 $('install').onclick = install;
 $('live-op').onclick = () => goLive('op');
 $('live-pk').onclick = () => goLive('pk');
+$('end-op').onclick = () => goLive('op', 'end');
+$('end-pk').onclick = () => goLive('pk', 'end');
 $('scene').onchange = refresh;
 $('pwd').addEventListener('keydown', e => { if (e.key === 'Enter') connect(); });
 renderCards(null);

@@ -2,6 +2,7 @@ DOSSIER OVER - Overlays Z3F4 « Le Rainté du TCG »
 
 OVERLAY POKEMON   -> soirées Pokémon : Poké / Super / Hyper / Master / Honor Ball qui s'ouvrent sur le logo
 OVERLAY ONE PIECE -> soirées One Piece : 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)
+FIN DE LIVE ONE PIECE / FIN DE LIVE POKEMON -> écran de fin (page animée + vidéo fin-de-live.mp4)
 
 INSTALLER DANS OBS (double-clic) -> ajoute les 2 overlays dans ta scène OBS,
 avec des boutons pour afficher / masquer chacun.
