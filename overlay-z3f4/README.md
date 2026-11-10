@@ -6,24 +6,30 @@ Overlay OBS : un chapeau de paille et une Pokéball en pixel art, l'un après l'
 - **Horloge** affichée en permanence, avec un bandeau « Soirée Pokémon / One Piece ».
 
 ## Installation dans OBS
-1. Sources → **+** → **Navigateur** → coche **Fichier local** → choisis `overlay-z3f4/index.html`.
+1. Sources → **+** → **Navigateur** → **décoche** Fichier local → URL : `file:///C:/chemin/overlay-z3f4/index.html?twitch=TaChaine`.
 2. Largeur 1920, hauteur 1080 (ou plus petit pour un coin d'écran).
-3. Propriétés de la source → **Accès à la page : Accès en lecture aux informations de l'utilisateur**
-   (nécessaire pour que l'overlay lise le nom de la scène au démarrage).
-4. Coche **Actualiser le navigateur quand la scène devient active**.
+3. Coche **Actualiser le navigateur quand la scène devient active**.
 
-## Thème automatique
-Le thème suit le **nom de la scène OBS** :
-| Le nom de la scène contient | Thème | Animation |
+## Thème automatique (catégorie Twitch)
+Ajoute le nom de ta chaîne à l'URL de la source :
+`file:///C:/chemin/overlay-z3f4/index.html?twitch=TaChaine`
+
+Toutes les 30 secondes, l'overlay lit la **catégorie** de ta chaîne (puis le **titre** si la catégorie ne suffit pas)
+via le service public decapi.me. **Aucune clé API n'est nécessaire.**
+
+| Catégorie ou titre contient | Thème | Animation |
 |---|---|---|
-| `pokemon`, `poke`, `pkm` | Soirée Pokémon (jaune) | Pokéball |
-| `one piece`, `op`, `luffy`, `pirate` | Soirée One Piece (rouge) | Chapeau |
-| autre chose (ex. « Pause ») | garde le thème actuel | — |
-| aucune scène reconnue | Z3F4 | les deux en alternance |
+| Pokémon (Trading Card Game, TCG Pocket…) | Soirée Pokémon (jaune) | Pokéball |
+| One Piece (Card Game…), `OP09`, Luffy | Soirée One Piece (rouge) | Chapeau |
+| autre chose (ex. Just Chatting) | garde le thème actuel | — |
+| rien de reconnu depuis le démarrage | Z3F4 | les deux en alternance |
 
-Exemples : `LIVE Pokémon`, `Starting OP`, `One Piece - Ouverture`.
+Astuce : règle la catégorie Twitch **avant** de lancer le live. L'overlay s'adapte même hors ligne, en 30 s maximum.
+Si Internet coupe, l'overlay garde le dernier thème et réessaie tout seul.
+Sans `?twitch=`, l'overlay utilise le nom de la scène OBS (ancien mode).
 
 ## Options (à ajouter à la fin de l'URL)
+- `&poll=20` : intervalle de vérification Twitch en secondes (15 minimum)
 - `?theme=pokemon` ou `?theme=onepiece` : force le thème
 - `&hold=8` : nombre de secondes où le logo reste affiché (6 par défaut)
 - `&scale=0.6` : taille de l'animation
@@ -32,7 +38,8 @@ Exemples : `LIVE Pokémon`, `Starting OP`, `One Piece - Ouverture`.
 - `&preview=1` : fond sombre + panneau de diagnostic
 
 ## Check-list avant le live
-1. Ouvre `index.html` dans Chrome : le panneau en haut à gauche doit afficher `Logo : OK` et `FPS : 60`.
+1. Ouvre `index.html?twitch=TaChaine` dans Chrome. Le panneau en haut à gauche doit afficher `Logo : OK`, `FPS : 60`,
+   `Twitch : … · OK` et la bonne catégorie.
 2. Dans OBS, vérifie que le fond est **transparent** (pas de fond sombre).
-3. Change de scène : le bandeau doit passer à Soirée Pokémon ou Soirée One Piece.
+3. Change la catégorie Twitch : dans les 30 s, le bandeau doit passer à Soirée Pokémon ou Soirée One Piece.
 4. Vérifie que l'heure correspond à celle de ton PC.
