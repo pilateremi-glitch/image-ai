@@ -267,6 +267,8 @@ L'overlay « hits seulement » ne tient ni récap ni classement (pas de double c
 | `scenes.html?mode=end` | Merci pour le live (miettes + verre vide) |
 | `&bg=fond-2-z3-violet.png` | Un seul fond au lieu du MIX |
 
+Logo du partenaire : `preview/logo-rainte.png`, affiché en haut à droite de la scène. Pour le remplacer, détoure la nouvelle image avec `node tools/cutout-logo.mjs image.png preview/logo-rainte.png`.
+
 ---
 
 ## Option B — PNG séparés (`export/`)
