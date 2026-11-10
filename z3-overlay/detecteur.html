@@ -396,10 +396,14 @@ Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
     const m = window.Z3DB || {};
     $('dbInfo').textContent = 'Base master set : ' + (m.pokemon ? m.pokemon.sets.length + ' extensions Pokémon (' + m.pokemon.cards.length + ' cartes)' : '') + (m.onepiece ? ' · ' + m.onepiece.packs.length + ' boosters One Piece (' + m.onepiece.cards.length + ' cartes)' : '') + '. ' + (window.Z3PRINTS ? 'Reconnaissance visuelle : ' + Object.entries(window.Z3PRINTS).map(([g, v]) => Object.keys(v).length + ' empreintes ' + (g === 'pokemon' ? 'Pokémon' : 'One Piece')).join(', ') + '.' : 'Reconnaissance visuelle : lance tools/build-prints.mjs pour l\'activer.');
   }
-  $('game').value = store.get('game', 'pokemon');
+  $('game').value = Q.get('game') || store.get('game', 'pokemon');   // ?game=pokemon|onepiece
   $('game').addEventListener('change', () => { store.set('game', $('game').value); fillSets(); });
   $('setSel').addEventListener('change', () => store.set('set-' + $('game').value, $('setSel').value));
   fillSets();
+  if (Q.get('set')) {                         // ?set=me06 : extension ouverte présélectionnée
+    const st = Z3Base.sets($('game').value).find((x) => x.id === Q.get('set') && (x.region || 'int') === (Q.get('region') || x.region || 'int'));
+    if (st) { $('setSel').value = String(st.i); store.set('set-' + $('game').value, $('setSel').value); }
+  }
 
   /* ---------- journal ---------- */
   const COL = { rare: '#7bd0ff', ultra: '#ffd23a', secret: '#ff3fd0', god: '#ffd23a', flop: '#9aa3b5' };
@@ -490,6 +494,8 @@ Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
     $('runInfo').textContent = running ? (bgThumb ? 'Détection active : montre les cartes une par une dans le cadre, 1 seconde immobile.' : '⚠ Fais d\'abord le calibrage A (zone vide).') : '';
   });
 
+  if (Q.get('obspass') !== null) { $('pass').value = Q.get('obspass'); store.set('pass', $('pass').value); }   // ?obspass=… : connexion automatique
+  if (Q.get('obssrc')) store.set('src', Q.get('obssrc'));
   if (SIMU) { setState('SIMULATION', 'on'); $('secConn').classList.add('hide'); }
   else if ($('pass').value || store.get('autoconn', false)) connect();
   drawOverlay(); loop();

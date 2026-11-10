@@ -1,5 +1,16 @@
 # 🔥 Z3 LIVE — TEAM Z3F4 × LE RAINTÉ DU TCG — Overlay OBS 1920×1080
 
+# 🍎 Installation Mac + OBS (le plus simple)
+
+1. Télécharge le pack `Z3-LIVE-Mac.zip` et décompresse-le, puis **ferme OBS**.
+2. Clic droit sur `Z3-LIVE/INSTALLER-Z3-LIVE.command` › **Ouvrir**.
+3. L'installateur met le dossier **Z3-LIVE sur ton Bureau**, active le **WebSocket d'OBS** (mot de passe généré et conservé aux mises à jour) et ajoute la collection de scènes **« Z3 LIVE Pokémon »**. Cette collection contient les scènes ⏳ Bientôt · 🔴 LIVE Pokémon · ☕ Pause · 🏆 Fin du live, les 2 caméras et les 2 overlays déjà placés.
+4. Il écrit `Bureau/Z3-LIVE/MES-URL-OBS.txt` et ouvre la page cochable **Prépa live Pokémon** (`mac/PREPA-LIVE-POKEMON.html`).
+
+Reconnaissance visuelle prête à l'emploi : **toutes les extensions Pokémon internationales depuis 2024** (3 350 cartes).
+Le dock détecteur s'ouvre directement sur Pokémon, extension Règne Delta, connecté à OBS (`detecteur.html?game=pokemon&set=me06&obspass=…`).
+
+
 Overlay anime / TCG / néon nocturne (noir, violet électrique, fuchsia, blanc) avec la **jauge sandwich + boisson** comme mécanique signature du live :
 **« LE LIVE SE TERMINE QUAND IL NE RESTE PLUS RIEN 😈 »**
 

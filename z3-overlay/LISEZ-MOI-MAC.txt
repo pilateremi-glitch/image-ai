@@ -1,0 +1,14 @@
+Z3 LIVE — TEAM Z3F4 × LE RAINTÉ DU TCG — installation sur Mac
+
+1. Ferme OBS.
+2. Dans ce dossier, clic droit sur « INSTALLER-Z3-LIVE.command » › Ouvrir › Ouvrir
+   (macOS demande confirmation la 1re fois, c'est normal : le fichier vient d'Internet).
+3. L'installateur :
+   • met à jour le dossier Z3-LIVE sur ton Bureau,
+   • active le WebSocket d'OBS (mot de passe affiché),
+   • ajoute la collection de scènes « Z3 LIVE Pokémon » dans OBS,
+   • crée Bureau/Z3-LIVE/MES-URL-OBS.txt avec toutes tes adresses,
+   • ouvre la page « Prépa live Pokémon » : suis les étapes cochables.
+
+Pour mettre à jour plus tard : télécharge la nouvelle version et relance l'installateur
+(ton mot de passe OBS est conservé, tes réglages précédents sont sauvegardés en *.avant-z3).
