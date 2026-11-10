@@ -26,6 +26,8 @@
   button:active { transform:translate(2px,2px); box-shadow:2px 2px 0 #000; }
   button:disabled { opacity:.45; cursor:not-allowed; }
   button.sec { background:var(--ink); }
+  button.live { font-size:14px; padding:18px 16px; }
+  button.live.op { background:var(--red); color:#fff; }
   #status { font:12px/1.6 var(--pix); padding:10px 12px; border:2px solid var(--line); }
   #status.ok { color:var(--ok); border-color:var(--ok); } #status.err { color:var(--err); border-color:var(--err); }
   .cards { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; }
@@ -69,12 +71,17 @@
   </section>
 
   <section>
-    <h2>3. Installe dans ta scène</h2>
+    <h2>3. Lance ton live</h2>
     <label for="scene">Scène OBS où ajouter les overlays
       <select id="scene" disabled><option>Connecte-toi d'abord</option></select>
     </label>
     <p class="mute" id="canvas">Taille de la scène : inconnue.</p>
-    <button id="install" type="button" disabled>Installer les 2 overlays</button>
+    <div class="row">
+      <button id="live-op" class="live op" type="button" disabled>☠ Live One Piece</button>
+      <button id="live-pk" class="live pk" type="button" disabled>◓ Live Pokémon</button>
+    </div>
+    <p class="mute">Un seul clic : installe les 2 overlays dans la scène (sans doublon), affiche celui du live et masque l'autre.</p>
+    <button id="install" class="sec" type="button" disabled>Installer seulement (sans changer l'affichage)</button>
     <p class="mute">Les sources sont ajoutées au-dessus de tes caméras et à la taille de ta scène. « Z3F4 Pokemon » est visible et « Z3F4 One Piece » est masqué. Tu peux relancer l'installation sans risque : rien n'est créé en double.</p>
   </section>
 
@@ -173,7 +180,7 @@ function connect() {
         : "Impossible de joindre OBS. Vérifie qu'OBS est ouvert et que le serveur WebSocket est activé (Outils → Paramètres du serveur WebSocket).";
       status(why, 'err'); log('Échec : ' + why);
     } else { status('Déconnecté d\'OBS. Clique sur Connecter.', 'err'); log('Déconnecté'); }
-    $('install').disabled = true; renderCards(null);
+    actionBtns().forEach(b => b.disabled = true); renderCards(null);
   };
 }
 
@@ -187,7 +194,7 @@ async function afterConnect() {
   const scenes = (sl.scenes || []).map(s => s.sceneName).reverse(); // ordre affiché dans OBS
   for (const n of scenes) { const o = document.createElement('option'); o.value = o.textContent = n; sel.appendChild(o); }
   sel.value = sl.currentProgramSceneName || scenes[0];
-  sel.disabled = false; $('install').disabled = false;
+  sel.disabled = false; actionBtns().forEach(b => b.disabled = false);
   log(`${scenes.length} scène(s). Scène active : ${sel.value}`);
   await refresh();
 }
@@ -197,9 +204,21 @@ async function findItem(sceneName, sourceName) {
   return (r.sceneItems || []).find(i => i.sourceName === sourceName) || null;
 }
 
+const actionBtns = () => ['install', 'live-op', 'live-pk'].map($);
+async function goLive(theme) {
+  const sceneName = $('scene').value;
+  if (!(await install())) return;
+  for (const o of OVERLAYS) {
+    const it = await findItem(sceneName, o.name);
+    if (it) await call('SetSceneItemEnabled', { sceneName, sceneItemId: it.sceneItemId, sceneItemEnabled: o.theme === theme });
+  }
+  const shown = OVERLAYS.find(o => o.theme === theme).name;
+  status(`Prêt pour le live : « ${shown} » affiché dans « ${sceneName} » ✔`, 'ok'); log(`Live prêt : ${shown} affiché, l'autre masqué`);
+  await refresh();
+}
 async function install() {
   const sceneName = $('scene').value, dir = overDir();
-  $('install').disabled = true;
+  actionBtns().forEach(b => b.disabled = true); let ok = false;
   try {
     for (const o of OVERLAYS) {
       const settings = { is_local_file: true, local_file: `${dir}/${o.dir}/index.html`, width: canvasW, height: canvasH,
@@ -219,10 +238,11 @@ async function install() {
       const list = await call('GetSceneItemList', { sceneName });
       await call('SetSceneItemIndex', { sceneName, sceneItemId: item.sceneItemId, sceneItemIndex: Math.max(0, (list.sceneItems || []).length - 1) });
     }
-    status(`Installé dans « ${sceneName} » ✔`, 'ok'); log('Installation terminée');
+    status(`Installé dans « ${sceneName} » ✔`, 'ok'); log('Installation terminée'); ok = true;
   } catch (e) { status('Installation impossible : ' + e.message, 'err'); log('Erreur : ' + e.message); }
-  $('install').disabled = false;
+  actionBtns().forEach(b => b.disabled = false);
   await refresh();
+  return ok;
 }
 
 let state = {};
@@ -251,6 +271,8 @@ function renderCards(sceneName) {
 
 $('connect').onclick = connect;
 $('install').onclick = install;
+$('live-op').onclick = () => goLive('op');
+$('live-pk').onclick = () => goLive('pk');
 $('scene').onchange = refresh;
 $('pwd').addEventListener('keydown', e => { if (e.key === 'Enter') connect(); });
 renderCards(null);
