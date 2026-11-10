@@ -195,3 +195,9 @@ body[data-only] .layer { display: none; }
 
 /* ---------- mode « hits seulement » (?hitonly) : tout est caché sauf l'alerte de hit ---------- */
 body.hitonly .layer:not(#hit), body.hitonly #hitcount, body.hitonly #redv { display: none !important; }
+
+/* logo partenaire (image) */
+.logo-p { display: block; object-fit: contain; filter: drop-shadow(0 0 8px rgba(255,63,208,.6)); }
+#brand .emblem .logo-p { margin: 0 auto; max-width: 150px; }
+#partner .card .emb .logo-p { max-width: 150px; }
+#webcam .ribbon .logo-p, #gauge .brand-mini .logo-p { display: inline-block; filter: none; }

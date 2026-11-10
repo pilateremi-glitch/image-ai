@@ -177,6 +177,10 @@
     </svg>`;
   }
 
+  /* ---------------- logo partenaire : preview/logo-rainte.png (sinon emblème dessiné) ---------------- */
+  const LOGO = 'preview/logo-rainte.png';
+  const logo = (h, fallback, cls) => `<img class="logo-p ${cls || ''}" src="${LOGO}" style="height:${h}px;width:auto" alt="" onerror="this.outerHTML=this.dataset.fb" data-fb="${fallback.replace(/"/g, '&quot;')}">`;
+
   /* ---------------- construction du DOM ---------------- */
   const txt = (k, d) => (STATIC && !Q.has('demo') ? '' : P(k, d));
   const demo = Q.has('demo');
@@ -186,7 +190,7 @@
 
   <div class="layer" id="brand">
     <div class="panel plate" data-panel='{"cut":22,"a1":0.62,"a2":0.18}'>
-      <div class="emblem">${A.emblemSVG(142, 'emB')}</div>
+      <div class="emblem">${logo(140, A.emblemSVG(142, 'emB'))}</div>
       <div class="z3">Z3</div><div class="live-tag">LIVE</div><div class="divider"></div>
       <div class="team">TEAM <b>Z3F4</b></div>
       <div class="by"><small>BY</small><span class="lmdt">LE RAINTÉ DU TCG</span></div>
@@ -199,7 +203,7 @@
   <div class="layer" id="webcam">
     <div class="panel cam" id="camBox">
       <div class="tab">${ICON.cam.replace('<svg', '<svg width="20" height="20"')}Z3F4 CAM</div>
-      <div class="ribbon">${A.emblemSVG(22, 'emC', { ring: false })}LE RAINTÉ DU TCG</div>
+      <div class="ribbon">${logo(26, A.emblemSVG(22, 'emC', { ring: false }))}LE RAINTÉ DU TCG</div>
     </div>
   </div>
 
@@ -227,7 +231,7 @@
 
   <div class="layer" id="partner">
     <div class="panel card" data-panel='{"cut":18}'>
-      <div class="emb">${A.emblemSVG(144, 'emP')}</div>
+      <div class="emb">${logo(144, A.emblemSVG(144, 'emP'))}</div>
       <div class="t1">PARTENAIRE OFFICIEL</div>
       <div class="t2">LE RAINTÉ<br>DU TCG</div>
       <div class="t3">BOOSTERS · DISPLAYS · CARTES</div>
@@ -253,7 +257,7 @@
   <div class="layer" id="gauge">
     <div class="panel rail" id="railBox"></div>
     <div class="mention">LE LIVE SE TERMINE QUAND IL NE RESTE PLUS RIEN ${ICON.devil}</div>
-    <div class="brand-mini">${A.emblemSVG(26, 'emG', { ring: false })}SPONSORISÉ PAR LE RAINTÉ DU TCG</div>
+    <div class="brand-mini">${logo(30, A.emblemSVG(26, 'emG', { ring: false }))}SPONSORISÉ PAR LE RAINTÉ DU TCG</div>
   </div>
 
   <div class="layer" id="timer">
@@ -323,7 +327,7 @@
   if (STATIC) {
     setLevel(parseInt(P('level', '0'), 10) || 0, false);
     if (Q.has('time')) $('#vTime').textContent = P('time');
-    document.fonts.ready.then(() => { document.body.dataset.ready = '1'; });
+    Promise.all([document.fonts.ready, ...[...document.images].map((im) => (im.complete ? 0 : new Promise((r) => { im.onload = im.onerror = r; })))]).then(() => { document.body.dataset.ready = '1'; });
     return;
   }
 

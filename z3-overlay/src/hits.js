@@ -126,7 +126,7 @@
   document.body.insertAdjacentHTML('beforeend', '<div id="hit" class="layer"></div><div id="hitcount" class="layer-free">HITS DU LIVE <b id="hitn">0</b></div>');
   const box = document.getElementById('hit');
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const emblem = window.Z3Art ? window.Z3Art.emblemSVG(200, 'emHit') : '';
+  const emblem = `<img src="preview/logo-rainte.png" style="width:86%;height:auto" alt="" onerror="this.remove()">`;   // dos de carte : logo partenaire
 
   let hits = 0; try { hits = +(sessionStorage.getItem('z3f4-hits') || 0); } catch (e) { hits = 0; }
   function showCount() { const hc = document.getElementById('hitcount'); if (hits > 0) { hc.style.display = 'flex'; document.getElementById('hitn').textContent = hits; } }
