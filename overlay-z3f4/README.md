@@ -56,3 +56,9 @@ Sans `?twitch=`, l'overlay utilise le nom de la scène OBS (ancien mode).
 2. Dans OBS, vérifie que le fond est **transparent** (pas de fond sombre).
 3. Change la catégorie Twitch : dans les 30 s, le bandeau doit passer à Soirée Pokémon ou Soirée One Piece.
 4. Vérifie que l'heure correspond à celle de ton PC.
+
+## Mode séparateur PORTRAIT / OPENING (`?layout=split`)
+Bande entre la caméra PORTRAIT et la caméra OPENING, avec le logo animé et l'heure.
+S'adapte au format de la source : vertical → caméras haut/bas, horizontal → gauche/droite.
+Options : `&split=0.45` (position de la bande, 0.2–0.8), `&frames=0` (sans cadres), `&labels=0` (sans étiquettes),
+`&zone1=MOI&zone2=CARTES` (textes des étiquettes), `&scale=0.8` (taille du logo).

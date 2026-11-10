@@ -3,7 +3,7 @@ Thème One Piece fixe : le chapeau de paille tourne, se retourne et le logo sort
 INSTALLATION DANS OBS (2 minutes)
 1. Sources -> + -> Navigateur -> nomme-la « Overlay Z3F4 ».
 2. Coche « Fichier local » -> Parcourir -> choisis le fichier index.html de CE dossier.
-3. Largeur 1920, Hauteur 1080.
+3. Largeur / Hauteur = la résolution de ta scène OBS (ex. 1920x1080 ou 1080x1920).
 4. Coche « Actualiser le navigateur quand la scène devient active ».
 5. OK. Le fond est transparent, l'heure s'affiche en bas.
 

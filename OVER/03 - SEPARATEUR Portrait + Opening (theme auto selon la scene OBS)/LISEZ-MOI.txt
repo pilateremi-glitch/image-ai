@@ -1,0 +1,29 @@
+Bande qui SÉPARE les 2 caméras : PORTRAIT (toi) et OPENING (les cartes).
+Elle s'adapte toute seule au format de ta scène OBS :
+  - scène verticale (1080x1920, Whatnot / Voggt) -> PORTRAIT en haut, OPENING en bas, bande horizontale au milieu
+  - scène horizontale (1920x1080) -> PORTRAIT à gauche, OPENING à droite, bande verticale au milieu
+Le logo animé (Pokéball / chapeau) et l'heure sont dans la bande.
+
+PLACEMENT DES CAMÉRAS : mets la source Navigateur AU-DESSUS des 2 caméras,
+puis cale la caméra PORTRAIT dans le cadre PORTRAIT et la caméra OPENING dans le cadre OPENING.
+IMPORTANT : la taille de la source Navigateur = la taille de ta scène OBS
+(Paramètres -> Vidéo -> Résolution de base), par ex. 1080 x 1920 en vertical.
+
+Thème automatique selon le NOM de la scène OBS : « pokemon » -> Pokéball, « one piece » / « op » -> chapeau.
+Dans les propriétés de la source, mets « Accès à la page » sur
+« Accès en lecture aux informations de l'utilisateur ».
+
+INSTALLATION DANS OBS (2 minutes)
+1. Sources -> + -> Navigateur -> nomme-la « Overlay Z3F4 ».
+2. Coche « Fichier local » -> Parcourir -> choisis le fichier index.html de CE dossier.
+3. Largeur / Hauteur = la résolution de ta scène OBS (ex. 1920x1080 ou 1080x1920).
+4. Coche « Actualiser le navigateur quand la scène devient active ».
+5. OK. Le fond est transparent, l'heure s'affiche en bas.
+
+CHECK-LIST AVANT LE LIVE
+[ ] Double-clic sur index.html : en haut à gauche -> « Logo : OK » et « FPS : 60 ».
+[ ] Dans OBS : fond transparent (pas de fond bleu foncé).
+[ ] L'heure affichée = l'heure de ton PC.
+[ ] Le bandeau affiche le bon thème (Soirée Pokémon / Soirée One Piece).
+
+NE PAS séparer index.html et logo.png : ils doivent rester dans le même dossier.
