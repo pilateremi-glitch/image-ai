@@ -10,7 +10,7 @@ VARIANTS = [
    "À chaque passage, une balle différente tourne, s'ouvre et laisse apparaître le logo :\n"
    "  Poké Ball -> Super Ball -> Hyper Ball -> Master Ball -> Honor Ball, puis on recommence.\n"
    "Le couvercle s'ouvre d'avant en arrière et le nom de la balle s'affiche dans la bande.\n"
-   "Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».\n"
+   "Bande PORTRAIT (haut, 35 %) / OPENING (bas, 65 %) ; dans la bande : Z3F4, thème, nom, « ● LIVE » et heure.\n"
    "S'adapte au format de ta scène OBS (vertical ou horizontal).", 'split'),
   ('OVERLAY ONE PIECE', 'onepieceplus',
    "Overlay des soirées ONE PIECE.\n"
@@ -21,7 +21,7 @@ VARIANTS = [
    "  SANJI (jambe en feu) - MIHAWK (chapeau à plume) - ROBIN (fleur de mains)\n"
    "  ACE (chapeau de cow-boy à badges) - KUMA (bonnet à oreilles d'ours)\n"
    "  BROOK (haut-de-forme + afro) - LAW (bonnet en fourrure tachetée) - SABO (haut-de-forme bleu à lunettes)\n"
-   "Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».\n"
+   "Bande PORTRAIT (haut, 35 %) / OPENING (bas, 65 %) ; dans la bande : Z3F4, thème, nom, « ● LIVE » et heure.\n"
    "S'adapte au format de ta scène OBS (vertical ou horizontal).", 'split'),
   ('FIN DE LIVE ONE PIECE', 'onepieceplus',
    "Écran de FIN DE LIVE One Piece (plein écran, pas transparent) :\n"
@@ -36,12 +36,14 @@ COMMON = """
 INSTALLATION DANS OBS (2 minutes)
 1. Sources -> + -> Navigateur -> nomme-la « Overlay Z3F4 ».
 2. Coche « Fichier local » -> Parcourir -> choisis le fichier index.html de CE dossier.
-3. Largeur / Hauteur = la résolution de ta scène OBS (ex. 1920x1080 ou 1080x1920).
+3. Largeur / Hauteur = la résolution de ta scène OBS (Whatnot / Voggt : 1080 x 1920).
+   Puis clic droit sur la source -> Transformer -> Adapter à l'écran (Ctrl+F) pour qu'elle couvre toute la diffusion.
 4. Coche « Actualiser le navigateur quand la scène devient active ».
 5. OK. Le fond est transparent, l'heure s'affiche en bas.
 
 CHECK-LIST AVANT LE LIVE
 [ ] Double-clic sur index.html : en haut à gauche -> « Logo : OK » et « FPS : 60 ».
+[ ] Une bande rouge « ERREUR OVERLAY » apparaît ? Fais une capture et envoie-la.
 [ ] Dans OBS : fond transparent (pas de fond bleu foncé).
 [ ] L'heure affichée = l'heure de ton PC.
 [ ] Le bandeau affiche le bon thème (Soirée Pokémon / Soirée One Piece).
