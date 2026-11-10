@@ -28,7 +28,7 @@
     const P = DB().pokemon, s = pkSet(c[0]);
     return { jeu: 'pokemon', key: 'pk:' + s.id + ':' + s.region + ':' + c[1], set: s, numero: c[1] + (s.off ? '/' + s.off : ''),
       nom: c[2] || c[3] || c[4], nomEn: c[3], rarete: P.rarities[c[5]], niveau: c[6], tier: TIER[c[6]],
-      img: s.serieId ? `https://assets.tcgdex.net/${s.region === 'jp' ? 'ja' : 'en'}/${s.serieId}/${s.id}/${c[1]}/high.webp` : '' };
+      img: s.serieId ? `https://assets.tcgdex.net/${s.region === 'jp' ? 'ja' : 'fr'}/${s.serieId}/${s.id}/${c[1]}/high.webp` : '' };
   }
   function findPokemon(q) {
     const P = DB().pokemon; if (!P) return null;

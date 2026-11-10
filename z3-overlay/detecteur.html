@@ -183,7 +183,7 @@
   function drawProds() { $('prodBtns').innerHTML = prods().map((p) => `<button data-prod="${p.n.replace(/"/g, '')}" data-b="${p.b}">${p.n.replace(/</g, '&lt;')}<br><small class="mut">${p.b} booster${p.b > 1 ? 's' : ''}</small></button>`).join(''); }
   $('prodCfg').value = store.get('prods', PROD_DEF);
   $('prodCfg').addEventListener('change', () => { store.set('prods', $('prodCfg').value); drawProds(); });
-  $('prodBtns').addEventListener('click', (e) => { const b = e.target.closest('[data-prod]'); if (!b) return; lastProd = { item: b.dataset.prod, boosters: +b.dataset.b }; send({ kind: 'cmd', cmd: 'item', item: lastProd.item, boosters: lastProd.boosters }); });
+  $('prodBtns').addEventListener('click', (e) => { const b = e.target.closest('[data-prod]'); if (!b) return; newPack(); lastProd = { item: b.dataset.prod, boosters: +b.dataset.b }; send({ kind: 'cmd', cmd: 'item', item: lastProd.item, boosters: lastProd.boosters }); });
   $('prodUndo').addEventListener('click', () => { if (lastProd) send({ kind: 'cmd', cmd: 'itemundo', item: lastProd.item, boosters: lastProd.boosters }); lastProd = null; });
   drawProds();
 
@@ -197,8 +197,9 @@
   }
   if (bc) bc.onmessage = (e) => onState(e.data);
   $('btnQueue').addEventListener('click', () => { const n = $('buyerName').value.trim(); if (n) send({ kind: 'cmd', cmd: 'addbooster', name: n, qty: +$('buyerQty').value || 1 }); $('buyerName').value = ''; });
-  $('btnOpenFor').addEventListener('click', () => { const n = $('buyerName').value.trim(); if (n) send({ kind: 'cmd', cmd: 'buyer', name: n }); $('buyerName').value = ''; });
-  $('btnNextBuyer').addEventListener('click', () => send({ kind: 'cmd', cmd: 'nextbuyer' }));
+  $('btnOpenFor').addEventListener('click', () => { const n = $('buyerName').value.trim(); if (n) { newPack(); send({ kind: 'cmd', cmd: 'buyer', name: n }); } $('buyerName').value = ''; });
+  const newPack = () => { if (typeof det !== 'undefined') det.pack = { cards: 0, hits: 0, last: 0, god: false }; };   // le GOD PACK auto ne compte que dans un même booster
+  $('btnNextBuyer').addEventListener('click', () => { newPack(); send({ kind: 'cmd', cmd: 'nextbuyer' }); });
   setTimeout(() => send({ kind: 'cmd', cmd: 'state' }), 600);
 
   function send(msg) {
@@ -206,7 +207,7 @@
     if (bc) bc.postMessage(msg);
     if (obs && obs.ready) obs.broadcast(msg).catch(() => {});
   }
-  document.querySelectorAll('.tiers button').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('.tiers button[data-t]').forEach((b) => b.addEventListener('click', () => {   // seulement RARE/HIT/SECRÈTE/GOD/FLOP
     send({ kind: 'hit', tier: b.dataset.t, name: $('cardName').value.trim() });
     addLog({ tier: b.dataset.t, name: $('cardName').value.trim(), how: 'manuel' });
   }));
@@ -446,7 +447,8 @@ Donne "nom" tel qu'imprimé. "confiance" entre 0 et 1.`;
     // chaque carte compte dans le récap (rareté officielle, sinon estimée)
     send({ kind: 'card', key: card ? card.key : '', name, tier, newCard: isNew, rarete: card ? card.rarete : ({ rare: 'Rare', ultra: 'Ultra Rare', secret: 'Secret Rare' }[tier] || 'Common') });
     if (tier) {
-      const n = det.registerHit();
+      // GOD PACK auto : 3 vrais hits (HIT ou SECRÈTE, pas les simples RARE) dans le même booster
+      const n = tier === 'ultra' || tier === 'secret' ? det.registerHit() : 0;
       if ($('optGod').checked && n === 3) tier = 'god';
       const crop = cardCrop(), sc2 = document.createElement('canvas'); sc2.width = crop.w; sc2.height = crop.h;
       sc2.getContext('2d').putImageData(new ImageData(new Uint8ClampedArray(crop.data), crop.w, crop.h), 0, 0);
