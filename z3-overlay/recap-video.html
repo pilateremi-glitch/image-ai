@@ -222,7 +222,7 @@
     const types = ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
     const mime = types.find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
     if (!mime) { status('Enregistrement vidéo non supporté par ce navigateur (utilise Chrome).'); return; }
-    const rec = new MediaRecorder(cv.captureStream(FPS), { mimeType: mime, videoBitsPerSecond: 10e6 }), chunks = [];
+    const rec = new MediaRecorder(cv.captureStream(FPS), { mimeType: mime, videoBitsPerSecond: 28e6 }), chunks = [];
     rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
     rec.onstop = () => {
       const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: mime.split(';')[0] });

@@ -13,6 +13,7 @@
     'Shiny Ultra Rare': ['Chromatique ultra', 8.5], 'Secret Rare': ['Secrète', 9], 'SecretRare': ['Secrète (SEC)', 9],
     'Hyper rare': ['Hyper rare (gold)', 9.5], 'Mega Hyper Rare': ['Méga hyper rare (gold)', 9.6], 'Black White Rare': ['Black & White', 9.6],
     'Crown': ['Couronne (gold)', 9.7], 'TreasureRare': ['Trésor (TR)', 10],
+    'Futuristic Rare': ['Futuriste', 9.3], 'RGB Rare': ['RGB', 9.2], 'Mega Attack Rare': ['Méga attaque', 7.5], 'Pikachu Rare': ['Pikachu', 6], 'Full Art Trainer': ['Dresseur full art', 7],
   };
   function info(r) { const v = T[r]; return v ? { label: v[0], rank: v[1] } : { label: r || 'Commune', rank: 5 }; }
   /* { 'Common': 120, 'Rare': 8, … } → [{ label, count, rank }] fusionnés et triés commune → gold */
