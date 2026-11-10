@@ -69,8 +69,14 @@ for name, theme, desc, *layout in VARIANTS:
 "OVERLAY POKEMON   -> soirées Pokémon : Poké / Super / Hyper / Master / Honor Ball qui s'ouvrent sur le logo\n"
 "OVERLAY ONE PIECE -> soirées One Piece : 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)\n"
 "FIN DE LIVE ONE PIECE / FIN DE LIVE POKEMON -> écran de fin (page animée + vidéo fin-de-live.mp4)\n\n"
-"INSTALLER DANS OBS (double-clic) -> ajoute les 2 overlays dans ta scène OBS,\n"
-"avec des boutons pour afficher / masquer chacun.\n", encoding='utf-8')
+"PREPARER OBS (double-clic).bat (WINDOWS) ou PREPARER OBS - MAC (double-clic).command (MAC)\n"
+"  -> LE PLUS SIMPLE : ferme OBS, double-clic. Crée le profil « Z3F4 Whatnot »\n"
+"  (1080x1920) et la collection « Z3F4 Live » avec 4 scènes (LIVE ONE PIECE, LIVE POKEMON, FIN DE LIVE x2),\n"
+"  caméras PORTRAIT / OPENING déjà placées et overlays en place, puis ouvre OBS sur LIVE ONE PIECE.\n"
+"  Ensuite : double-clic sur chaque caméra dans OBS pour choisir ta webcam.\n"
+"  Mac : si macOS bloque le fichier, clic droit -> Ouvrir -> Ouvrir.\n\n"
+"INSTALLER DANS OBS (double-clic).html -> autre méthode : ajoute les overlays dans une scène que tu as déjà\n"
+"  (via le serveur WebSocket d'OBS), avec des boutons afficher / masquer.\n", encoding='utf-8')
 # Installateur OBS (WebSocket) : ajoute 04 et 05 dans une scène, avec boutons afficher / masquer
 import json, re
 inst = (SRC / 'installer-obs.html').read_text(encoding='utf-8')
@@ -84,8 +90,12 @@ for f in ('FIN DE LIVE ONE PIECE', 'FIN DE LIVE POKEMON'):
 inst, n = re.subn(r'/\*OVERLAYS\*/.*?/\*END\*/', lambda m: json.dumps(ovs, ensure_ascii=False), inst, flags=re.S)
 assert n == 1
 (OUT / 'INSTALLER DANS OBS (double-clic).html').write_text(inst, encoding='utf-8')
+import build_obs; build_obs.build(OUT)  # profil + collection de scènes OBS prêts
 z = ROOT / 'OVER.zip'
 with zipfile.ZipFile(z, 'w', zipfile.ZIP_DEFLATED) as zf:
     for f in sorted(OUT.rglob('*')):
-        if f.is_file(): zf.write(f, f.relative_to(ROOT))
+        if not f.is_file(): continue
+        zi = zipfile.ZipInfo.from_file(f, f.relative_to(ROOT)); zi.compress_type = zipfile.ZIP_DEFLATED
+        zi.external_attr = ((0o100755 if f.suffix == '.command' else 0o100644) << 16)  # .command exécutable sur Mac
+        zf.writestr(zi, f.read_bytes())
 print('OK', z, z.stat().st_size)

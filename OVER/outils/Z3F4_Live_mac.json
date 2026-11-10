@@ -1,0 +1,518 @@
+{
+  "name": "Z3F4 Live",
+  "current_scene": "LIVE ONE PIECE",
+  "current_program_scene": "LIVE ONE PIECE",
+  "scene_order": [
+    {
+      "name": "LIVE ONE PIECE"
+    },
+    {
+      "name": "LIVE POKEMON"
+    },
+    {
+      "name": "FIN DE LIVE ONE PIECE"
+    },
+    {
+      "name": "FIN DE LIVE POKEMON"
+    }
+  ],
+  "sources": [
+    {
+      "id": "av_capture_input",
+      "versioned_id": "av_capture_input",
+      "name": "Caméra PORTRAIT",
+      "uuid": "a67b7cde-a6df-5b9a-9f1e-9fcd907fd3a5",
+      "settings": {},
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "av_capture_input",
+      "versioned_id": "av_capture_input",
+      "name": "Caméra OPENING",
+      "uuid": "34110e11-1d25-53d6-b13c-d50b6576cb9c",
+      "settings": {},
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "name": "Z3F4 One Piece",
+      "uuid": "85b9e33b-b4a3-5011-84b7-b10dbf89b519",
+      "settings": {
+        "is_local_file": true,
+        "local_file": "__OVER__/OVERLAY ONE PIECE/index.html",
+        "width": 1080,
+        "height": 1920,
+        "restart_when_active": true,
+        "shutdown": false,
+        "reroute_audio": false,
+        "fps_custom": false
+      },
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "name": "Z3F4 Pokemon",
+      "uuid": "c53eb793-ced6-57f1-a4ac-dec019ce04ee",
+      "settings": {
+        "is_local_file": true,
+        "local_file": "__OVER__/OVERLAY POKEMON/index.html",
+        "width": 1080,
+        "height": 1920,
+        "restart_when_active": true,
+        "shutdown": false,
+        "reroute_audio": false,
+        "fps_custom": false
+      },
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "name": "Z3F4 Fin de live One Piece",
+      "uuid": "f2928add-d7c0-5fec-b6d6-99eb833a4e08",
+      "settings": {
+        "is_local_file": true,
+        "local_file": "__OVER__/FIN DE LIVE ONE PIECE/index.html",
+        "width": 1080,
+        "height": 1920,
+        "restart_when_active": true,
+        "shutdown": false,
+        "reroute_audio": false,
+        "fps_custom": false
+      },
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "browser_source",
+      "versioned_id": "browser_source",
+      "name": "Z3F4 Fin de live Pokemon",
+      "uuid": "71d4a7f9-edaf-56a6-8adb-c9b515998ac8",
+      "settings": {
+        "is_local_file": true,
+        "local_file": "__OVER__/FIN DE LIVE POKEMON/index.html",
+        "width": 1080,
+        "height": 1920,
+        "restart_when_active": true,
+        "shutdown": false,
+        "reroute_audio": false,
+        "fps_custom": false
+      },
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "scene",
+      "versioned_id": "scene",
+      "name": "LIVE ONE PIECE",
+      "uuid": "b87efbba-c67e-59ff-b247-b1a5cddfc7ce",
+      "settings": {
+        "id_counter": 3,
+        "custom_size": false,
+        "items": [
+          {
+            "name": "Caméra OPENING",
+            "source_uuid": "34110e11-1d25-53d6-b13c-d50b6576cb9c",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0,
+              "y": 768
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 3,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1080.0,
+              "y": 1152.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1,
+            "group_item_backup": false,
+            "scale_filter": "disable",
+            "blend_method": "default",
+            "blend_type": "normal",
+            "show_transition": {
+              "duration": 0
+            },
+            "hide_transition": {
+              "duration": 0
+            },
+            "private_settings": {}
+          },
+          {
+            "name": "Caméra PORTRAIT",
+            "source_uuid": "a67b7cde-a6df-5b9a-9f1e-9fcd907fd3a5",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 3,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1080.0,
+              "y": 576.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 2,
+            "group_item_backup": false,
+            "scale_filter": "disable",
+            "blend_method": "default",
+            "blend_type": "normal",
+            "show_transition": {
+              "duration": 0
+            },
+            "hide_transition": {
+              "duration": 0
+            },
+            "private_settings": {}
+          },
+          {
+            "name": "Z3F4 One Piece",
+            "source_uuid": "85b9e33b-b4a3-5011-84b7-b10dbf89b519",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 3,
+            "group_item_backup": false,
+            "scale_filter": "disable",
+            "blend_method": "default",
+            "blend_type": "normal",
+            "show_transition": {
+              "duration": 0
+            },
+            "hide_transition": {
+              "duration": 0
+            },
+            "private_settings": {}
+          }
+        ]
+      },
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "scene",
+      "versioned_id": "scene",
+      "name": "LIVE POKEMON",
+      "uuid": "19d72291-310e-50bf-bc81-be427df151e5",
+      "settings": {
+        "id_counter": 3,
+        "custom_size": false,
+        "items": [
+          {
+            "name": "Caméra OPENING",
+            "source_uuid": "34110e11-1d25-53d6-b13c-d50b6576cb9c",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0,
+              "y": 768
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 3,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1080.0,
+              "y": 1152.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1,
+            "group_item_backup": false,
+            "scale_filter": "disable",
+            "blend_method": "default",
+            "blend_type": "normal",
+            "show_transition": {
+              "duration": 0
+            },
+            "hide_transition": {
+              "duration": 0
+            },
+            "private_settings": {}
+          },
+          {
+            "name": "Caméra PORTRAIT",
+            "source_uuid": "a67b7cde-a6df-5b9a-9f1e-9fcd907fd3a5",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 3,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 1080.0,
+              "y": 576.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 2,
+            "group_item_backup": false,
+            "scale_filter": "disable",
+            "blend_method": "default",
+            "blend_type": "normal",
+            "show_transition": {
+              "duration": 0
+            },
+            "hide_transition": {
+              "duration": 0
+            },
+            "private_settings": {}
+          },
+          {
+            "name": "Z3F4 Pokemon",
+            "source_uuid": "c53eb793-ced6-57f1-a4ac-dec019ce04ee",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 3,
+            "group_item_backup": false,
+            "scale_filter": "disable",
+            "blend_method": "default",
+            "blend_type": "normal",
+            "show_transition": {
+              "duration": 0
+            },
+            "hide_transition": {
+              "duration": 0
+            },
+            "private_settings": {}
+          }
+        ]
+      },
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "scene",
+      "versioned_id": "scene",
+      "name": "FIN DE LIVE ONE PIECE",
+      "uuid": "9fdc503f-12e8-5988-884c-d5f2f5bb92aa",
+      "settings": {
+        "id_counter": 1,
+        "custom_size": false,
+        "items": [
+          {
+            "name": "Z3F4 Fin de live One Piece",
+            "source_uuid": "f2928add-d7c0-5fec-b6d6-99eb833a4e08",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1,
+            "group_item_backup": false,
+            "scale_filter": "disable",
+            "blend_method": "default",
+            "blend_type": "normal",
+            "show_transition": {
+              "duration": 0
+            },
+            "hide_transition": {
+              "duration": 0
+            },
+            "private_settings": {}
+          }
+        ]
+      },
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    },
+    {
+      "id": "scene",
+      "versioned_id": "scene",
+      "name": "FIN DE LIVE POKEMON",
+      "uuid": "e8b90eba-42a5-5c3d-b140-c9404c4feea9",
+      "settings": {
+        "id_counter": 1,
+        "custom_size": false,
+        "items": [
+          {
+            "name": "Z3F4 Fin de live Pokemon",
+            "source_uuid": "71d4a7f9-edaf-56a6-8adb-c9b515998ac8",
+            "visible": true,
+            "locked": false,
+            "rot": 0.0,
+            "pos": {
+              "x": 0,
+              "y": 0
+            },
+            "scale": {
+              "x": 1.0,
+              "y": 1.0
+            },
+            "align": 5,
+            "bounds_type": 0,
+            "bounds_align": 0,
+            "bounds": {
+              "x": 0.0,
+              "y": 0.0
+            },
+            "crop_left": 0,
+            "crop_top": 0,
+            "crop_right": 0,
+            "crop_bottom": 0,
+            "id": 1,
+            "group_item_backup": false,
+            "scale_filter": "disable",
+            "blend_method": "default",
+            "blend_type": "normal",
+            "show_transition": {
+              "duration": 0
+            },
+            "hide_transition": {
+              "duration": 0
+            },
+            "private_settings": {}
+          }
+        ]
+      },
+      "enabled": true,
+      "flags": 0,
+      "volume": 1.0,
+      "muted": false,
+      "hotkeys": {},
+      "private_settings": {}
+    }
+  ],
+  "groups": [],
+  "quick_transitions": [],
+  "transitions": [],
+  "saved_projectors": [],
+  "preview_locked": false,
+  "scaling_enabled": false,
+  "modules": {}
+}

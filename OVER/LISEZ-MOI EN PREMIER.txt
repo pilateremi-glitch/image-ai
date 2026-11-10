@@ -4,5 +4,12 @@ OVERLAY POKEMON   -> soirées Pokémon : Poké / Super / Hyper / Master / Honor 
 OVERLAY ONE PIECE -> soirées One Piece : 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)
 FIN DE LIVE ONE PIECE / FIN DE LIVE POKEMON -> écran de fin (page animée + vidéo fin-de-live.mp4)
 
-INSTALLER DANS OBS (double-clic) -> ajoute les 2 overlays dans ta scène OBS,
-avec des boutons pour afficher / masquer chacun.
+PREPARER OBS (double-clic).bat (WINDOWS) ou PREPARER OBS - MAC (double-clic).command (MAC)
+  -> LE PLUS SIMPLE : ferme OBS, double-clic. Crée le profil « Z3F4 Whatnot »
+  (1080x1920) et la collection « Z3F4 Live » avec 4 scènes (LIVE ONE PIECE, LIVE POKEMON, FIN DE LIVE x2),
+  caméras PORTRAIT / OPENING déjà placées et overlays en place, puis ouvre OBS sur LIVE ONE PIECE.
+  Ensuite : double-clic sur chaque caméra dans OBS pour choisir ta webcam.
+  Mac : si macOS bloque le fichier, clic droit -> Ouvrir -> Ouvrir.
+
+INSTALLER DANS OBS (double-clic).html -> autre méthode : ajoute les overlays dans une scène que tu as déjà
+  (via le serveur WebSocket d'OBS), avec des boutons afficher / masquer.

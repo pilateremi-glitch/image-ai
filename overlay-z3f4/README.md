@@ -82,3 +82,9 @@ Plein écran (non transparent) : « FIN DU LIVE », logo animé, messages (`&msg
 personnages, heure (`&clock=0` pour la masquer). Dossiers `OVER/FIN DE LIVE ONE PIECE` et `OVER/FIN DE LIVE POKEMON`,
 chacun avec une vidéo `fin-de-live.mp4` (1080x1920, 20 s, sans heure) générée depuis `overlay-z3f4/videos/`.
 L'installateur ajoute aussi ces deux écrans et propose les boutons « Fin de live One Piece / Pokémon ».
+
+## Préparation automatique d'OBS (profil + collection de scènes)
+`OVER/PREPARER OBS - MAC (double-clic).command` (macOS) ou `OVER/PREPARER OBS (double-clic).bat` (Windows), OBS fermé :
+crée le profil « Z3F4 Whatnot » (1080x1920, 30 i/s) et la collection « Z3F4 Live » (scènes LIVE ONE PIECE, LIVE POKEMON,
+FIN DE LIVE ONE PIECE, FIN DE LIVE POKEMON ; caméras PORTRAIT 0–576 px et OPENING 768–1920 px autour de la bande ;
+overlays plein écran au-dessus), sauvegarde l'existant, puis lance OBS sur LIVE ONE PIECE. Généré par `build_obs.py`.
