@@ -75,70 +75,85 @@
   }
   const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);   // easeInOutCubic
 
-  /* ---------------- rolling animation ---------------- */
+  /* ---------------- rolling animation (one ball or a train of balls) ---------------- */
   function trace(o) {
-    const { host, W, H, r, size, type, dur, color, rects } = o;
-    const P = perimeter(W, H, r), R = size / 2;
+    const { host, W, H, r, size, dur, color, rects } = o;
+    const types = o.train || [o.type || 'poke'];                    // train: the 1st (leader) draws the contour
+    const P = perimeter(W, H, r), R = size / 2, gap = size * 1.25, n = types.length;
+    const travel = P.total + (n - 1) * gap;                         // the leader keeps going so the whole train finishes the loop
     const css = `position:absolute;left:0;top:0;width:${size}px;height:${size}px;margin:${-R}px 0 0 ${-R}px;will-change:transform;pointer-events:none`;
-    // glow halo on the ground + ghost images (motion blur) + the ball
-    const glow = document.createElement('div');
-    glow.style.cssText = css + `;border-radius:50%;background:radial-gradient(circle, ${color}cc 0, ${color}55 40%, transparent 70%);transform-origin:center;filter:blur(2px)`;
-    const ghosts = [0.32, 0.2, 0.1].map((a) => { const g = document.createElement('div'); g.style.cssText = css + `;opacity:${a};filter:blur(${(1 - a) * 3}px)`; g.innerHTML = svg(type); return g; });
-    const ball = document.createElement('div');
-    ball.style.cssText = css + `;filter:drop-shadow(0 ${size * 0.08}px ${size * 0.12}px rgba(0,0,0,.55)) drop-shadow(0 0 ${size * 0.25}px ${color})`;
-    ball.innerHTML = svg(type);
-    host.append(glow, ...ghosts, ball);
-    const bodies = [ball, ...ghosts].map((el) => el.querySelector('.zb-body'));
-    bodies.forEach((b) => { b.style.transformOrigin = '50px 50px'; });
-    const hist = [];
+    const mk = (type, extra) => { const d = document.createElement('div'); d.style.cssText = css + extra; d.innerHTML = svg(type); return d; };
+    const balls = types.map((type, k) => {
+      const glow = document.createElement('div');
+      glow.style.cssText = css + `;border-radius:50%;background:radial-gradient(circle, ${color}cc 0, ${color}55 40%, transparent 70%);filter:blur(2px)`;
+      const ghosts = (n > 1 ? [0.28, 0.14] : [0.32, 0.2, 0.1]).map((a) => mk(type, `;opacity:${a};filter:blur(${(1 - a) * 3}px)`));
+      const ball = mk(type, `;filter:drop-shadow(0 ${size * 0.08}px ${size * 0.12}px rgba(0,0,0,.55)) drop-shadow(0 0 ${size * 0.25}px ${color})`);
+      host.append(glow, ...ghosts, ball);
+      const bodies = [ball, ...ghosts].map((el) => el.querySelector('.zb-body'));
+      bodies.forEach((b) => { b.style.transformOrigin = '50px 50px'; });
+      [glow, ...ghosts, ball].forEach((el) => { el.style.visibility = 'hidden'; });
+      return { k, glow, ghosts, ball, bodies, hist: [], x: 0, y: 0, rot: 0 };
+    });
     const t0 = performance.now(), D = dur * 1000;
     let lastSpark = 0;
-    function place(el, x, y, rot, s, bodyEl) { el.style.transform = `translate(${x}px,${y}px) scale(${s})`; if (bodyEl) bodyEl.style.transform = `rotate(${rot}deg)`; }
-    function spark(x, y) {
+    const place = (el, x, y, rot, sc, bodyEl) => { el.style.transform = `translate(${x}px,${y}px) scale(${sc})`; if (bodyEl) bodyEl.style.transform = `rotate(${rot}deg)`; };
+    function spark(x, y, c) {
       const sp = document.createElement('i'), a = Math.random() * 6.28, d = R * (0.6 + Math.random() * 1.2), sz = 2 + Math.random() * 4;
-      sp.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;margin:${-sz / 2}px;border-radius:50%;background:${Math.random() < .5 ? '#fff' : color};box-shadow:0 0 8px ${color};pointer-events:none;transition:transform .7s cubic-bezier(.1,.7,.3,1),opacity .7s ease`;
+      sp.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;margin:${-sz / 2}px;border-radius:50%;background:${Math.random() < .5 ? '#fff' : (c || color)};box-shadow:0 0 8px ${c || color};pointer-events:none;transition:transform .7s cubic-bezier(.1,.7,.3,1),opacity .7s ease`;
       host.appendChild(sp);
       requestAnimationFrame(() => { sp.style.transform = `translate(${Math.cos(a) * d}px,${Math.sin(a) * d}px) scale(.2)`; sp.style.opacity = '0'; });
       setTimeout(() => sp.remove(), 750);
     }
+    const SPARK = { poke: '#ff5a5f', super: '#5aa2ff', hyper: '#ffcc1a', master: '#c890ff' };
     function frame(now) {
-      const t = Math.min(1, (now - t0) / D), s = ease(t) * P.total, [x, y] = P.at(s);
-      const rot = (s / R) * (180 / Math.PI);                          // rolling without slipping
+      const t = Math.min(1, (now - t0) / D), lead = ease(t) * travel;
       const v = t < 1 ? Math.abs(ease(Math.min(1, t + 0.01)) - ease(t)) * 100 : 0;
-      place(ball, x, y, rot, 1, bodies[0]);
-      place(glow, x, y, 0, 1.6 + v * 0.6);
-      hist.unshift([x, y, rot]); if (hist.length > 12) hist.pop();
-      ghosts.forEach((g, i) => { const h = hist[Math.min(hist.length - 1, (i + 1) * 3)]; place(g, h[0], h[1], h[2], 1 - i * 0.06, bodies[i + 1]); g.style.visibility = v > 0.4 ? 'visible' : 'hidden'; });
-      (rects || []).forEach((rc) => { rc.style.strokeDashoffset = String(1000 * (1 - s / P.total)); });
-      if (now - lastSpark > 28 && t < 1) { spark(x, y); lastSpark = now; }
-      if (t < 1) requestAnimationFrame(frame); else capture(x, y, rot);
+      for (const b of balls) {
+        const s = lead - b.k * gap;
+        const on = s >= 0;
+        [b.glow, b.ball].forEach((el) => { el.style.visibility = on ? 'visible' : 'hidden'; });
+        if (!on) { b.ghosts.forEach((g) => { g.style.visibility = 'hidden'; }); continue; }
+        const [x, y] = P.at(s), rot = (s / R) * (180 / Math.PI);       // rolling without slipping
+        b.x = x; b.y = y; b.rot = rot;
+        place(b.ball, x, y, rot, 1, b.bodies[0]);
+        place(b.glow, x, y, 0, 1.6 + v * 0.6);
+        b.hist.unshift([x, y, rot]); if (b.hist.length > 12) b.hist.pop();
+        b.ghosts.forEach((g, i) => { const h = b.hist[Math.min(b.hist.length - 1, (i + 1) * 3)]; place(g, h[0], h[1], h[2], 1 - i * 0.06, b.bodies[i + 1]); g.style.visibility = v > 0.4 ? 'visible' : 'hidden'; });
+      }
+      (rects || []).forEach((rc) => { rc.style.strokeDashoffset = String(1000 * (1 - Math.min(1, lead / P.total))); });
+      if (now - lastSpark > 28 && t < 1) { balls.forEach((b) => { if (b.ball.style.visibility === 'visible') spark(b.x, b.y, n > 1 ? SPARK[types[b.k]] : color); }); lastSpark = now; }
+      if (t < 1) requestAnimationFrame(frame); else capture();
     }
-    function capture(x, y, rot) {                                  // hop, 3 wobbles, flash
-      ghosts.forEach((g) => g.remove());
+    function capture() {                                           // hop, 3 wobbles, flash (all together for a train)
+      balls.forEach((b) => b.ghosts.forEach((g) => g.remove()));
       const seq = [[0, 0, 1], [120, -R * 0.9, 1.08], [240, 0, 1], [330, 0, 1, -18], [450, 0, 1, 14], [570, 0, 1, -8], [680, 0, 1, 0]];
       const t1 = performance.now();
       (function hop(now) {
-        const e = now - t1; let i = 0; while (i < seq.length - 1 && seq[i + 1][0] <= e) i++;
-        const a = seq[i], b = seq[Math.min(i + 1, seq.length - 1)], u = b[0] > a[0] ? Math.min(1, (e - a[0]) / (b[0] - a[0])) : 1;
-        const dy = a[1] + (b[1] - a[1]) * u, sc = a[2] + (b[2] - a[2]) * u, wob = (a[3] || 0) + ((b[3] || 0) - (a[3] || 0)) * u;
-        ball.style.transform = `translate(${x}px,${y + dy}px) scale(${sc}) rotate(${wob}deg)`;
-        glow.style.transform = `translate(${x}px,${y}px) scale(${1.6 - dy / R * 0.3})`;
-        if (e < 700) requestAnimationFrame(hop);
-        else {
-          for (let k = 0; k < 18; k++) spark(x, y);
+        const e = now - t1;
+        for (const b of balls) {
+          const ee = e - b.k * 40;                                   // light offset = wave across the train
+          let i = 0; while (i < seq.length - 1 && seq[i + 1][0] <= ee) i++;
+          const a = seq[i], c = seq[Math.min(i + 1, seq.length - 1)], u = ee <= 0 ? 0 : c[0] > a[0] ? Math.min(1, (ee - a[0]) / (c[0] - a[0])) : 1;
+          const dy = a[1] + (c[1] - a[1]) * u, sc = a[2] + (c[2] - a[2]) * u, wob = (a[3] || 0) + ((c[3] || 0) - (a[3] || 0)) * u;
+          b.ball.style.transform = `translate(${b.x}px,${b.y + dy}px) scale(${sc}) rotate(${wob}deg)`;
+          b.glow.style.transform = `translate(${b.x}px,${b.y}px) scale(${1.6 - dy / R * 0.3})`;
+        }
+        if (e < 700 + (n - 1) * 40) { requestAnimationFrame(hop); return; }
+        for (const b of balls) {
+          for (let k = 0; k < (n > 1 ? 12 : 18); k++) spark(b.x, b.y, n > 1 ? SPARK[types[b.k]] : color);
           const fl = document.createElement('div');
-          fl.style.cssText = `position:absolute;left:${x}px;top:${y}px;width:${size * 3}px;height:${size * 3}px;margin:${-size * 1.5}px;border-radius:50%;background:radial-gradient(circle,#fff 0,${color} 35%,transparent 70%);pointer-events:none;transition:transform .45s ease-out,opacity .45s ease-out;transform:scale(.2)`;
+          fl.style.cssText = `position:absolute;left:${b.x}px;top:${b.y}px;width:${size * 3}px;height:${size * 3}px;margin:${-size * 1.5}px;border-radius:50%;background:radial-gradient(circle,#fff 0,${color} 35%,transparent 70%);pointer-events:none;transition:transform .45s ease-out,opacity .45s ease-out;transform:scale(.2)`;
           host.appendChild(fl);
           requestAnimationFrame(() => { fl.style.transform = 'scale(1.4)'; fl.style.opacity = '0'; });
-          ball.style.transition = 'transform .3s ease-in, opacity .3s ease-in';
-          ball.style.transform = `translate(${x}px,${y}px) scale(.2)`; ball.style.opacity = '0'; glow.style.transition = 'opacity .3s'; glow.style.opacity = '0';
-          setTimeout(() => { fl.remove(); ball.remove(); glow.remove(); }, 600);
-          if (o.onDone) o.onDone();
+          b.ball.style.transition = 'transform .3s ease-in, opacity .3s ease-in';
+          b.ball.style.transform = `translate(${b.x}px,${b.y}px) scale(.2)`; b.ball.style.opacity = '0'; b.glow.style.transition = 'opacity .3s'; b.glow.style.opacity = '0';
+          setTimeout(() => { fl.remove(); b.ball.remove(); b.glow.remove(); }, 600);
         }
+        if (o.onDone) o.onDone();
       })(t1);
     }
     requestAnimationFrame(frame);
-    return dur + 0.7;                                               // total duration (rolling + capture)
+    return dur + 0.75 + (n - 1) * 0.04;                             // total duration (rolling + capture)
   }
 
   global.Z3Balls = { svg, trace, perimeter };

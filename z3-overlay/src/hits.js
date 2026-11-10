@@ -183,7 +183,7 @@
       if (T.god) for (let i = 0; i < 4; i++) setTimeout(() => { fx.shake(); fx.burst(960, 500, 60, 'petal'); }, 1500 + i * 900);
     }
     if (camOn && CAM_TIERS.includes(h.tier)) {
-      const [cx, cy, cw, ch] = CAM, src = h.img || h.snap, trace = h.tier === 'god' ? 2.2 : 1.6;
+      const [cx, cy, cw, ch] = CAM, src = h.img || h.snap, trace = h.tier === 'god' ? 3.0 : 1.6;
       const gold = h.tier === 'secret' || h.tier === 'god';
       const FR = gold ? { g1: '#fff6c2', g2: '#ffd23a', g3: '#c98a12', fg1: '#ffcf3a', fg2: '#ff9d00' }    // doré brillant
                       : { g1: '#f2d4ff', g2: '#b44dff', g3: '#7a1fd6', fg1: '#c46bff', fg2: '#ff3fd0' };   // néon violet
@@ -194,7 +194,7 @@
       const cardH = Math.min(avail, (cw * 0.84) / 0.716), cardW = cardH * 0.716;
       const kx = (cw - cardW) / 2, ky = titleH + pad;
       const wrap = document.createElement('div'); wrap.className = 'camwrap';
-      const total = trace + 0.75;   // roulement + capture (saut, 3 secousses, flash)
+      const total = trace + 0.75 + (h.tier === 'god' ? 0.12 : 0);   // roulement + capture (saut, 3 secousses, flash)
       wrap.style.cssText = `left:${cx}px;top:${cy}px;width:${cw}px;height:${ch}px;--trace:${total}s;--fg1:${FR.fg1};--fg2:${FR.fg2};--fs:${fs}px`;
       if (gold) wrap.classList.add('gold');
       // la balle roule sur le CONTOUR DE LA CARTE et le dessine
@@ -226,7 +226,8 @@
       const ballType = { rare: 'poke', ultra: 'super', secret: 'hyper', god: 'master' }[h.tier] || 'poke';
       if (window.Z3Balls) {
         const rects = [...wrap.querySelectorAll('.camframe rect')]; rects.forEach((rc) => { rc.style.animation = 'none'; rc.style.strokeDashoffset = '1000'; });
-        Z3Balls.trace({ host: wrap.querySelector('.ballhost'), W: W2, H: H2, r, size: pb, type: ballType, dur: trace, color: FR.fg1, rects });
+        Z3Balls.trace({ host: wrap.querySelector('.ballhost'), W: W2, H: H2, r, size: h.tier === 'god' ? Math.round(pb * 0.85) : pb, type: ballType, dur: trace, color: FR.fg1, rects,
+          train: h.tier === 'god' ? ['master', 'hyper', 'super', 'poke'] : null });   // GOD PACK : le train des 4 balles
       }
       if (window.Z3Sfx) { Z3Sfx.roll(trace); setTimeout(() => Z3Sfx.capture(h.tier), trace * 1000); }
     }
