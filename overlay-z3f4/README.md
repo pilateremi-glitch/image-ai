@@ -10,6 +10,19 @@ Overlay OBS : un chapeau de paille et une Pokéball en pixel art, l'un après l'
 2. Largeur 1920, hauteur 1080 (ou plus petit pour un coin d'écran).
 3. Coche **Actualiser le navigateur quand la scène devient active**.
 
+## Whatnot / Voggt (mode recommandé) : thème par le nom de la scène OBS
+Utilise l'URL **sans** `?twitch=` : `file:///C:/chemin/overlay-z3f4/index.html`
+Dans les propriétés de la source, règle **Accès à la page : Accès en lecture aux informations de l'utilisateur**.
+
+| Le nom de la scène OBS contient | Thème |
+|---|---|
+| `pokemon`, `poke`, `pkm` | Soirée Pokémon (Pokéball) |
+| `one piece`, `op`, `luffy`, `pirate` | Soirée One Piece (chapeau) |
+| autre chose (ex. « Pause ») | garde le thème actuel |
+
+Crée par exemple deux scènes, `WHATNOT Pokémon` et `WHATNOT One Piece` (ou `VOGGT …`), et lance celle qui correspond au live.
+Le thème change instantanément, sans Internet.
+
 ## Thème automatique (catégorie Twitch)
 Ajoute le nom de ta chaîne à l'URL de la source :
 `file:///C:/chemin/overlay-z3f4/index.html?twitch=TaChaine`
