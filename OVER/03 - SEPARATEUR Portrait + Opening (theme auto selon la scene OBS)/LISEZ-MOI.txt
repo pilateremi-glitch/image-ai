@@ -2,10 +2,10 @@ Bande qui SÉPARE les 2 caméras : PORTRAIT (toi) et OPENING (les cartes).
 Elle s'adapte toute seule au format de ta scène OBS :
   - scène verticale (1080x1920, Whatnot / Voggt) -> PORTRAIT en haut (40 %), OPENING en bas (60 %, plus de place pour les cartes)
   - scène horizontale (1920x1080) -> PORTRAIT à gauche, OPENING à droite, bande verticale au milieu
-Le logo animé (Pokéball / chapeau) et l'heure sont dans la bande.
+Le logo animé (Pokéball / chapeau) et l'heure sont dans la bande. Badge « ● LIVE » en haut à droite.
 
 PLACEMENT DES CAMÉRAS : mets la source Navigateur AU-DESSUS des 2 caméras,
-puis cale la caméra PORTRAIT dans le cadre PORTRAIT et la caméra OPENING dans le cadre OPENING.
+puis cale la caméra PORTRAIT au-dessus de la bande et la caméra OPENING en dessous.
 IMPORTANT : la taille de la source Navigateur = la taille de ta scène OBS
 (Paramètres -> Vidéo -> Résolution de base), par ex. 1080 x 1920 en vertical.
 
