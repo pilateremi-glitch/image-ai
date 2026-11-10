@@ -44,13 +44,46 @@
   @keyframes pop { from { transform: scale(.2) rotate(-10deg); opacity: 0; } }
   .recap .none { color: #e9c7ff; letter-spacing: 4px; margin-top: 10px; }
   .rule { margin-top: 10px; display: inline-flex; align-items: center; gap: 10px; font-size: 22px; letter-spacing: 4px; padding: 6px 18px;
-    background: linear-gradient(90deg, rgba(255,63,208,.95), rgba(139,44,255,.9)); clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
+    background: linear-gradient(90deg, rgba(255,63,208,.95), rgba(139,44,255,.9), rgba(255,63,208,.95), rgba(255,210,58,.9), rgba(255,63,208,.95)); clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%); }
   .ticker { position: absolute; left: 0; right: 0; bottom: 24px; height: 52px; overflow: hidden; display: flex; align-items: center;
     background: linear-gradient(90deg, rgba(14,3,28,.0), rgba(14,3,28,.85) 10%, rgba(14,3,28,.85) 90%, rgba(14,3,28,0));
     border-top: 2px solid rgba(255,63,208,.7); border-bottom: 2px solid rgba(180,77,255,.7); }
   .ticker .run { white-space: nowrap; font-size: 26px; letter-spacing: 6px; animation: tick 40s linear infinite; }
   .ticker .run b { color: var(--pink); margin: 0 26px; }
   @keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ===================== animations (scène en boucle) ===================== */
+  #emb { position: relative; display: grid; place-items: center; }
+  #emb::before { content: ''; position: absolute; width: 330px; height: 330px; border-radius: 50%; z-index: 0;
+    background: repeating-conic-gradient(from 0deg, rgba(255,210,58,.55) 0 4deg, transparent 4deg 16deg);
+    -webkit-mask: radial-gradient(circle, #000 25%, transparent 68%); mask: radial-gradient(circle, #000 25%, transparent 68%); animation: raysspin 9s linear infinite; }
+  @keyframes raysspin { to { transform: rotate(360deg); } }
+  #emb img { position: relative; z-index: 1; animation: logoin 1.1s cubic-bezier(.2,1.5,.4,1) both, logopulse 3s ease-in-out 1.1s infinite !important; }
+  @keyframes logoin { from { transform: scale(.1) rotate(-200deg); opacity: 0; } }
+  #emb .shine { position: absolute; inset: 0; z-index: 2; pointer-events: none; -webkit-mask: var(--logo) center / contain no-repeat; mask: var(--logo) center / contain no-repeat;
+    background: linear-gradient(110deg, transparent 35%, rgba(255,255,255,.85) 48%, transparent 60%) 0 0 / 300% 100%; animation: logoshine 3.2s ease-in-out 1.4s infinite; }
+  @keyframes logoshine { 0% { background-position: 150% 0; } 45%, 100% { background-position: -150% 0; } }
+  .spark { position: absolute; width: 10px; height: 10px; pointer-events: none; animation: twinkle 1.6s ease-in-out infinite; }
+  .spark::before, .spark::after { content: ''; position: absolute; left: 4px; top: 0; width: 2px; height: 10px; background: #fff; box-shadow: 0 0 8px #ffd23a; border-radius: 2px; }
+  .spark::after { transform: rotate(90deg); }
+  @keyframes twinkle { 0%, 100% { transform: scale(0) rotate(0); opacity: 0; } 50% { transform: scale(1.6) rotate(45deg); opacity: 1; } }
+  .title .ch { display: inline-block; animation: wave 2.4s ease-in-out infinite; }
+  @keyframes wave { 0%, 60%, 100% { transform: translateY(0) scale(1); } 20% { transform: translateY(-22px) scale(1.12); color: #ffe46b; } 40% { transform: translateY(4px) scale(.98); } }
+  .recap .chip { animation: chipin .6s cubic-bezier(.2,1.5,.4,1) both, chipglow 7s ease-in-out infinite; }
+  @keyframes chipin { from { transform: translateY(30px) scale(.6); opacity: 0; } }
+  @keyframes chipglow { 0%, 12%, 100% { box-shadow: none; transform: none; } 6% { box-shadow: 0 0 26px var(--c), inset 0 0 18px var(--c); transform: translateY(-6px) scale(1.06); } }
+  .recap .cardx { animation: pop .6s cubic-bezier(.2,1.6,.4,1) both, float 3s ease-in-out infinite; }
+  @keyframes float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
+  .recap .cardx::after { content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.7) 45%, rgba(123,255,234,.45) 52%, rgba(255,63,208,.35) 58%, transparent 70%) 0 0 / 300% 100%;
+    animation: holo 4s ease-in-out infinite; animation-delay: inherit; }
+  @keyframes holo { 0% { background-position: 160% 0; } 40%, 100% { background-position: -160% 0; } }
+  .recap .cardx.star { z-index: 3; animation: pop .6s both, starcard 1.8s cubic-bezier(.2,1.4,.4,1) both; }
+  @keyframes starcard { 0% { transform: none; } 25%, 75% { transform: translateY(-8px) scale(1.16); box-shadow: 0 0 40px var(--c), 0 0 80px var(--c); } 100% { transform: none; } }
+  .rule { background-size: 220% 100% !important; animation: rulemove 4s linear infinite; }
+  @keyframes rulemove { to { background-position: -220% 0; } }
+  .card::after { content: ''; position: absolute; inset: 0; pointer-events: none; clip-path: inherit;
+    background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,.08) 50%, transparent 60%) 0 0 / 300% 100%; animation: holo 6s linear infinite; }
   @keyframes logopulse { 50% { transform: scale(1.04) rotate(-1.5deg); } }
   .badge { position: absolute; right: 30px; top: 20px; flex-direction: column; text-align: center; gap: 4px; display: flex; align-items: center; gap: 14px; font-size: 18px; letter-spacing: 5px; color: #e9c7ff; }
   .badge .t2 { margin-top: 6px; font-family: Bangers; font-size: 40px; letter-spacing: 2px; color: #fff; text-shadow: 0 0 12px #ff3fd0; line-height: .95; }
@@ -82,7 +115,7 @@
   const A = window.Z3Art, $ = (s) => document.getElementById(s);
   // logo officiel du partenaire : preview/logo-rainte.png (sinon l'emblème dessiné)
   $('emb').innerHTML = A.emblemSVG(86, 'emS');
-  { const lg = new Image(); lg.onload = () => { $('emb').innerHTML = ''; lg.style.cssText = 'height:190px;width:auto;max-width:260px;object-fit:contain;filter:drop-shadow(0 0 16px rgba(255,63,208,.75)) drop-shadow(0 6px 10px rgba(0,0,0,.6));animation:logopulse 3s ease-in-out infinite'; $('emb').appendChild(lg); }; lg.src = 'preview/logo-rainte.png'; }
+  { const lg = new Image(); lg.onload = () => { $('emb').innerHTML = ''; $('emb').style.setProperty('--logo', `url('${lg.src}')`); lg.style.cssText = 'height:190px;width:auto;max-width:260px;object-fit:contain;filter:drop-shadow(0 0 16px rgba(255,63,208,.75)) drop-shadow(0 6px 10px rgba(0,0,0,.6));animation:logopulse 3s ease-in-out infinite'; $('emb').appendChild(lg); $('emb').insertAdjacentHTML('beforeend', '<div class="shine"></div>' + [[-20, 10], [210, 30], [-10, 150], [220, 160], [100, -12], [40, 190]].map(([x, y], i) => `<i class="spark" style="left:${x}px;top:${y}px;animation-delay:${i * 0.27}s"></i>`).join('')); }; lg.src = 'preview/logo-rainte.png'; }
   const DEVIL = '<svg width="26" height="26" viewBox="0 0 32 32"><path d="M5 4l5 7M27 4l-5 7" stroke="#ff2f8a" stroke-width="4" stroke-linecap="round"/><circle cx="16" cy="18" r="12" fill="#b44dff"/><circle cx="12" cy="17.6" r="1.8" fill="#fff"/><circle cx="20" cy="17.6" r="1.8" fill="#fff"/><path d="M9.5 21.5q6.5 6 13 0" fill="#fff"/></svg>';
 
   // niveau du sandwich : repris du chrono de l'overlay (même ordinateur), sinon selon la scène
@@ -98,7 +131,7 @@
     pause: { t: 'PETITE PAUSE', jp: '休憩中', sub: 'ON REVIENT TRÈS VITE · NE BOUGE PAS', rule: `LE SANDWICH ATTEND… IL EN RESTE ENCORE ${DEVIL}` },
     end:   { t: 'MERCI POUR LE LIVE !', jp: 'ありがとう', sub: 'IL NE RESTE PLUS RIEN · À TRÈS VITE SUR Z3 LIVE', rule: `SANDWICH TERMINÉ · VERRE VIDE · GG ${DEVIL}` },
   }[mode] || {};
-  $('title').textContent = M.t; $('jp').textContent = M.jp; $('sub').textContent = M.sub; $('rule').innerHTML = M.rule;
+  $('title').innerHTML = [...(M.t || '')].map((c, i) => c === ' ' ? ' ' : `<span class="ch" style="animation-delay:${(i * 0.06).toFixed(2)}s">${c}</span>`).join(''); $('jp').textContent = M.jp; $('sub').textContent = M.sub; $('rule').innerHTML = M.rule;
   const items = ['OUVERTURES DE DISPLAYS', 'POKÉMON', 'ONE PIECE CARD GAME', 'TEAM Z3F4', 'LE RAINTÉ DU TCG', 'LE LIVE SE TERMINE QUAND IL NE RESTE PLUS RIEN', 'FOLLOW POUR NE RIEN RATER'];
   const line = items.map((t) => `${t}<b>✦</b>`).join('');
   $('run').innerHTML = line + line;
@@ -129,6 +162,14 @@
       $('recap').innerHTML = `<div class="chips">${chips}</div>${gal ? `<div class="gal">${gal}</div>` : '<div class="none">PAS DE HIT CE SOIR… LE PROCHAIN SERA LE BON</div>'}`;
       $('recap').querySelectorAll('img').forEach((im) => { im.onerror = () => { if (im.dataset.alt) { im.src = im.dataset.alt; im.dataset.alt = ''; } else im.remove(); }; });
       $('recap').hidden = false;
+      $('recap').querySelectorAll('.chip').forEach((c, i) => { c.style.animationDelay = `${0.1 + i * 0.1}s, ${1 + i * 1}s`; });
+      const cards = [...$('recap').querySelectorAll('.cardx')];
+      cards.forEach((c, i) => { c.style.animationDelay = `${0.3 + i * 0.15}s, ${i * 0.4}s`; });
+      let star = 0;                                   // une carte à la fois passe au premier plan
+      if (cards.length) setInterval(() => { cards.forEach((c) => c.classList.remove('star')); const c = cards[star++ % cards.length]; void c.offsetWidth; c.classList.add('star'); }, 2000);
+      // compteurs qui défilent
+      $('recap').querySelectorAll('.chip b').forEach((b) => { const v = +b.textContent || 0, t0 = performance.now() + 300;
+        (function tick(now) { const k = Math.max(0, Math.min(1, (now - t0) / 1400)); b.textContent = Math.round(v * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); })(performance.now()); });
       document.querySelector('.food').style.display = 'none';
       const it = Object.entries(r.items || {}).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
       if (it.length || r.boosters) $('rule').textContent = 'OUVERT CE SOIR · ' + it.map(([k, v]) => v + ' ' + k.toUpperCase()).join(' · ') + (r.boosters ? ' · ' + r.boosters + ' BOOSTERS' : '');
