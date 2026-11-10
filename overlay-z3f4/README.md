@@ -65,8 +65,8 @@ Options : `&split=0.4` (position de la bande, 0.2–0.8 ; 0.4 par défaut = 40 %
 
 ## Versions « collection » (`?theme=pokemonplus` / `?theme=onepieceplus`)
 - `pokemonplus` : Poké Ball → Super Ball → Hyper Ball → Master Ball → Honor Ball, une balle par passage.
-- `onepieceplus` : 12 personnages, chacun par son objet emblématique : Luffy, Barbe Noire, Marine, Zoro, Doflamingo, Chopper,
-  Mihawk, Ace, Kuma, Brook, Law, Sabo. Le nom s'affiche dans la bande.
+- `onepieceplus` : 14 personnages, chacun par son objet emblématique : Luffy, Barbe Noire, Marine, Zoro (3 sabres), Doflamingo,
+  Chopper (bois de renne), Sanji (jambe en feu), Mihawk, Robin (fleur de mains), Ace, Kuma, Brook, Law, Sabo. Le nom s'affiche dans la bande.
 Dossiers prêts à l'emploi : `OVER/04 …` et `OVER/05 …`.
 
 ## Installation automatique dans OBS (`OVER/00 - INSTALLER DANS OBS (double-clic).html`)

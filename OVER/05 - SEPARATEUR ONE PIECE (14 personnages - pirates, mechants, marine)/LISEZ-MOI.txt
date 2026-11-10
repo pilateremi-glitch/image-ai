@@ -2,8 +2,9 @@ Copie du séparateur 03, version 100 % ONE PIECE.
 À chaque passage, l'objet emblématique d'un personnage tourne, se retourne et le logo sort de l'intérieur.
 Le nom du personnage s'affiche dans la bande. Ordre (bons / méchants / Marine mélangés) :
   LUFFY (chapeau de paille) - BARBE NOIRE (tricorne tête de mort) - MARINE (casquette à ancre)
-  ZORO (bandana) - DOFLAMINGO (lunettes roses) - CHOPPER (haut-de-forme rose à croix)
-  MIHAWK (chapeau à plume) - ACE (chapeau de cow-boy à badges) - KUMA (bonnet à oreilles d'ours)
+  ZORO (bandana + 3 sabres) - DOFLAMINGO (lunettes roses) - CHOPPER (chapeau rose à croix + bois de renne)
+  SANJI (jambe en feu) - MIHAWK (chapeau à plume) - ROBIN (fleur de mains)
+  ACE (chapeau de cow-boy à badges) - KUMA (bonnet à oreilles d'ours)
   BROOK (haut-de-forme + afro) - LAW (bonnet en fourrure tachetée) - SABO (haut-de-forme bleu à lunettes)
 Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».
 S'adapte au format de ta scène OBS (vertical ou horizontal).

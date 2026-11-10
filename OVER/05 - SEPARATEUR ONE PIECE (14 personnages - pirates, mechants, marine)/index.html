@@ -63,7 +63,7 @@ const THEMES = {
   onepiece: { label:'SOIREE ONE PIECE', accent:'#e63946', ink:'#ffe08a', seq:['hat'] },
   // Versions « collection » : une balle / un personnage différent à chaque passage
   pokemonplus:  { label:'SOIREE POKEMON',   accent:'#ffcb05', ink:'#fff', seq:['ball:poke','ball:great','ball:ultra','ball:master','ball:premier'] },
-  onepieceplus: { label:'SOIREE ONE PIECE', accent:'#e63946', ink:'#ffe08a', seq:['hat:straw','hat:villain','hat:marine','hat:zoro','hat:doflamingo','hat:chopper','hat:mihawk','hat:ace','hat:kuma','hat:brook','hat:law','hat:sabo'] },
+  onepieceplus: { label:'SOIREE ONE PIECE', accent:'#e63946', ink:'#ffe08a', seq:['hat:straw','hat:villain','hat:marine','hat:zoro','hat:doflamingo','hat:chopper','hat:sanji','hat:mihawk','hat:robin','hat:ace','hat:kuma','hat:brook','hat:law','hat:sabo'] },
   auto:     { label:'Z3F4 LE RAINTE DU TCG', accent:'#ffcb05', ink:'#fff', seq:['ball','hat'] },
 };
 let theme = 'auto', sceneName = '(hors OBS)';
@@ -399,7 +399,7 @@ Object.assign(P, {
   cyan: pal(['#0b3a4a', '#13667e', '#22a3c2', '#6fd6ee', '#c8f4ff']),
 });
 const OP_NAMES = { straw: 'LUFFY', zoro: 'ZORO', chopper: 'CHOPPER', brook: 'BROOK', ace: 'ACE', sabo: 'SABO', law: 'LAW',
-  mihawk: 'MIHAWK', kuma: 'KUMA', doflamingo: 'DOFLAMINGO', villain: 'BARBE NOIRE', marine: 'MARINE' };
+  mihawk: 'MIHAWK', robin: 'ROBIN', sanji: 'SANJI', kuma: 'KUMA', doflamingo: 'DOFLAMINGO', villain: 'BARBE NOIRE', marine: 'MARINE' };
 const POKE_NAMES = { poke: 'POKE BALL', great: 'SUPER BALL', ultra: 'HYPER BALL', master: 'MASTER BALL', premier: 'HONOR BALL' };
 const itemName = () => (kind === 'hat' ? OP_NAMES : POKE_NAMES)[variant] || '';
 const ell = (u, v, cx, cy, rx, ry) => ((u - cx) / rx) ** 2 + ((v - cy) / ry) ** 2;
@@ -426,6 +426,87 @@ function insideGeneric(u, v, x, y, glow, o) {
   }
   return o.extra ? o.extra(u, v, x, y) : null;
 }
+// ---------- Aides de dessin : segments épais, sabres, flammes ----------
+Object.assign(P, {
+  antler: pal(['#3b2410', '#5e3a1a', '#8a5a2b', '#b5844a', '#dcb27a']),
+  steel: pal(['#4a5263', '#7c8699', '#b7c0d0', '#e3e8f1', '#ffffff']),
+  skin: pal(['#7a4a2e', '#b77a52', '#e0a67c', '#f6c9a2', '#ffe4cc']),
+  petal: pal(['#6a1a52', '#a3307e', '#d655a8', '#f28ccb', '#ffc4e6']),
+  fire: pal(['#6e0e04', '#b8290a', '#ee5a12', '#ff9a26', '#ffd34d', '#fff6c2']),
+  suit: pal(['#07080c', '#11131b', '#1e2230', '#323848', '#4f5770']),
+});
+function segD(u, v, ax, ay, bx, by) { // distance au segment + position t (0..1)
+  const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+  const t = clamp(((u - ax) * dx + (v - ay) * dy) / l2);
+  return [Math.hypot(u - ax - dx * t, v - ay - dy * t), t];
+}
+// Katana : pommeau en (x0,y0), direction a (radians), poignée de couleur hp
+function katana(u, v, x, y, x0, y0, a, len, hp) {
+  const ca = Math.cos(a), sa = Math.sin(a), du = u - x0, dv = v - y0;
+  const t = du * ca + dv * sa, d = -du * sa + dv * ca;
+  if (t < 0 || t > len) return null;
+  if (t < 5.2) { if (Math.abs(d) < 0.95) return ((Math.floor(t * 1.4) + (d > 0 ? 1 : 0)) % 2) ? tone(hp, 2.6, x, y) : tone(hp, 1.2, x, y); return null; } // poignée tressée
+  if (t < 6) { if (Math.abs(d) < 1.9) return tone(P.gold, 2.4 - d * 0.4, x, y); return null; }              // garde
+  const w = 0.75 * (t > len - 2.2 ? (len - t) / 2.2 : 1);                                                   // lame + pointe
+  if (d > -0.55 && d < w) return d < -0.05 ? P.steel[4] : tone(P.steel, 2.4 - (t / len), x, y);
+  return null;
+}
+const backGlow = fn => (u, v, x, y, g) => (g > 0 && Math.hypot(u, v * 1.25) < g * 7.5) ? tone(P.glow, 3.4 - Math.hypot(u, v * 1.25) / (g * 7.5) * 3, x, y) : fn(u, v, x, y, 1, true);
+// Bois de renne (Chopper)
+function antlers(u, v, x, y) {
+  const au = Math.abs(u);
+  const segs = [[4.5, -5, 11, -11.5, 1.3], [8, -8.4, 7.6, -14, 0.9], [9.6, -9.9, 14.8, -12.4, 0.85], [11, -11.5, 12.6, -16, 0.8]];
+  for (const [ax, ay, bx, by, w] of segs) {
+    const [d, t] = segD(au, v, ax, ay, bx, by);
+    if (d < w * (1 - t * 0.25)) return tone(P.antler, 2.4 - t * 0.4 + (u < 0 ? 0.5 : -0.2), x, y);
+  }
+  return null;
+}
+// Fleur de mains (Robin)
+function robinFlower(u, v, x, y, face, back) {
+  const r = Math.hypot(u, v), a = Math.atan2(v, u);
+  if (r < 2.4) return tone(back ? P.petal : P.gold, 3 - r, x, y);
+  if (r < 3.6) return tone(P.petal, 1.2, x, y);
+  for (let i = 0; i < 6; i++) {
+    const ang = i * Math.PI / 3 - Math.PI / 2, ex = Math.cos(ang) * 9.5, ey = Math.sin(ang) * 9.5;
+    const hx = Math.cos(ang) * 11.8, hy = Math.sin(ang) * 11.8;
+    if (Math.hypot(u - hx, v - hy) < 2.2) return tone(P.skin, 2.8 - (u - hx + v - hy) * 0.25, x, y);    // paume
+    for (const [off, len] of [[-0.62, 4], [-0.2, 4.7], [0.22, 4.5], [0.62, 3.7], [1.5, 3.2]]) {          // 4 doigts + pouce
+      const fa = ang + off, sx = hx + Math.cos(fa) * 1.5, sy = hy + Math.sin(fa) * 1.5;
+      const [d, t] = segD(u, v, sx, sy, sx + Math.cos(ang + off * 0.6) * len, sy + Math.sin(ang + off * 0.6) * len);
+      if (d < 0.62) return tone(P.skin, 2.5 - t * 0.6, x, y);
+    }
+    const [d, t] = segD(u, v, Math.cos(ang) * 3, Math.sin(ang) * 3, ex, ey);                               // avant-bras
+    if (d < 1.25) return tone(P.skin, 2 + (t > 0.85 ? 0.6 : 0) - d * 0.4, x, y);
+  }
+  // pétales roses entre les bras
+  const k = Math.abs(Math.cos(3 * (a + Math.PI / 2) + Math.PI / 2));
+  if (r < 3.6 + 6.2 * k) return tone(P.petal, 2.6 - r / 9 + (back ? -0.8 : 0), x, y);
+  return null;
+}
+// Jambe en feu (Sanji, Diable Jambe)
+function sanjiLeg(u, v, x, y, face, back) {
+  const fu = u * face, now = performance.now() / 1000;
+  const [d, t] = segD(fu, v, -10, 10, 5.5, -1.5);
+  // chaussure
+  const [ds, ts] = segD(fu, v, 5, -0.9, 10, -3.6);
+  if (ds < 1.8 - ts * 0.4) return ts > 0.8 && v < -3.8 ? P.suit[4] : tone(P.suit, 2.6 - ts, x, y);
+  if (d < 2.3 - t * 0.5) {                                                                               // pantalon noir
+    if (t > 0.9 && d < 1.7) return tone(P.fire, 4, x, y);                                               // cheville incandescente
+    return tone(P.suit, 1.6 + (fu * 0.7 - v * 0.7 > 0 ? -0.6 : 0.8) + (back ? -0.8 : 0), x, y);
+  }
+  // flammes : surtout sur le tibia et le pied, elles montent
+  if (t < 0.35) return null;
+  const n = Math.sin(fu * 1.7 + now * 13) * 0.9 + Math.sin(v * 1.3 - now * 17 + fu) * 0.8 + (hash(x, y + Math.floor(now * 14)) - 0.5) * 1.6;
+  const reach = 2.4 + (t - 0.35) * 5.2 + n * 0.8;
+  const lift = d - Math.max(0, (fu * 0.55 + v * 0.83)) * -0.0; // garde la forme
+  if (lift < reach) return tone(P.fire, 5.2 - (lift / reach) * 5.2, x, y);
+  return null;
+}
+// Les 3 sabres de Zoro : Wado Ichimonji (blanc), Sandai Kitetsu (bordeaux), Shusui (noir)
+function zoroSwords(u, v, x, y) {
+  return katana(u, v, x, y, -15, 11, -0.62, 31, P.wht) || katana(u, v, x, y, 15, 11, Math.PI + 0.62, 31, P.red) || katana(u, v, x, y, -17.5, 4.5, -0.12, 33, P.dark);
+}
 function lawSpot(u, v) { // grosses taches noires sur la fourrure
   const cx = Math.floor((u + 40) / 3.6), cy = Math.floor((v + 40) / 3.2);
   if (hash(cx * 3 + 1, cy * 5 + 2) > 0.45) return false;
@@ -442,17 +523,22 @@ const OP = {
       }
       const t = -fu - 7.5; // pans du nœud derrière
       if (t > 0 && t < 8.5 && (Math.abs(v - (2.5 + t * 0.45)) < 1.4 - t * 0.08 || Math.abs(v - (3.6 + t * 0.95)) < 1.2 - t * 0.07)) return tone(P.green, 1.6 + (t < 1.6 ? 1 : 0), x, y);
-      return null;
+      return zoroSwords(fu, v, x, y);
     },
     inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 10.8, ry: 7, hrx: 9, hry: 5.4, rim: P.green, lining: P.green, pad: 0.8,
-      extra: (u, v, x, y) => (u < -9 && u > -17 && Math.abs(v - 4 - (u + 9) * -0.3) < 1.3 ? tone(P.green, 1.6, x, y) : null) }),
+      extra: (u, v, x, y) => (u < -9 && u > -17 && Math.abs(v - 4 - (u + 9) * -0.3) < 1.3 ? tone(P.green, 1.6, x, y) : zoroSwords(u, v, x, y)) }),
   },
   // CHOPPER : haut-de-forme rose avec la croix blanche
   chopper: {
-    side: (u, v, x, y, face) => topHat(u, v, x, y, face, { top: -8.5, w: 7.2, brim: 11.5, pal: P.pinkH, band: P.pinkH,
-      deco: (u, v) => (v > -6.8 && v < -0.2 && Math.abs(u) < 4.6 && (Math.abs(u - (v + 3.5) * 0.85) < 0.95 || Math.abs(u + (v + 3.5) * 0.85) < 0.95)) ? tone(P.wht, 3, x, y) : null }),
-    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 12, ry: 7.2, hrx: 7, hry: 4.3, rim: P.pinkH, lining: P.pinkH }),
+    side: (u, v, x, y, face) => topHat(u, v, x, y, face, { top: -8.5, w: 7.2, brim: 11.5, pal: P.pinkH, band: P.blue,
+      deco: (u, v) => (v > -6.8 && v < -0.2 && Math.abs(u) < 4.6 && (Math.abs(u - (v + 3.5) * 0.85) < 0.95 || Math.abs(u + (v + 3.5) * 0.85) < 0.95)) ? tone(P.wht, 3, x, y) : null }) || antlers(u, v, x, y),
+    inside: (u, v, x, y, g) => insideGeneric(u, v, x, y, g, { rx: 12, ry: 7.2, hrx: 7, hry: 4.3, rim: P.pinkH, lining: P.blue,
+      extra: (u, v, x, y) => antlers(u, -v - 4, x, y) }),
   },
+  // ROBIN : fleur faite de mains (Hana Hana)
+  robin: { side: (u, v, x, y, face) => robinFlower(u, v, x, y, face, false), inside: backGlow((u, v, x, y, f, b) => robinFlower(u, v, x, y, 1, b)) },
+  // SANJI : jambe en feu (Diable Jambe)
+  sanji: { side: (u, v, x, y, face) => sanjiLeg(u, v, x, y, face, false), inside: backGlow((u, v, x, y, f, b) => sanjiLeg(u, v, x, y, 1, b)) },
   // BROOK : haut-de-forme noir sur une grosse coupe afro
   brook: {
     side(u, v, x, y, face) {
