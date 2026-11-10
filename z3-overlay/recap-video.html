@@ -43,6 +43,7 @@
   </div>
 </div>
 <script src="data/fonds.js"></script>
+<script src="data/musique-recap.js"></script>
 <script src="src/art.js"></script>
 <script src="src/rarities.js"></script>
 <script src="src/obsws.js"></script>
@@ -208,9 +209,27 @@
 
   /* ---------------- lecture & enregistrement ---------------- */
   async function prepare() { if (!data) useData(localData() || DEMO, localData() ? 'ce navigateur' : 'démo'); if (!assets) { status('Préparation des images…'); assets = await loadAssets(); } DUR = 9 + assets.top.length * 2.2 + 5 + 3.5; }
+  /* ---------------- musique (data/musique-recap.js, composée par synthèse) ---------------- */
+  let actx = null, music = null;
+  async function musicBuffer() {
+    if (music || !window.Z3MUSIC || Q.has('nomusic')) return music;
+    actx = actx || new AudioContext();
+    const bytes = Uint8Array.from(atob(window.Z3MUSIC.split(',')[1]), (ch) => ch.charCodeAt(0));
+    music = await actx.decodeAudioData(bytes.buffer);
+    return music;
+  }
+  function startMusic(dest) {                     // fondu de sortie calé sur la durée de la vidéo
+    if (!music) return null;
+    const src = actx.createBufferSource(), g = actx.createGain(), t = actx.currentTime;
+    src.buffer = music; src.connect(g); g.connect(dest || actx.destination);
+    g.gain.setValueAtTime(0.9, t); g.gain.setValueAtTime(0.9, t + Math.max(0, DUR - 1.6)); g.gain.linearRampToValueAtTime(0, t + DUR);
+    src.start(t); return src;
+  }
   let playing = false;
-  async function play(onDone) {
-    await prepare(); playing = true; const t0 = performance.now();
+  async function play(onDone, dest) {
+    await prepare(); await musicBuffer(); if (actx && actx.state === 'suspended') await actx.resume();
+    startMusic(dest || (actx && actx.destination));
+    playing = true; const t0 = performance.now();
     (function loop() {
       const t = (performance.now() - t0) / 1000;
       if (t >= DUR || !playing) { playing = false; frame(Math.min(t, DUR - 0.01)); if (onDone) onDone(); return; }
@@ -219,10 +238,14 @@
   }
   async function record() {
     await prepare();
-    const types = ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
+    await musicBuffer();
+    const withAudio = !!music;
+    const types = withAudio ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/webm;codecs=vp9,opus', 'video/webm'] : ['video/mp4;codecs=avc1.42E01E', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
     const mime = types.find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
     if (!mime) { status('Enregistrement vidéo non supporté par ce navigateur (utilise Chrome).'); return; }
-    const rec = new MediaRecorder(cv.captureStream(FPS), { mimeType: mime, videoBitsPerSecond: 28e6 }), chunks = [];
+    const stream = cv.captureStream(FPS); let mdest = null;
+    if (withAudio) { if (actx.state === 'suspended') await actx.resume(); mdest = actx.createMediaStreamDestination(); mdest.stream.getAudioTracks().forEach((tr) => stream.addTrack(tr)); }
+    const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 28e6, audioBitsPerSecond: 192000 }), chunks = [];
     rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
     rec.onstop = () => {
       const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm', blob = new Blob(chunks, { type: mime.split(';')[0] });
@@ -233,7 +256,7 @@
     };
     status(`🎬 Enregistrement en cours… (${Math.round(DUR)} s)`);
     rec.start(500);
-    play(() => setTimeout(() => rec.stop(), 300));
+    play(() => setTimeout(() => rec.stop(), 300), mdest);
   }
   $('btnPlay').onclick = () => play();
   $('btnRec').onclick = () => record();
