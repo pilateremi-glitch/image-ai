@@ -60,5 +60,5 @@ Sans `?twitch=`, l'overlay utilise le nom de la scène OBS (ancien mode).
 ## Mode séparateur PORTRAIT / OPENING (`?layout=split`)
 Bande entre la caméra PORTRAIT et la caméra OPENING, avec le logo animé et l'heure.
 S'adapte au format de la source : vertical → caméras haut/bas, horizontal → gauche/droite.
-Options : `&split=0.45` (position de la bande, 0.2–0.8), `&frames=0` (sans cadres), `&labels=0` (sans étiquettes),
+Options : `&split=0.4` (position de la bande, 0.2–0.8 ; 0.4 par défaut = 40 % PORTRAIT en haut, 60 % OPENING en bas), `&frames=0` (sans cadres), `&labels=0` (sans étiquettes),
 `&zone1=MOI&zone2=CARTES` (textes des étiquettes), `&scale=0.8` (taille du logo).

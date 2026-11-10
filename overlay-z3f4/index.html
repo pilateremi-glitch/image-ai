@@ -48,7 +48,7 @@ if (Q.get('hud') === '0') document.body.classList.add('nohud');
 // Mode séparateur : ?layout=split  (bande entre la caméra PORTRAIT et la caméra OPENING)
 // S'adapte au format de la scène OBS : vertical (9:16) -> bande horizontale, horizontal (16:9) -> bande verticale.
 const LAYOUT = (Q.get('layout') || window.OVERLAY_LAYOUT || 'center').toLowerCase();
-const SPLIT = Math.min(0.8, Math.max(0.2, +Q.get('split') || window.OVERLAY_SPLIT || 0.5));
+const SPLIT = Math.min(0.8, Math.max(0.2, +Q.get('split') || window.OVERLAY_SPLIT || 0.4));
 const FRAMES = Q.get('frames') !== '0', LABELS = Q.get('labels') !== '0';
 const ZONE1 = (Q.get('zone1') || 'PORTRAIT').toUpperCase(), ZONE2 = (Q.get('zone2') || 'OPENING').toUpperCase();
 if (LAYOUT === 'split') document.body.classList.add('split');

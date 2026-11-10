@@ -12,7 +12,7 @@ VARIANTS = [
   ('03 - SEPARATEUR Portrait + Opening (theme auto selon la scene OBS)', None,
    "Bande qui SÉPARE les 2 caméras : PORTRAIT (toi) et OPENING (les cartes).\n"
    "Elle s'adapte toute seule au format de ta scène OBS :\n"
-   "  - scène verticale (1080x1920, Whatnot / Voggt) -> PORTRAIT en haut, OPENING en bas, bande horizontale au milieu\n"
+   "  - scène verticale (1080x1920, Whatnot / Voggt) -> PORTRAIT en haut (40 %), OPENING en bas (60 %, plus de place pour les cartes)\n"
    "  - scène horizontale (1920x1080) -> PORTRAIT à gauche, OPENING à droite, bande verticale au milieu\n"
    "Le logo animé (Pokéball / chapeau) et l'heure sont dans la bande.\n\n"
    "PLACEMENT DES CAMÉRAS : mets la source Navigateur AU-DESSUS des 2 caméras,\n"

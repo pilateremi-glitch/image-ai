@@ -1,6 +1,6 @@
 Bande qui SÉPARE les 2 caméras : PORTRAIT (toi) et OPENING (les cartes).
 Elle s'adapte toute seule au format de ta scène OBS :
-  - scène verticale (1080x1920, Whatnot / Voggt) -> PORTRAIT en haut, OPENING en bas, bande horizontale au milieu
+  - scène verticale (1080x1920, Whatnot / Voggt) -> PORTRAIT en haut (40 %), OPENING en bas (60 %, plus de place pour les cartes)
   - scène horizontale (1920x1080) -> PORTRAIT à gauche, OPENING à droite, bande verticale au milieu
 Le logo animé (Pokéball / chapeau) et l'heure sont dans la bande.
 
