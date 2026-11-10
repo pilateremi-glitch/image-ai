@@ -1,4 +1,9 @@
-Thème Pokémon fixe : la Pokéball tourne, s'ouvre et laisse apparaître le logo Z3F4.
+Overlay des soirées POKÉMON.
+À chaque passage, une balle différente tourne, s'ouvre et laisse apparaître le logo :
+  Poké Ball -> Super Ball -> Hyper Ball -> Master Ball -> Honor Ball, puis on recommence.
+Le couvercle s'ouvre d'avant en arrière et le nom de la balle s'affiche dans la bande.
+Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».
+S'adapte au format de ta scène OBS (vertical ou horizontal).
 
 INSTALLATION DANS OBS (2 minutes)
 1. Sources -> + -> Navigateur -> nomme-la « Overlay Z3F4 ».

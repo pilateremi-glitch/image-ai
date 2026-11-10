@@ -1,12 +1,7 @@
 DOSSIER OVER - Overlays Z3F4 « Le Rainté du TCG »
 
-00 -> INSTALLER DANS OBS : double-clic, suis les 4 étapes. Ajoute les overlays 04 (Pokémon) et 05 (One Piece)
-      dans ta scène OBS, avec des boutons pour les afficher ou les masquer.
+OVERLAY POKEMON   -> soirées Pokémon : Poké / Super / Hyper / Master / Honor Ball qui s'ouvrent sur le logo
+OVERLAY ONE PIECE -> soirées One Piece : 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)
 
-01 -> Live Pokémon uniquement
-02 -> Live One Piece uniquement
-03 -> Bande de séparation PORTRAIT / OPENING, s'adapte au format vertical ou horizontal de la scène OBS
-04 -> Même séparateur, version POKÉMON avec Poké / Super / Hyper / Master / Honor Ball
-05 -> Même séparateur, version ONE PIECE avec 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)
-
-Ouvre le LISEZ-MOI.txt du dossier choisi pour l'installation dans OBS.
+INSTALLER DANS OBS (double-clic) -> ajoute les 2 overlays dans ta scène OBS,
+avec des boutons pour afficher / masquer chacun.

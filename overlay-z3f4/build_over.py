@@ -5,32 +5,15 @@ ROOT = SRC.parent
 OUT = ROOT / 'OVER'
 html = (SRC / 'index.html').read_text(encoding='utf-8')
 VARIANTS = [
-  ('01 - Overlay POKEMON (Pokeball qui s ouvre)', 'pokemon',
-   "Thème Pokémon fixe : la Pokéball tourne, s'ouvre et laisse apparaître le logo Z3F4."),
-  ('02 - Overlay ONE PIECE (Chapeau de paille qui se retourne)', 'onepiece',
-   "Thème One Piece fixe : le chapeau de paille tourne, se retourne et le logo sort de l'intérieur."),
-  ('03 - SEPARATEUR Portrait + Opening (theme auto selon la scene OBS)', None,
-   "Bande qui SÉPARE les 2 caméras : PORTRAIT (toi) et OPENING (les cartes).\n"
-   "Elle s'adapte toute seule au format de ta scène OBS :\n"
-   "  - scène verticale (1080x1920, Whatnot / Voggt) -> PORTRAIT en haut (40 %), OPENING en bas (60 %, plus de place pour les cartes)\n"
-   "  - scène horizontale (1920x1080) -> PORTRAIT à gauche, OPENING à droite, bande verticale au milieu\n"
-   "Le logo animé (Pokéball / chapeau) et l'heure sont dans la bande. Badge « ● LIVE » en haut à droite.\n\n"
-   "PLACEMENT DES CAMÉRAS : mets la source Navigateur AU-DESSUS des 2 caméras,\n"
-   "puis cale la caméra PORTRAIT au-dessus de la bande et la caméra OPENING en dessous.\n"
-   "IMPORTANT : la taille de la source Navigateur = la taille de ta scène OBS\n"
-   "(Paramètres -> Vidéo -> Résolution de base), par ex. 1080 x 1920 en vertical.\n\n"
-   "Thème automatique selon le NOM de la scène OBS : « pokemon » -> Pokéball, « one piece » / « op » -> chapeau.\n"
-   "Dans les propriétés de la source, mets « Accès à la page » sur\n"
-   "« Accès en lecture aux informations de l'utilisateur ».", 'split'),
-  ('04 - SEPARATEUR POKEMON (Poke Ball, Super Ball, Hyper Ball, Master Ball, Honor Ball)', 'pokemonplus',
-   "Copie du séparateur 03, version 100 % POKÉMON.\n"
+  ('OVERLAY POKEMON', 'pokemonplus',
+   "Overlay des soirées POKÉMON.\n"
    "À chaque passage, une balle différente tourne, s'ouvre et laisse apparaître le logo :\n"
    "  Poké Ball -> Super Ball -> Hyper Ball -> Master Ball -> Honor Ball, puis on recommence.\n"
    "Le couvercle s'ouvre d'avant en arrière et le nom de la balle s'affiche dans la bande.\n"
    "Bande PORTRAIT (haut, 40 %) / OPENING (bas, 60 %), heure, badge « ● LIVE ».\n"
    "S'adapte au format de ta scène OBS (vertical ou horizontal).", 'split'),
-  ('05 - SEPARATEUR ONE PIECE (14 personnages - pirates, mechants, marine)', 'onepieceplus',
-   "Copie du séparateur 03, version 100 % ONE PIECE.\n"
+  ('OVERLAY ONE PIECE', 'onepieceplus',
+   "Overlay des soirées ONE PIECE.\n"
    "À chaque passage, l'objet emblématique d'un personnage tourne, se retourne et le logo sort de l'intérieur.\n"
    "Le nom du personnage s'affiche dans la bande. Ordre (bons / méchants / Marine mélangés) :\n"
    "  LUFFY (chapeau de paille) - BARBE NOIRE (tricorne tête de mort) - MARINE (casquette à ancre)\n"
@@ -70,22 +53,18 @@ for name, theme, desc, *layout in VARIANTS:
     (d / 'LISEZ-MOI.txt').write_text(desc + '\n' + COMMON, encoding='utf-8')
 (OUT / 'LISEZ-MOI EN PREMIER.txt').write_text(
 "DOSSIER OVER - Overlays Z3F4 « Le Rainté du TCG »\n\n"
-"00 -> INSTALLER DANS OBS : double-clic, suis les 4 étapes. Ajoute les overlays 04 (Pokémon) et 05 (One Piece)\n"
-"      dans ta scène OBS, avec des boutons pour les afficher ou les masquer.\n\n"
-"01 -> Live Pokémon uniquement\n02 -> Live One Piece uniquement\n"
-"03 -> Bande de séparation PORTRAIT / OPENING, s'adapte au format vertical ou horizontal de la scène OBS\n"
-"04 -> Même séparateur, version POKÉMON avec Poké / Super / Hyper / Master / Honor Ball\n"
-"05 -> Même séparateur, version ONE PIECE avec 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)\n\n"
-"Ouvre le LISEZ-MOI.txt du dossier choisi pour l'installation dans OBS.\n", encoding='utf-8')
+"OVERLAY POKEMON   -> soirées Pokémon : Poké / Super / Hyper / Master / Honor Ball qui s'ouvrent sur le logo\n"
+"OVERLAY ONE PIECE -> soirées One Piece : 14 personnages (Luffy, Zoro, Sanji, Robin, Ace, Law, Barbe Noire, Marine...)\n\n"
+"INSTALLER DANS OBS (double-clic) -> ajoute les 2 overlays dans ta scène OBS,\n"
+"avec des boutons pour afficher / masquer chacun.\n", encoding='utf-8')
 # Installateur OBS (WebSocket) : ajoute 04 et 05 dans une scène, avec boutons afficher / masquer
 import json, re
 inst = (SRC / 'installer-obs.html').read_text(encoding='utf-8')
-dirs = {v[0][:2]: v[0] for v in VARIANTS}
-ovs = [{'name': 'Z3F4 Pokemon', 'dir': dirs['04'], 'theme': 'pk', 'visible': True},
-       {'name': 'Z3F4 One Piece', 'dir': dirs['05'], 'theme': 'op', 'visible': False}]
+ovs = [{'name': 'Z3F4 Pokemon', 'dir': 'OVERLAY POKEMON', 'theme': 'pk', 'visible': True},
+       {'name': 'Z3F4 One Piece', 'dir': 'OVERLAY ONE PIECE', 'theme': 'op', 'visible': False}]
 inst, n = re.subn(r'/\*OVERLAYS\*/.*?/\*END\*/', lambda m: json.dumps(ovs, ensure_ascii=False), inst, flags=re.S)
 assert n == 1
-(OUT / '00 - INSTALLER DANS OBS (double-clic).html').write_text(inst, encoding='utf-8')
+(OUT / 'INSTALLER DANS OBS (double-clic).html').write_text(inst, encoding='utf-8')
 z = ROOT / 'OVER.zip'
 with zipfile.ZipFile(z, 'w', zipfile.ZIP_DEFLATED) as zf:
     for f in sorted(OUT.rglob('*')):

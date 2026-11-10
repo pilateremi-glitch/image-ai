@@ -67,12 +67,12 @@ Options : `&split=0.4` (position de la bande, 0.2–0.8 ; 0.4 par défaut = 40 %
 - `pokemonplus` : Poké Ball → Super Ball → Hyper Ball → Master Ball → Honor Ball, une balle par passage.
 - `onepieceplus` : 14 personnages, chacun par son objet emblématique : Luffy, Barbe Noire, Marine, Zoro (3 sabres), Doflamingo,
   Chopper (bois de renne), Sanji (jambe en feu), Mihawk, Robin (fleur de mains), Ace, Kuma, Brook, Law, Sabo. Le nom s'affiche dans la bande.
-Dossiers prêts à l'emploi : `OVER/04 …` et `OVER/05 …`.
+Dossiers prêts à l'emploi : `OVER/OVERLAY POKEMON` et `OVER/OVERLAY ONE PIECE` (le dossier OVER ne contient plus que ces deux overlays + l'installateur).
 
-## Installation automatique dans OBS (`OVER/00 - INSTALLER DANS OBS (double-clic).html`)
+## Installation automatique dans OBS (`OVER/INSTALLER DANS OBS (double-clic).html`)
 Page locale qui se connecte au serveur WebSocket intégré à OBS (28+) :
 1. OBS → Outils → Paramètres du serveur WebSocket → Activer → copier le mot de passe.
 2. Double-clic sur l'installateur → mot de passe → Connecter → choisir la scène → Installer les 2 overlays.
-3. « Z3F4 Pokemon » (dossier 04) est ajouté visible, « Z3F4 One Piece » (dossier 05) masqué, au-dessus des caméras,
+3. « Z3F4 Pokemon » (OVERLAY POKEMON) est ajouté visible, « Z3F4 One Piece » (OVERLAY ONE PIECE) masqué, au-dessus des caméras,
    à la taille de la scène. Les boutons Afficher / Masquer de la page (ou l'œil dans OBS) basculent la visibilité.
 Relancer l'installation met à jour les sources sans créer de doublon.
